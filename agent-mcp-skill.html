@@ -1,0 +1,808 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Agent、MCP 与 Skill：概念和关系</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #172026;
+        --muted: #5d6972;
+        --paper: #f6f8f7;
+        --panel: #ffffff;
+        --line: #dbe2e0;
+        --agent: #0f6f79;
+        --mcp: #8a4c12;
+        --skill: #5c58a6;
+        --model: #9b324c;
+        --safe: #20724f;
+        --dark: #202a31;
+        --soft-agent: #e2f4f5;
+        --soft-mcp: #fff0d8;
+        --soft-skill: #eeeefb;
+        --soft-model: #fae8ee;
+        --soft-safe: #e6f3ec;
+        --shadow: 0 18px 54px rgba(24, 32, 38, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, #eef6f5 0, rgba(246, 248, 247, 0) 520px),
+          var(--paper);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid rgba(219, 226, 224, 0.9);
+        background: rgba(246, 248, 247, 0.92);
+        backdrop-filter: blur(14px);
+      }
+
+      .topbar-inner,
+      main {
+        width: min(1180px, calc(100% - 36px));
+        margin: 0 auto;
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 58px;
+        gap: 18px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        font-weight: 850;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        background: var(--dark);
+        color: #fff;
+        font-size: 13px;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px 16px;
+      }
+
+      nav a {
+        color: var(--muted);
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      nav a:hover {
+        color: var(--agent);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.94fr) minmax(420px, 1.06fr);
+        gap: 46px;
+        align-items: center;
+        min-height: calc(100vh - 58px);
+        padding: 58px 0 46px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 18px;
+        color: var(--agent);
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 34px;
+        height: 2px;
+        background: var(--agent);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 24px;
+        font-size: clamp(42px, 7vw, 74px);
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin-bottom: 12px;
+        font-size: 34px;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin-bottom: 10px;
+        font-size: 21px;
+      }
+
+      .lead {
+        max-width: 720px;
+        margin-bottom: 30px;
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1.75;
+      }
+
+      .summary-box {
+        display: grid;
+        gap: 12px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-left: 6px solid var(--agent);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(24, 32, 38, 0.07);
+      }
+
+      .summary-box strong {
+        font-size: 20px;
+      }
+
+      .summary-box p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .relationship-map {
+        position: relative;
+        padding: 26px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.76)),
+          linear-gradient(180deg, rgba(15, 111, 121, 0.12), rgba(92, 88, 166, 0.09));
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .relationship-map::before {
+        content: "";
+        position: absolute;
+        inset: 20px;
+        border: 1px solid rgba(219, 226, 224, 0.82);
+        border-radius: 8px;
+        pointer-events: none;
+      }
+
+      .map-title {
+        position: relative;
+        margin-bottom: 18px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .flow-lanes {
+        position: relative;
+        display: grid;
+        gap: 12px;
+      }
+
+      .lane {
+        display: grid;
+        grid-template-columns: 134px 1fr;
+        gap: 14px;
+        align-items: center;
+        min-height: 78px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-left: 6px solid var(--model);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.9);
+      }
+
+      .lane.agent {
+        border-left-color: var(--agent);
+      }
+
+      .lane.skill {
+        border-left-color: var(--skill);
+      }
+
+      .lane.mcp {
+        border-left-color: var(--mcp);
+      }
+
+      .lane.safe {
+        border-left-color: var(--safe);
+      }
+
+      .lane b {
+        font-size: 16px;
+      }
+
+      .lane span {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      .flow-caption {
+        position: relative;
+        margin-top: 16px;
+        padding: 16px;
+        border: 1px dashed rgba(15, 111, 121, 0.38);
+        border-radius: 8px;
+        background: rgba(226, 244, 245, 0.58);
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      section {
+        padding: 60px 0;
+      }
+
+      .section-head {
+        max-width: 790px;
+        margin-bottom: 28px;
+      }
+
+      .section-head p {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.75;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 24px;
+        box-shadow: 0 12px 34px rgba(24, 32, 38, 0.06);
+      }
+
+      .panel p,
+      .panel li {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      .panel p:last-child {
+        margin-bottom: 0;
+      }
+
+      .tag {
+        display: inline-flex;
+        margin-bottom: 16px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: var(--soft-agent);
+        color: var(--agent);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .tag.mcp {
+        background: var(--soft-mcp);
+        color: var(--mcp);
+      }
+
+      .tag.skill {
+        background: var(--soft-skill);
+        color: var(--skill);
+      }
+
+      .tag.safe {
+        background: var(--soft-safe);
+        color: var(--safe);
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .compare {
+        overflow: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(24, 32, 38, 0.06);
+      }
+
+      table {
+        width: 100%;
+        min-width: 760px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 16px 18px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #f0f4f3;
+        font-size: 14px;
+      }
+
+      td {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .scenario {
+        display: grid;
+        gap: 12px;
+      }
+
+      .scenario-row {
+        display: grid;
+        grid-template-columns: 148px minmax(0, 1fr);
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .role {
+        display: grid;
+        place-items: center;
+        min-height: 92px;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: 850;
+        text-align: center;
+      }
+
+      .role.user {
+        background: var(--dark);
+      }
+
+      .role.agent {
+        background: var(--agent);
+      }
+
+      .role.skill {
+        background: var(--skill);
+      }
+
+      .role.mcp {
+        background: var(--mcp);
+      }
+
+      .role.result {
+        background: var(--safe);
+      }
+
+      .scenario-detail {
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .scenario-detail p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .formula {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+        align-items: stretch;
+      }
+
+      .formula-card {
+        min-height: 142px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .formula-card b {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 18px;
+      }
+
+      .formula-card span {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .source-note {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      footer {
+        padding: 40px 18px 54px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      @media (max-width: 940px) {
+        .hero,
+        .grid-3,
+        .grid-2,
+        .formula {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+          padding-top: 42px;
+        }
+
+        .relationship-map {
+          order: -1;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 12px 0;
+        }
+
+        nav {
+          justify-content: flex-start;
+        }
+
+        h1 {
+          font-size: 42px;
+        }
+
+        h2 {
+          font-size: 28px;
+        }
+
+        .lane,
+        .scenario-row {
+          grid-template-columns: 1fr;
+        }
+
+        .role {
+          min-height: 58px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#top" aria-label="回到顶部">
+          <span class="brand-mark">AI</span>
+          <span>Agent / MCP / Skill</span>
+        </a>
+        <nav aria-label="页面导航">
+          <a href="#concepts">三个概念</a>
+          <a href="#relationship">关系图</a>
+          <a href="#scenario">任务例子</a>
+          <a href="#compare">容易混淆</a>
+          <a href="#summary">总结</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">从“会回答”到“会做事”</p>
+          <h1 id="hero-title">Agent、MCP 与 Skill 到底是什么</h1>
+          <p class="lead">
+            它们经常一起出现，但不是同一层东西。Agent 是目标驱动的执行者，MCP 是连接外部工具和上下文的接口层，Skill 是让 Agent 做某类任务更专业的方法包。
+          </p>
+          <div class="summary-box">
+            <strong>一句话理解</strong>
+            <p>
+              Agent 决定“要做什么、下一步做什么”；MCP 解决“能连接什么、能调用什么”；Skill 解决“这类任务应该怎么做得更好”。
+            </p>
+          </div>
+        </div>
+
+        <div class="relationship-map" aria-label="Agent、MCP 与 Skill 的关系总览">
+          <div class="map-title">概念关系总览</div>
+          <div class="flow-lanes">
+            <div class="lane">
+              <b>用户目标</b>
+              <span>用自然语言描述想要的结果，例如生成报告、分析数据、修改网页或创建 PPT。</span>
+            </div>
+            <div class="lane agent">
+              <b>Agent</b>
+              <span>理解目标，拆解任务，选择策略，调用工具，观察结果，并持续修正。</span>
+            </div>
+            <div class="lane skill">
+              <b>Skill</b>
+              <span>给 Agent 提供专业流程、模板、检查清单和领域经验，让任务执行更稳定。</span>
+            </div>
+            <div class="lane mcp">
+              <b>MCP</b>
+              <span>把 Agent 连接到外部系统，例如文件、数据库、浏览器、设计稿、CRM 或内部工具。</span>
+            </div>
+            <div class="lane safe">
+              <b>结果与边界</b>
+              <span>输出真实结果，同时受权限、沙箱、审批和数据访问范围约束。</span>
+            </div>
+          </div>
+          <p class="flow-caption">
+            更准确的关系不是三者平级拼在一起，而是：Agent 在中间负责调度；Skill 像专业操作手册；MCP 像标准插座和连接协议。
+          </p>
+        </div>
+      </section>
+
+      <section id="concepts" aria-labelledby="concepts-title">
+        <div class="section-head">
+          <h2 id="concepts-title">一、三个概念分别是什么</h2>
+          <p>
+            可以把一个 Agent 系统想象成“会思考的人 + 可调用的工具 + 专业工作方法”。Agent、MCP、Skill 分别对应不同职责。
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <article class="panel">
+            <span class="tag">Agent</span>
+            <h3>目标驱动的执行者</h3>
+            <p>
+              Agent 不是单次问答，而是围绕一个目标持续行动的系统。它会理解用户意图、拆解步骤、选择工具、执行动作、观察结果，并在失败时调整路径。
+            </p>
+            <ul>
+              <li>核心问题：现在应该做什么？</li>
+              <li>典型动作：计划、执行、验证、修正。</li>
+              <li>产物：文件、报告、代码、网页、分析结论或自动化流程。</li>
+            </ul>
+          </article>
+
+          <article class="panel">
+            <span class="tag mcp">MCP</span>
+            <h3>连接工具和上下文的协议</h3>
+            <p>
+              MCP 是 Model Context Protocol，用来让 AI 应用以统一方式连接外部工具、数据源和上下文。它关心的是“怎么接入”，不是“怎么思考”。
+            </p>
+            <ul>
+              <li>核心问题：Agent 能访问哪些外部能力？</li>
+              <li>典型对象：文件系统、数据库、浏览器、设计工具、业务系统。</li>
+              <li>价值：减少每个工具都单独适配的成本。</li>
+            </ul>
+          </article>
+
+          <article class="panel">
+            <span class="tag skill">Skill</span>
+            <h3>可复用的专业方法包</h3>
+            <p>
+              Skill 是一组任务相关的本地说明、模板、脚本、参考资料或操作规范。它让 Agent 在特定任务上不只“会尝试”，而是按成熟流程工作。
+            </p>
+            <ul>
+              <li>核心问题：这类任务怎样做才专业？</li>
+              <li>典型内容：步骤、格式、约束、示例、质量检查。</li>
+              <li>价值：把经验沉淀成可重复调用的方法。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section id="relationship" aria-labelledby="relationship-title">
+        <div class="section-head">
+          <h2 id="relationship-title">二、它们之间是什么关系</h2>
+          <p>
+            Agent、MCP、Skill 的关系像“项目负责人、接口系统、专业手册”。三者配合后，AI 才能从回答问题走向完成任务。
+          </p>
+        </div>
+
+        <div class="formula">
+          <div class="formula-card">
+            <b>模型</b>
+            <span>提供语言理解、推理、生成和判断能力，是 Agent 的智能核心。</span>
+          </div>
+          <div class="formula-card">
+            <b>Agent</b>
+            <span>把模型能力组织成多步任务，负责计划、调度和闭环。</span>
+          </div>
+          <div class="formula-card">
+            <b>Skill</b>
+            <span>告诉 Agent 在具体任务中应该遵循什么流程和标准。</span>
+          </div>
+          <div class="formula-card">
+            <b>MCP</b>
+            <span>让 Agent 通过标准接口使用外部工具、数据和上下文。</span>
+          </div>
+          <div class="formula-card">
+            <b>安全边界</b>
+            <span>限制能读写什么、能联网到哪里、哪些动作需要用户确认。</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="scenario" aria-labelledby="scenario-title">
+        <div class="section-head">
+          <h2 id="scenario-title">三、用一个具体任务看懂</h2>
+          <p>
+            假设你说：“帮我做一个世界杯介绍 PPT”。这句话背后会涉及不同层的分工。
+          </p>
+        </div>
+
+        <div class="scenario">
+          <div class="scenario-row">
+            <div class="role user">用户目标</div>
+            <div class="scenario-detail">
+              <h3>“做一个世界杯介绍 PPT”</h3>
+              <p>用户只描述最终结果，不需要先列出所有步骤、工具和格式。</p>
+            </div>
+          </div>
+          <div class="scenario-row">
+            <div class="role agent">Agent</div>
+            <div class="scenario-detail">
+              <h3>把目标拆成任务</h3>
+              <p>判断这是“内容策划 + 资料整理 + 版式设计 + PPT 文件生成”的复合任务，安排封面、历史、赛制、经典球队、数据图表和总结页。</p>
+            </div>
+          </div>
+          <div class="scenario-row">
+            <div class="role skill">Skill</div>
+            <div class="scenario-detail">
+              <h3>套用演示文稿制作方法</h3>
+              <p>控制每页信息密度、标题层级、图文比例、演讲节奏和最终检查项，避免把 PPT 做成一堆长段落。</p>
+            </div>
+          </div>
+          <div class="scenario-row">
+            <div class="role mcp">MCP / 工具</div>
+            <div class="scenario-detail">
+              <h3>连接资料和生成能力</h3>
+              <p>可能读取本地素材、查询公开资料、调用图片资源、使用文档处理工具生成 `.pptx`，并把文件保存到工作区。</p>
+            </div>
+          </div>
+          <div class="scenario-row">
+            <div class="role result">结果</div>
+            <div class="scenario-detail">
+              <h3>交付一个可打开的文件</h3>
+              <p>Agent 不只是告诉你“应该怎么做 PPT”，而是尽量产出真实文件，并检查文件是否生成成功。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="compare" aria-labelledby="compare-title">
+        <div class="section-head">
+          <h2 id="compare-title">四、几个容易混淆的问题</h2>
+          <p>
+            这些概念之所以容易混，是因为它们都会出现在同一个 AI 产品里。但判断维度不同：谁在决策、谁在连接、谁在提供方法。
+          </p>
+        </div>
+
+        <div class="compare">
+          <table>
+            <thead>
+              <tr>
+                <th>问题</th>
+                <th>答案</th>
+                <th>记忆方式</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>MCP 是 Agent 吗？</strong></td>
+                <td>不是。MCP 是协议和连接层，它让 Agent 能接入工具和上下文。</td>
+                <td>MCP 像 USB-C 或插座，不是使用插座的人。</td>
+              </tr>
+              <tr>
+                <td><strong>Skill 是工具吗？</strong></td>
+                <td>不完全是。Skill 更像方法包，里面可以包含说明、模板、脚本和参考资料。</td>
+                <td>Skill 像菜谱，工具像锅和刀。</td>
+              </tr>
+              <tr>
+                <td><strong>Agent 只等于大模型吗？</strong></td>
+                <td>不是。大模型是智能核心，Agent 还包括任务循环、工具调用、上下文管理和验证机制。</td>
+                <td>模型会思考，Agent 会推进任务。</td>
+              </tr>
+              <tr>
+                <td><strong>三者必须同时出现吗？</strong></td>
+                <td>不一定。简单任务可能只需要 Agent 和基础工具；复杂任务更需要 Skill 和 MCP 扩展。</td>
+                <td>复杂度越高，越需要分层。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="summary" aria-labelledby="summary-title">
+        <div class="section-head">
+          <h2 id="summary-title">五、最终总结</h2>
+          <p>
+            最简单的理解方式，是把它们放进一条任务链里看。
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <span class="tag">核心公式</span>
+            <h3>Agent = 目标 + 推理 + 行动循环</h3>
+            <p>
+              Agent 的价值在于把一次回答变成持续推进：理解目标，收集上下文，调用能力，观察结果，再修正下一步。
+            </p>
+          </article>
+          <article class="panel">
+            <span class="tag skill">协作公式</span>
+            <h3>Agent 做决策，Skill 给方法，MCP 接世界</h3>
+            <p>
+              Skill 让 Agent 更专业，MCP 让 Agent 能连接更多真实系统。三者组合后，AI 才更像一个可以被委托任务的协作者。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="sources-title">
+        <div class="source-note">
+          <h2 id="sources-title">参考说明</h2>
+          <p>
+            本页是面向非工程读者的解释版，重点放在概念分层和产品理解。MCP 指 Model Context Protocol；Skill 指 AI Agent 可按需加载的专业任务方法包；Agent 指围绕目标进行规划、工具调用和结果验证的执行系统。
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>Agent、MCP 与 Skill：概念和关系解释页。</footer>
+  </body>
+</html>
