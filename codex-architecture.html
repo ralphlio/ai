@@ -1,0 +1,1069 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Codex 技术原理与 Agent 产品架构</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #182026;
+        --muted: #5d6872;
+        --subtle: #7a858d;
+        --paper: #f6f8f7;
+        --panel: #ffffff;
+        --line: #d9e1e0;
+        --agent: #0f6f79;
+        --tool: #8a4c12;
+        --skill: #5c58a6;
+        --safe: #20724f;
+        --cloud: #9b324c;
+        --dark: #202a31;
+        --soft-agent: #e2f4f5;
+        --soft-tool: #fff0d8;
+        --soft-skill: #eeeefb;
+        --soft-safe: #e6f3ec;
+        --soft-cloud: #fae8ee;
+        --shadow: 0 18px 54px rgba(24, 32, 38, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          linear-gradient(180deg, #eef6f5 0, rgba(246, 248, 247, 0) 440px),
+          var(--paper);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 36px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid rgba(217, 225, 224, 0.86);
+        background: rgba(246, 248, 247, 0.9);
+        backdrop-filter: blur(14px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: min(1180px, calc(100% - 36px));
+        min-height: 58px;
+        margin: 0 auto;
+        gap: 18px;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        font-weight: 850;
+        text-decoration: none;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 7px;
+        background: var(--dark);
+        color: #fff;
+        font-size: 13px;
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 8px 16px;
+      }
+
+      nav a {
+        color: var(--muted);
+        font-size: 14px;
+        text-decoration: none;
+      }
+
+      nav a:hover {
+        color: var(--agent);
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 0.92fr) minmax(420px, 1.08fr);
+        gap: 46px;
+        align-items: center;
+        min-height: calc(100vh - 58px);
+        padding: 58px 0 44px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 18px;
+        color: var(--agent);
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 34px;
+        height: 2px;
+        background: var(--agent);
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 24px;
+        font-size: clamp(42px, 7vw, 76px);
+        line-height: 1;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 720px;
+        margin-bottom: 30px;
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1.75;
+      }
+
+      .thesis {
+        display: grid;
+        gap: 12px;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-left: 6px solid var(--agent);
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 12px 34px rgba(24, 32, 38, 0.07);
+      }
+
+      .thesis strong {
+        font-size: 20px;
+      }
+
+      .thesis p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .architecture-visual {
+        position: relative;
+        padding: 26px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.78)),
+          linear-gradient(180deg, rgba(15, 111, 121, 0.12), rgba(155, 50, 76, 0.08));
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .architecture-visual::before {
+        content: "";
+        position: absolute;
+        inset: 20px;
+        border: 1px solid rgba(217, 225, 224, 0.78);
+        border-radius: 8px;
+        pointer-events: none;
+      }
+
+      .visual-title {
+        position: relative;
+        margin-bottom: 18px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .arch-stack {
+        position: relative;
+        display: grid;
+        gap: 10px;
+      }
+
+      .arch-layer {
+        display: grid;
+        grid-template-columns: 138px 1fr;
+        gap: 14px;
+        align-items: center;
+        min-height: 72px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-left: 6px solid var(--agent);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.86);
+      }
+
+      .arch-layer:nth-child(2) {
+        border-left-color: var(--skill);
+      }
+
+      .arch-layer:nth-child(3) {
+        border-left-color: var(--tool);
+      }
+
+      .arch-layer:nth-child(4) {
+        border-left-color: var(--safe);
+      }
+
+      .arch-layer:nth-child(5) {
+        border-left-color: var(--cloud);
+      }
+
+      .arch-layer b {
+        font-size: 16px;
+      }
+
+      .arch-layer span {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.45;
+      }
+
+      section {
+        padding: 60px 0;
+      }
+
+      .section-head {
+        max-width: 790px;
+        margin-bottom: 28px;
+      }
+
+      h2 {
+        margin-bottom: 12px;
+        font-size: 34px;
+        letter-spacing: 0;
+      }
+
+      .section-head p {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.75;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 18px;
+      }
+
+      .panel {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+        padding: 24px;
+        box-shadow: 0 12px 34px rgba(24, 32, 38, 0.06);
+      }
+
+      .panel h3 {
+        margin-bottom: 10px;
+        font-size: 22px;
+      }
+
+      .panel p,
+      .panel li {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.65;
+      }
+
+      .panel p:last-child {
+        margin-bottom: 0;
+      }
+
+      .tag {
+        display: inline-flex;
+        margin-bottom: 16px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        background: var(--soft-agent);
+        color: var(--agent);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .tag.skill {
+        background: var(--soft-skill);
+        color: var(--skill);
+      }
+
+      .tag.tool {
+        background: var(--soft-tool);
+        color: var(--tool);
+      }
+
+      .tag.safe {
+        background: var(--soft-safe);
+        color: var(--safe);
+      }
+
+      .tag.cloud {
+        background: var(--soft-cloud);
+        color: var(--cloud);
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .loop {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .loop-step {
+        position: relative;
+        min-height: 156px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .loop-step::after {
+        content: "→";
+        position: absolute;
+        top: 50%;
+        right: -16px;
+        transform: translateY(-50%);
+        color: var(--cloud);
+        font-size: 23px;
+        font-weight: 900;
+      }
+
+      .loop-step:last-child::after {
+        content: "↺";
+        right: 12px;
+        top: 16px;
+        transform: none;
+        color: var(--agent);
+      }
+
+      .loop-step b {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        margin-bottom: 14px;
+        border-radius: 50%;
+        background: var(--dark);
+        color: #fff;
+        font-size: 14px;
+      }
+
+      .loop-step h3 {
+        margin-bottom: 8px;
+        font-size: 17px;
+      }
+
+      .loop-step p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.5;
+      }
+
+      .capability-map {
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .hub {
+        display: grid;
+        align-content: center;
+        justify-items: center;
+        min-height: 390px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background:
+          linear-gradient(180deg, var(--soft-agent), rgba(255, 255, 255, 0.96)),
+          #fff;
+        text-align: center;
+      }
+
+      .hub-ring {
+        display: grid;
+        place-items: center;
+        width: 180px;
+        height: 180px;
+        border: 12px solid rgba(15, 111, 121, 0.18);
+        border-radius: 50%;
+        background: #fff;
+        box-shadow: inset 0 0 0 2px rgba(15, 111, 121, 0.28);
+      }
+
+      .hub-ring strong {
+        color: var(--agent);
+        font-size: 30px;
+      }
+
+      .hub p {
+        max-width: 320px;
+        margin: 22px 24px 0;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .spokes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+      }
+
+      .spoke {
+        min-height: 138px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 20px;
+      }
+
+      .spoke h3 {
+        margin-bottom: 8px;
+        font-size: 18px;
+      }
+
+      .spoke p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .comparison {
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      table {
+        width: 100%;
+        min-width: 840px;
+        border-collapse: collapse;
+      }
+
+      th,
+      td {
+        padding: 18px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: #ecf2f1;
+        color: #29343a;
+        font-size: 14px;
+      }
+
+      td {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .task-flow {
+        display: grid;
+        gap: 14px;
+      }
+
+      .task-row {
+        display: grid;
+        grid-template-columns: 170px 1fr;
+        gap: 16px;
+        align-items: stretch;
+      }
+
+      .role {
+        display: grid;
+        align-content: center;
+        border-radius: 8px;
+        padding: 18px;
+        color: #fff;
+        font-weight: 850;
+      }
+
+      .role.user {
+        background: var(--dark);
+      }
+
+      .role.agent {
+        background: var(--agent);
+      }
+
+      .role.skill {
+        background: var(--skill);
+      }
+
+      .role.mcp {
+        background: var(--tool);
+      }
+
+      .role.safe {
+        background: var(--safe);
+      }
+
+      .task-detail {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 18px;
+      }
+
+      .task-detail h3 {
+        margin-bottom: 6px;
+        font-size: 18px;
+      }
+
+      .task-detail p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .boundary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+      }
+
+      .boundary-box {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        padding: 24px;
+      }
+
+      .boundary-box h3 {
+        margin-bottom: 12px;
+        font-size: 22px;
+      }
+
+      .boundary-box p,
+      .boundary-box li {
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      .source-note {
+        display: grid;
+        gap: 8px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .source-note p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .source-note a {
+        color: var(--agent);
+      }
+
+      footer {
+        padding: 38px 0 48px;
+        color: var(--subtle);
+        font-size: 14px;
+        text-align: center;
+      }
+
+      @media (max-width: 980px) {
+        .hero,
+        .capability-map,
+        .boundary {
+          grid-template-columns: 1fr;
+        }
+
+        .hero {
+          min-height: auto;
+        }
+
+        .loop {
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .loop-step:nth-child(3)::after {
+          display: none;
+        }
+      }
+
+      @media (max-width: 720px) {
+        main,
+        .topbar-inner {
+          width: min(100% - 24px, 1180px);
+        }
+
+        nav {
+          display: none;
+        }
+
+        h1 {
+          font-size: 42px;
+        }
+
+        h2 {
+          font-size: 28px;
+        }
+
+        .lead {
+          font-size: 17px;
+        }
+
+        .architecture-visual,
+        .panel,
+        .boundary-box {
+          padding: 20px;
+        }
+
+        .arch-layer,
+        .task-row {
+          grid-template-columns: 1fr;
+        }
+
+        .grid-2,
+        .grid-3,
+        .spokes,
+        .loop {
+          grid-template-columns: 1fr;
+        }
+
+        .loop-step::after {
+          top: auto;
+          right: 20px;
+          bottom: -19px;
+          transform: rotate(90deg);
+        }
+
+        .loop-step:nth-child(3)::after {
+          display: block;
+        }
+
+        .loop-step:last-child::after {
+          top: 14px;
+          right: 14px;
+          bottom: auto;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <a class="brand" href="#top" aria-label="回到顶部">
+          <span class="brand-mark">Cx</span>
+          <span>Codex Agent 架构</span>
+        </a>
+        <nav aria-label="页面导航">
+          <a href="#architecture">架构</a>
+          <a href="#loop">执行循环</a>
+          <a href="#capabilities">能力层</a>
+          <a href="#case">任务案例</a>
+          <a href="#safety">安全边界</a>
+        </nav>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <p class="eyebrow">公开信息视角下的产品原理</p>
+          <h1 id="hero-title">Codex 如何从对话助手变成强 Agent</h1>
+          <p class="lead">
+            Codex 的核心不是“多会聊天”，而是把大模型放进一个可执行、可验证、可扩展、受权限约束的工程系统里。
+            它能理解目标、读取项目、调用工具、修改文件、运行检查，并根据结果继续推进。
+          </p>
+          <div class="thesis">
+            <strong>一句话结论</strong>
+            <p>
+              大模型负责推理，Agent 编排层负责闭环行动，MCP 和工具负责连接外部世界，
+              Skill 与项目规则负责注入专业流程，Sandbox 与审批机制负责控制风险。
+            </p>
+          </div>
+        </div>
+
+        <aside class="architecture-visual" aria-label="Codex 产品架构总览">
+          <p class="visual-title">Codex 公开产品架构总览</p>
+          <div class="arch-stack">
+            <div class="arch-layer">
+              <b>产品表面</b>
+              <span>CLI、IDE 插件、Codex App、Codex Web、非交互式执行。</span>
+            </div>
+            <div class="arch-layer">
+              <b>Agent 编排</b>
+              <span>理解意图、收集上下文、制定计划、选择工具、观察结果、继续修正。</span>
+            </div>
+            <div class="arch-layer">
+              <b>能力扩展</b>
+              <span>MCP、Skills、Plugins、AGENTS.md、Automations、Subagents。</span>
+            </div>
+            <div class="arch-layer">
+              <b>执行环境</b>
+              <span>本地工作区、Git worktree、云端容器、CI、浏览器、终端和文件系统。</span>
+            </div>
+            <div class="arch-layer">
+              <b>安全边界</b>
+              <span>Sandbox、Approval policy、网络权限、写入权限、连接器授权。</span>
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section id="architecture" aria-labelledby="architecture-title">
+        <div class="section-head">
+          <h2 id="architecture-title">一、Codex 的产品架构：不是一个聊天框，而是一套执行系统</h2>
+          <p>
+            普通对话助手的主要产物是回答；Codex 的主要产物是工作结果。为了做到这一点，它需要把模型、上下文、工具、权限、持久规则和验证机制组合成一个完整系统。
+          </p>
+        </div>
+
+        <div class="grid-3">
+          <article class="panel">
+            <span class="tag">Model</span>
+            <h3>模型是推理核心</h3>
+            <p>
+              模型负责理解自然语言、分析代码、生成方案、判断错误、编写修改。它像大脑，但大脑本身不能访问文件、运行测试或提交代码。
+            </p>
+          </article>
+          <article class="panel">
+            <span class="tag skill">Orchestrator</span>
+            <h3>编排层让模型行动</h3>
+            <p>
+              Agent 编排层把“用户目标”转成多步行动：先看什么、改哪里、调哪个工具、如何验证、失败后怎么重试。
+            </p>
+          </article>
+          <article class="panel">
+            <span class="tag tool">Tools</span>
+            <h3>工具层连接现实</h3>
+            <p>
+              文件系统、终端、浏览器、Git、MCP Server、文档工具和云端环境，让 Codex 可以从“建议”进入“执行”。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="loop" aria-labelledby="loop-title">
+        <div class="section-head">
+          <h2 id="loop-title">二、Agent 执行循环：强大的关键是闭环</h2>
+          <p>
+            对话助手通常完成一次回答就结束；Codex 会持续观察环境并修正下一步。这个闭环让它能处理真实项目里的不确定性。
+          </p>
+        </div>
+
+        <div class="loop" aria-label="Codex Agent 执行循环">
+          <article class="loop-step">
+            <b>1</b>
+            <h3>理解目标</h3>
+            <p>识别用户要的是解释、修改、生成文件、调试、审查，还是完整交付。</p>
+          </article>
+          <article class="loop-step">
+            <b>2</b>
+            <h3>收集上下文</h3>
+            <p>读取项目文件、现有结构、错误输出、浏览器状态、历史对话和任务约束。</p>
+          </article>
+          <article class="loop-step">
+            <b>3</b>
+            <h3>制定计划</h3>
+            <p>把目标拆成可执行步骤，判断哪些动作需要工具，哪些动作需要确认。</p>
+          </article>
+          <article class="loop-step">
+            <b>4</b>
+            <h3>调用工具</h3>
+            <p>搜索代码、编辑文件、运行命令、查看网页、调用 MCP 或使用专门 Skill。</p>
+          </article>
+          <article class="loop-step">
+            <b>5</b>
+            <h3>观察结果</h3>
+            <p>读取命令输出、测试结果、diff、页面状态或文件生成结果。</p>
+          </article>
+          <article class="loop-step">
+            <b>6</b>
+            <h3>修正继续</h3>
+            <p>如果结果不符合预期，调整方案并进入下一轮，直到达到完成标准。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="capabilities" aria-labelledby="capabilities-title">
+        <div class="section-head">
+          <h2 id="capabilities-title">三、能力层：Codex 为什么能比单纯聊天更强</h2>
+          <p>
+            Codex 的能力来自多层组合。模型给出智能，工具给出行动，规则给出上下文，Skill 给出方法，MCP 给出连接，安全层给出边界。
+          </p>
+        </div>
+
+        <div class="capability-map">
+          <div class="hub">
+            <div class="hub-ring">
+              <strong>Codex</strong>
+            </div>
+            <p>一个面向工程任务的 Agent，把模型推理和真实执行环境连接起来。</p>
+          </div>
+
+          <div class="spokes">
+            <article class="spoke">
+              <span class="tag">AGENTS.md</span>
+              <h3>项目规则</h3>
+              <p>记录仓库结构、测试命令、代码风格、完成标准，让 Codex 按团队习惯工作。</p>
+            </article>
+            <article class="spoke">
+              <span class="tag skill">Skills</span>
+              <h3>任务方法包</h3>
+              <p>把某类任务的步骤、模板、脚本和参考资料封装起来，按需加载。</p>
+            </article>
+            <article class="spoke">
+              <span class="tag tool">MCP</span>
+              <h3>外部连接</h3>
+              <p>用标准协议接入工具、文档、浏览器、Figma、数据库或业务系统。</p>
+            </article>
+            <article class="spoke">
+              <span class="tag cloud">Subagents</span>
+              <h3>并行分工</h3>
+              <p>把阅读、测试、审查、日志分析交给子 Agent，主 Agent 汇总关键结论。</p>
+            </article>
+            <article class="spoke">
+              <span class="tag safe">Sandbox</span>
+              <h3>安全边界</h3>
+              <p>限制 Codex 自动行动的范围，比如可写目录、网络访问和高风险操作。</p>
+            </article>
+            <article class="spoke">
+              <span class="tag cloud">Surfaces</span>
+              <h3>多产品形态</h3>
+              <p>CLI、IDE、桌面 App、Web、云端和 CI，把同一类 Agent 能力放到不同工作流。</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="assistant-title">
+        <div class="section-head">
+          <h2 id="assistant-title">四、和普通对话助手的关键差异</h2>
+          <p>
+            两者都能使用强模型，但默认产品目标不同：对话助手偏“回答和协助思考”，Codex 偏“进入项目并完成可验证结果”。
+          </p>
+        </div>
+
+        <div class="comparison">
+          <table>
+            <thead>
+              <tr>
+                <th>维度</th>
+                <th>普通对话助手</th>
+                <th>Codex Agent</th>
+                <th>为什么重要</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>任务产物</strong></td>
+                <td>解释、建议、代码片段、文案。</td>
+                <td>真实文件、代码改动、测试结果、PR、网页或报告。</td>
+                <td>从“告诉你怎么做”变成“把事情做完”。</td>
+              </tr>
+              <tr>
+                <td><strong>上下文</strong></td>
+                <td>主要依赖用户粘贴或单次上传。</td>
+                <td>围绕项目目录、Git 状态、文件、终端、浏览器和历史线程。</td>
+                <td>能理解真实工程环境，而不是孤立片段。</td>
+              </tr>
+              <tr>
+                <td><strong>行动能力</strong></td>
+                <td>通常以回答为主，工具能力取决于具体产品。</td>
+                <td>读写文件、运行命令、看 diff、调试、验证、使用 MCP 和 Skill。</td>
+                <td>能形成“执行-反馈-修正”的闭环。</td>
+              </tr>
+              <tr>
+                <td><strong>可持续工作</strong></td>
+                <td>对话连续，但任务状态常由用户维护。</td>
+                <td>线程、计划、审批、工作区、自动化和云端任务共同维护状态。</td>
+                <td>适合长任务、复杂任务和重复工作流。</td>
+              </tr>
+              <tr>
+                <td><strong>安全模型</strong></td>
+                <td>多数情况下不直接执行高权限本地操作。</td>
+                <td>通过 sandbox 和 approval policy 控制读写、网络和高风险动作。</td>
+                <td>允许更自主地行动，同时保留明确边界。</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="case" aria-labelledby="case-title">
+        <div class="section-head">
+          <h2 id="case-title">五、任务案例：让 Codex 生成一个世界杯介绍 PPT</h2>
+          <p>
+            这个例子能把 Agent、MCP、Skill、工具和安全边界串起来。重点不是 PPT 本身，而是 Codex 如何把一句目标变成一个真实交付物。
+          </p>
+        </div>
+
+        <div class="task-flow">
+          <div class="task-row">
+            <div class="role user">用户目标</div>
+            <div class="task-detail">
+              <h3>“请生成一个世界杯介绍 PPT”</h3>
+              <p>Codex 识别到交付物是 `.pptx`，主题是世界杯，任务类型是内容创作 + 文件生成，而不是简单问答。</p>
+            </div>
+          </div>
+          <div class="task-row">
+            <div class="role agent">Agent 编排</div>
+            <div class="task-detail">
+              <h3>拆解任务并制定计划</h3>
+              <p>决定页数、受众、目录、每页要点、是否需要图表或图片、如何生成文件、如何检查结果。</p>
+            </div>
+          </div>
+          <div class="task-row">
+            <div class="role skill">Skill 指导</div>
+            <div class="task-detail">
+              <h3>调用“演示文稿制作”方法</h3>
+              <p>控制每页文字量、设计标题层级、安排封面/目录/总结页，让 PPT 像一份可展示材料，而不是堆文本。</p>
+            </div>
+          </div>
+          <div class="task-row">
+            <div class="role mcp">MCP / 工具</div>
+            <div class="task-detail">
+              <h3>连接资料和文件生成能力</h3>
+              <p>可能读取本地素材、查询资料、调用文档处理库、写入 PPT 文件、保存到工作区。</p>
+            </div>
+          </div>
+          <div class="task-row">
+            <div class="role safe">验证与边界</div>
+            <div class="task-detail">
+              <h3>检查文件是否真实生成</h3>
+              <p>如果需要联网找资料或写入工作区外目录，Codex 会受网络权限、文件权限和审批策略约束。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="safety" aria-labelledby="safety-title">
+        <div class="section-head">
+          <h2 id="safety-title">六、安全架构：更强不等于无限制</h2>
+          <p>
+            Codex 能做真实操作，所以必须有边界。公开文档中最重要的两个概念是 sandbox 和 approval policy。
+          </p>
+        </div>
+
+        <div class="boundary">
+          <article class="boundary-box">
+            <span class="tag safe">Sandbox mode</span>
+            <h3>技术边界：能做什么</h3>
+            <p>沙箱定义 Codex 自动执行命令时能访问哪些文件、能否写入、能否联网，以及命令继承什么权限。</p>
+            <ul>
+              <li>本地通常限制在当前工作区。</li>
+              <li>网络访问默认受限制。</li>
+              <li>云端任务运行在隔离环境中。</li>
+            </ul>
+          </article>
+
+          <article class="boundary-box">
+            <span class="tag cloud">Approval policy</span>
+            <h3>决策边界：何时询问</h3>
+            <p>审批策略定义 Codex 什么时候必须停下来问用户，比如越过工作区、访问网络或执行有副作用的高风险操作。</p>
+            <ul>
+              <li>低风险动作可自动执行。</li>
+              <li>越权动作需要用户确认。</li>
+              <li>破坏性工具调用通常需要审批。</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="summary-title">
+        <div class="section-head">
+          <h2 id="summary-title">七、最终总结</h2>
+          <p>
+            Codex 的强大来自“模型智能 + 工具行动 + 项目上下文 + 可复用流程 + 安全边界”的组合。它不是替代 ChatGPT，而是把同类智能放进更适合工程交付的产品架构里。
+          </p>
+        </div>
+
+        <div class="grid-2">
+          <article class="panel">
+            <span class="tag">核心公式</span>
+            <h3>Codex = 模型 + Agent Loop + Tools + Context + Safety</h3>
+            <p>
+              如果只有模型，它能回答；加上工具，它能行动；加上上下文，它能理解项目；加上验证，它能闭环；加上安全边界，它才能被放心委托。
+            </p>
+          </article>
+          <article class="panel">
+            <span class="tag skill">最简记忆</span>
+            <h3>对话助手给答案，Codex 推进任务</h3>
+            <p>
+              这不是绝对边界，而是默认产品形态的差异。Codex 的设计目标是让 AI 更像一个能进入项目、遵守规则、调用工具并交付结果的工程协作者。
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section aria-labelledby="sources-title">
+        <div class="source-note">
+          <h2 id="sources-title">公开资料依据</h2>
+          <p>
+            本页内容基于 OpenAI 公开 Codex 手册中的产品定位、执行模型、安全沙箱、MCP、Skills、App/CLI/IDE/Web 等公开说明，并结合当前 Codex 会话可见能力进行结构化整理。
+          </p>
+          <p>
+            参考入口：
+            <a href="https://developers.openai.com/codex/overview">Codex overview</a>、
+            <a href="https://developers.openai.com/codex/learn/best-practices">Best practices</a>、
+            <a href="https://developers.openai.com/codex/agent-approvals-security">Agent approvals & security</a>、
+            <a href="https://developers.openai.com/codex/concepts/sandboxing">Sandboxing</a>、
+            <a href="https://developers.openai.com/codex/skills">Agent Skills</a>、
+            <a href="https://developers.openai.com/codex/mcp">MCP</a>。
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>Codex 技术原理与 Agent 产品架构，面向公开信息的解释版。</footer>
+  </body>
+</html>
