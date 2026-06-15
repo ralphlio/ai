@@ -20,6 +20,8 @@
         --soft-agent: #e2f4f5;
         --soft-skill: #eeeefb;
         --soft-tool: #fff0d8;
+        --game: #1e6e3e;
+        --soft-game: #e2f5ea;
         --shadow: 0 18px 54px rgba(24, 32, 38, 0.12);
       }
 
@@ -153,6 +155,10 @@
         border-left-color: var(--skill);
       }
 
+      .mini-item:nth-child(3) {
+        border-left-color: var(--game);
+      }
+
       .mini-item b {
         font-size: 15px;
       }
@@ -221,6 +227,11 @@
       .tag.skill {
         background: var(--soft-skill);
         color: var(--skill);
+      }
+
+      .tag.game {
+        background: var(--soft-game);
+        color: var(--game);
       }
 
       .card h3 {
@@ -316,6 +327,10 @@
               <b>Agent / MCP / Skill</b>
               <span>三个概念分别是什么，以及它们如何协作完成任务。</span>
             </a>
+            <a class="mini-item" href="pixel-maze.html">
+              <b>像素迷宫游戏</b>
+              <span>8-bit 复古风格迷宫，支持多种操控模式与角色选择。</span>
+            </a>
           </div>
         </div>
       </section>
@@ -350,6 +365,18 @@
             <div class="card-footer">
               <span>打开网页</span>
               <span class="path">/agent-mcp-skill.html</span>
+            </div>
+          </a>
+
+          <a class="card" href="pixel-maze.html">
+            <span class="tag game">Mini Game</span>
+            <h3>像素迷宫大冒险</h3>
+            <p>
+              8-bit 复古街机风格迷宫游戏。12 种动物角色、6 种墙体材质、普通 / 驾驶 / 困难三种模式，支持倒计时与 chiptune 背景音乐。
+            </p>
+            <div class="card-footer">
+              <span style="color: var(--game)">开始游戏</span>
+              <span class="path">/pixel-maze.html</span>
             </div>
           </a>
         </div>
