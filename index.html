@@ -4,249 +4,388 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AI 知识网页目录</title>
+    <link
+      rel="stylesheet"
+      href="https://db.onlinewebfonts.com/c/5ac3fe7c6abd2f62067f266d89671492?family=HelveticaNowDisplay-Medium"
+    />
+    <link
+      rel="stylesheet"
+      href="https://db.onlinewebfonts.com/c/1aa3377e489837a26d019bba501e779d?family=HelveticaNowDisplayW01-Rg"
+    />
     <style>
       :root {
         color-scheme: light;
-        --ink: #172026;
-        --muted: #5d6872;
-        --paper: #f6f8f7;
-        --panel: #ffffff;
-        --line: #d9e1e0;
-        --agent: #0f6f79;
-        --skill: #5c58a6;
-        --tool: #8a4c12;
-        --cloud: #9b324c;
-        --dark: #202a31;
-        --soft-agent: #e2f4f5;
-        --soft-skill: #eeeefb;
-        --soft-tool: #fff0d8;
-        --game: #1e6e3e;
-        --soft-game: #e2f5ea;
-        --shadow: 0 18px 54px rgba(24, 32, 38, 0.12);
+        --font-heading: "HelveticaNowDisplay-Medium", "Helvetica Neue", Arial,
+          "PingFang SC", "Microsoft YaHei", sans-serif;
+        --font-body: "HelveticaNowDisplayW01-Rg", "Helvetica Neue", Arial,
+          "PingFang SC", "Microsoft YaHei", sans-serif;
+        --ink: #000;
+        --paper: #fff;
+        --glass: rgba(255, 255, 255, 0.74);
       }
 
       * {
         box-sizing: border-box;
       }
 
-      body {
-        margin: 0;
-        color: var(--ink);
-        background:
-          linear-gradient(180deg, #eef6f5 0, rgba(246, 248, 247, 0) 500px),
-          var(--paper);
-        font-family:
-          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
-          "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      html {
+        min-height: 100%;
+        background: var(--paper);
       }
 
-      main {
-        width: min(1120px, calc(100% - 36px));
-        margin: 0 auto;
+      body {
+        min-height: 100%;
+        margin: 0;
+        color: var(--ink);
+        background: var(--paper);
+        font-family: var(--font-body);
+      }
+
+      body.menu-open {
+        overflow: hidden;
       }
 
       a {
         color: inherit;
       }
 
-      .hero {
-        display: grid;
-        grid-template-columns: minmax(0, 0.95fr) minmax(360px, 1.05fr);
-        gap: 44px;
-        align-items: center;
-        min-height: 82vh;
-        padding: 64px 0 42px;
+      .background-video {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: 70% center;
+        background: #e8eceb;
       }
 
-      .eyebrow {
+      .video-wash {
+        position: fixed;
+        inset: 0;
+        z-index: 1;
+        pointer-events: none;
+        background:
+          linear-gradient(90deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.06) 58%),
+          linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.14) 40%, rgba(255, 255, 255, 0.5));
+      }
+
+      .site-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 16px 20px;
+      }
+
+      .logo {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        margin: 0 0 18px;
-        color: var(--agent);
-        font-size: 14px;
-        font-weight: 800;
-      }
-
-      .eyebrow::before {
-        content: "";
-        width: 34px;
-        height: 2px;
-        background: var(--agent);
-      }
-
-      h1,
-      h2,
-      h3,
-      p {
-        margin-top: 0;
-      }
-
-      h1 {
-        margin-bottom: 22px;
-        font-size: clamp(42px, 7vw, 76px);
-        line-height: 1;
-        letter-spacing: 0;
-      }
-
-      .lead {
-        max-width: 720px;
-        color: var(--muted);
-        font-size: 20px;
-        line-height: 1.75;
-      }
-
-      .site-note {
-        margin-top: 28px;
-        padding: 22px;
-        border: 1px solid var(--line);
-        border-left: 6px solid var(--agent);
-        border-radius: 8px;
-        background: #fff;
-        box-shadow: 0 12px 34px rgba(24, 32, 38, 0.07);
-      }
-
-      .site-note strong {
-        display: block;
-        margin-bottom: 8px;
-        font-size: 20px;
-      }
-
-      .site-note p {
-        margin: 0;
-        color: var(--muted);
-        line-height: 1.65;
-      }
-
-      .directory-panel {
-        padding: 26px;
-        border: 1px solid var(--line);
-        border-radius: 8px;
-        background:
-          linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(255, 255, 255, 0.78)),
-          linear-gradient(180deg, rgba(15, 111, 121, 0.12), rgba(155, 50, 76, 0.08));
-        box-shadow: var(--shadow);
-      }
-
-      .directory-panel h2 {
-        margin-bottom: 18px;
-        font-size: 24px;
-      }
-
-      .mini-list {
-        display: grid;
         gap: 12px;
-      }
-
-      .mini-item {
-        display: grid;
-        grid-template-columns: 112px minmax(0, 1fr);
-        gap: 14px;
-        align-items: center;
-        padding: 16px;
-        border: 1px solid var(--line);
-        border-left: 6px solid var(--agent);
-        border-radius: 8px;
-        background: rgba(255, 255, 255, 0.92);
         text-decoration: none;
       }
 
-      .mini-item:nth-child(2) {
-        border-left-color: var(--skill);
+      .logo-text {
+        color: #000;
+        font-family: var(--font-heading);
+        font-size: 21px;
+        letter-spacing: 0;
       }
 
-      .mini-item:nth-child(3) {
-        border-left-color: var(--game);
+      .logo-star {
+        color: #000;
+        font-size: 25px;
+        letter-spacing: 0;
+        line-height: 1;
+        user-select: none;
       }
 
-      .mini-item:nth-child(4) {
-        border-left-color: var(--tool);
+      .desktop-links,
+      .desktop-cta {
+        display: none;
       }
 
-      .mini-item b {
-        font-size: 15px;
+      .menu-button {
+        position: relative;
+        z-index: 11;
+        display: inline-flex;
+        flex-direction: column;
+        gap: 5px;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        cursor: pointer;
       }
 
-      .mini-item span {
-        color: var(--muted);
-        font-size: 14px;
-        line-height: 1.45;
+      .menu-button span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: #000;
+        transition:
+          opacity 300ms ease,
+          transform 300ms ease;
       }
 
-      section {
-        padding: 42px 0 70px;
+      .menu-open .menu-button span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+
+      .menu-open .menu-button span:nth-child(2) {
+        opacity: 0;
+      }
+
+      .menu-open .menu-button span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+
+      .mobile-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 9;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 32px;
+        padding: 0 32px;
+        background: rgba(255, 255, 255, 0.95);
+        opacity: 0;
+        pointer-events: none;
+        backdrop-filter: blur(10px);
+        transition: opacity 220ms ease;
+      }
+
+      .menu-open .mobile-overlay {
+        opacity: 1;
+        pointer-events: auto;
+      }
+
+      .mobile-overlay a {
+        width: fit-content;
+        font-size: 32px;
+        font-weight: 500;
+        line-height: 1;
+        text-decoration: none;
+      }
+
+      .mobile-overlay a:last-child {
+        text-decoration: underline;
+        text-underline-offset: 2px;
+      }
+
+      .hero {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        min-height: 100vh;
+        padding: 112px 20px 48px;
+        overflow: hidden;
+      }
+
+      .hero-inner {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        width: 100%;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 3;
+        max-width: 620px;
+      }
+
+      .intro-label {
+        margin: 0 0 20px;
+        color: #000;
+        font-size: clamp(18px, 4vw, 26px);
+        font-weight: 400;
+        line-height: 1.3;
+        filter: blur(4px);
+        pointer-events: none;
+        user-select: none;
+        white-space: pre-line;
+      }
+
+      .typewriter {
+        min-height: 76px;
+        margin: 0 0 20px;
+        color: #000;
+        font-size: clamp(18px, 4vw, 26px);
+        font-weight: 400;
+        line-height: 1.35;
+      }
+
+      .cursor {
+        display: inline-block;
+        width: 2px;
+        height: 1.1em;
+        margin-left: 2px;
+        vertical-align: middle;
+        background: #000;
+        animation: blink 1s step-end infinite;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0 0;
+        opacity: 0;
+        transform: translateY(8px);
+        transition:
+          opacity 400ms ease,
+          transform 400ms ease;
+      }
+
+      .actions.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 0.2em 0.4em;
+        padding: 0.3em 16px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 999px;
+        background: #fff;
+        color: #000;
+        font: inherit;
+        font-size: 13px;
+        line-height: 1.4;
+        text-decoration: none;
+        white-space: nowrap;
+        cursor: pointer;
+        transition:
+          background-color 200ms ease,
+          border-color 200ms ease,
+          color 200ms ease;
+      }
+
+      .pill:hover,
+      .pill:focus-visible {
+        background: #000;
+        color: #fff;
+      }
+
+      .pill-outline {
+        gap: 8px;
+        border-color: #fff;
+        background: transparent;
+        color: #fff;
+      }
+
+      .pill-outline:hover,
+      .pill-outline:focus-visible {
+        background: #fff;
+        color: #000;
+      }
+
+      .pill svg {
+        width: 12px;
+        height: 12px;
+        flex: 0 0 auto;
+      }
+
+      .directory {
+        position: relative;
+        z-index: 2;
+        min-height: 70vh;
+        padding: 28px 20px 64px;
+      }
+
+      .directory-inner {
+        width: min(1120px, 100%);
+        margin: 0 auto;
       }
 
       .section-head {
-        max-width: 760px;
-        margin-bottom: 24px;
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 18px;
       }
 
       .section-head h2 {
-        margin-bottom: 12px;
-        font-size: 34px;
+        max-width: 720px;
+        margin: 0;
+        color: #000;
+        font-size: clamp(30px, 6vw, 58px);
+        font-weight: 400;
+        line-height: 0.98;
+        letter-spacing: 0;
       }
 
       .section-head p {
-        color: var(--muted);
-        font-size: 17px;
-        line-height: 1.75;
+        max-width: 320px;
+        margin: 0;
+        color: rgba(0, 0, 0, 0.64);
+        font-size: 15px;
+        line-height: 1.5;
       }
 
       .cards {
         display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 18px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 12px;
       }
 
       .card {
         display: flex;
         flex-direction: column;
         min-height: 280px;
-        padding: 26px;
-        border: 1px solid var(--line);
+        padding: 18px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
         border-radius: 8px;
-        background: var(--panel);
-        box-shadow: 0 12px 34px rgba(24, 32, 38, 0.06);
+        background: var(--glass);
+        color: #000;
         text-decoration: none;
+        backdrop-filter: blur(18px);
+        transition:
+          background-color 180ms ease,
+          transform 180ms ease;
       }
 
-      .card:hover {
-        transform: translateY(-2px);
-        transition: transform 160ms ease;
+      .card:hover,
+      .card:focus-visible {
+        background: rgba(255, 255, 255, 0.92);
+        transform: translateY(-3px);
       }
 
       .tag {
-        display: inline-flex;
         width: fit-content;
-        margin-bottom: 18px;
+        margin-bottom: 30px;
         padding: 5px 9px;
+        border: 1px solid rgba(0, 0, 0, 0.16);
         border-radius: 999px;
-        background: var(--soft-agent);
-        color: var(--agent);
+        color: rgba(0, 0, 0, 0.72);
         font-size: 12px;
-        font-weight: 800;
-      }
-
-      .tag.skill {
-        background: var(--soft-skill);
-        color: var(--skill);
-      }
-
-      .tag.game {
-        background: var(--soft-game);
-        color: var(--game);
       }
 
       .card h3 {
-        margin-bottom: 12px;
-        font-size: 25px;
+        margin: 0 0 12px;
+        font-size: 24px;
+        font-weight: 400;
+        line-height: 1.05;
       }
 
       .card p {
-        color: var(--muted);
-        font-size: 15px;
-        line-height: 1.7;
+        margin: 0;
+        color: rgba(0, 0, 0, 0.64);
+        font-size: 14px;
+        line-height: 1.55;
       }
 
       .card-footer {
@@ -255,154 +394,402 @@
         justify-content: space-between;
         gap: 16px;
         margin-top: auto;
-        padding-top: 22px;
-        color: var(--agent);
+        padding-top: 28px;
+        color: #000;
         font-size: 14px;
-        font-weight: 800;
       }
 
       .path {
         overflow-wrap: anywhere;
-        color: var(--muted);
-        font-family:
-          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
-          monospace;
-        font-size: 12px;
-        font-weight: 500;
+        color: rgba(0, 0, 0, 0.5);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+          "Liberation Mono", monospace;
+        font-size: 11px;
       }
 
       footer {
-        padding: 34px 18px 52px;
-        color: var(--muted);
+        position: relative;
+        z-index: 2;
+        padding: 0 20px 30px;
+        color: rgba(0, 0, 0, 0.58);
+        font-size: 13px;
         text-align: center;
       }
 
-      @media (max-width: 860px) {
-        .hero,
-        .cards {
-          grid-template-columns: 1fr;
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+
+        50% {
+          opacity: 0;
+        }
+      }
+
+      @media (min-width: 640px) {
+        .site-nav {
+          padding: 20px 32px;
+        }
+
+        .logo-text {
+          font-size: 26px;
+        }
+
+        .logo-star {
+          font-size: 30px;
         }
 
         .hero {
-          min-height: auto;
+          padding-right: 32px;
+          padding-left: 32px;
+        }
+
+        .intro-label {
+          margin-bottom: 24px;
+        }
+
+        .typewriter {
+          margin-bottom: 24px;
+          min-height: 70px;
+        }
+
+        .pill {
+          padding-right: 20px;
+          padding-left: 20px;
+          font-size: 15px;
+        }
+
+        .pill-outline {
+          gap: 12px;
+        }
+
+        .directory {
+          padding-right: 32px;
+          padding-left: 32px;
+        }
+      }
+
+      @media (min-width: 768px) {
+        .menu-button,
+        .mobile-overlay {
+          display: none;
+        }
+
+        .desktop-links {
+          display: flex;
+          color: #000;
+          font-size: 23px;
+          line-height: 1;
+        }
+
+        .desktop-links a {
+          text-decoration: none;
+          transition: opacity 180ms ease;
+        }
+
+        .desktop-links a:hover,
+        .desktop-links a:focus-visible,
+        .desktop-cta:hover,
+        .desktop-cta:focus-visible {
+          opacity: 0.6;
+        }
+
+        .desktop-cta {
+          display: inline-flex;
+          color: #000;
+          font-size: 23px;
+          line-height: 1;
+          text-decoration: underline;
+          text-underline-offset: 2px;
+          transition: opacity 180ms ease;
+        }
+
+        .hero {
+          align-items: center;
+          padding: 104px 40px 0;
+        }
+
+        .hero-inner {
+          justify-content: center;
+        }
+      }
+
+      @media (max-width: 980px) {
+        .cards {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .section-head {
+          align-items: start;
+          flex-direction: column;
         }
       }
 
       @media (max-width: 560px) {
-        h1 {
-          font-size: 42px;
-        }
-
-        .mini-item {
+        .cards {
           grid-template-columns: 1fr;
         }
 
         .card {
-          min-height: auto;
+          min-height: 230px;
+        }
+
+        .section-head p {
+          max-width: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          transition-duration: 0.01ms !important;
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
         }
       }
     </style>
   </head>
   <body>
+    <video
+      class="background-video"
+      muted
+      playsinline
+      preload="auto"
+      aria-hidden="true"
+    >
+      <source
+        src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260530_042513_df96a13b-6155-4f6e-8b93-c9dee66fba08.mp4"
+        type="video/mp4"
+      />
+    </video>
+    <div class="video-wash" aria-hidden="true"></div>
+
+    <nav class="site-nav" aria-label="主导航">
+      <a class="logo" href="./" aria-label="AI 知识网页目录首页">
+        <span class="logo-text">Mainframe&reg;</span>
+        <span class="logo-star">✳︎</span>
+      </a>
+      <div class="desktop-links" aria-label="页面快速入口">
+        <a href="codex-architecture.html">Labs</a><span>,&nbsp;</span>
+        <a href="agent-mcp-skill.html">Studio</a><span>,&nbsp;</span>
+        <a href="pixel-maze.html">Openings</a><span>,&nbsp;</span>
+        <a href="sankey-tool.html">Shop</a>
+      </div>
+      <a class="desktop-cta" href="#pages">Get in touch</a>
+      <button
+        class="menu-button"
+        type="button"
+        aria-label="打开菜单"
+        aria-expanded="false"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+    </nav>
+
+    <div class="mobile-overlay" aria-label="移动端菜单">
+      <a href="codex-architecture.html">Labs</a>
+      <a href="agent-mcp-skill.html">Studio</a>
+      <a href="pixel-maze.html">Openings</a>
+      <a href="sankey-tool.html">Shop</a>
+      <a href="#pages">Get in touch</a>
+    </div>
+
     <main>
       <section class="hero" aria-labelledby="hero-title">
-        <div>
-          <p class="eyebrow">ralphlio/ai 网页目录</p>
-          <h1 id="hero-title">AI 知识网页目录</h1>
-          <p class="lead">
-            这里汇总当前仓库下可在线查看的 HTML 页面。点击卡片即可打开对应网页；如果进入 GitHub 源码页看到代码，请回到这个目录使用 GitHub Pages 链接访问。
-          </p>
-          <div class="site-note">
-            <strong>分享入口</strong>
-            <p>
-              这个页面是仓库的首页目录，公开地址为 https://ralphlio.github.io/ai/ 。后续新增 HTML 页面时，可以继续放到这里统一管理。
-            </p>
-          </div>
-        </div>
-
-        <div class="directory-panel" aria-label="网页快速入口">
-          <h2>当前页面</h2>
-          <div class="mini-list">
-            <a class="mini-item" href="codex-architecture.html">
-              <b>Codex 架构</b>
-              <span>Codex 技术原理、Agent 产品架构、执行循环与安全边界。</span>
-            </a>
-            <a class="mini-item" href="agent-mcp-skill.html">
-              <b>Agent / MCP / Skill</b>
-              <span>三个概念分别是什么，以及它们如何协作完成任务。</span>
-            </a>
-            <a class="mini-item" href="pixel-maze.html">
-              <b>像素迷宫游戏</b>
-              <span>8-bit 复古风格迷宫，支持多种操控模式与角色选择。</span>
-            </a>
-            <a class="mini-item" href="sankey-tool.html">
-              <b>桑基图生成器</b>
-              <span>粘贴流量数据，实时生成可导出的桑基图。</span>
-            </a>
+        <div class="hero-inner">
+          <div class="hero-content">
+            <p class="intro-label">Hey there, meet A.R.I.A,
+Mainframe's Adaptive Response Interface Agent</p>
+            <h1 id="hero-title" class="typewriter" aria-live="polite">
+              <span id="typewriter-text"></span><span class="cursor" aria-hidden="true"></span>
+            </h1>
+            <div class="actions" aria-label="目录快捷操作">
+              <a class="pill" href="codex-architecture.html">Codex 架构</a>
+              <a class="pill" href="agent-mcp-skill.html">Agent / MCP / Skill</a>
+              <a class="pill" href="pixel-maze.html">像素迷宫游戏</a>
+              <a class="pill" href="sankey-tool.html">桑基图生成器</a>
+              <button class="pill pill-outline" type="button" id="copy-link">
+                <span>Reach us: <u>https://ralphlio.github.io/ai/</u></span>
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2" />
+                  <rect x="5" y="5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2" />
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </section>
 
-      <section aria-labelledby="pages-title">
-        <div class="section-head">
-          <h2 id="pages-title">网页列表</h2>
-          <p>
-            仓库里的 `.html` 文件会通过 GitHub Pages 变成可分享网页。这里展示面向读者访问的入口，而不是源码入口。
-          </p>
-        </div>
-
-        <div class="cards">
-          <a class="card" href="codex-architecture.html">
-            <span class="tag">Codex Agent</span>
-            <h3>Codex 技术原理与 Agent 产品架构</h3>
+      <section class="directory" id="pages" aria-labelledby="pages-title">
+        <div class="directory-inner">
+          <div class="section-head">
+            <h2 id="pages-title">AI knowledge, kept sharp and reachable.</h2>
             <p>
-              从公开信息视角解释 Codex 为什么不只是聊天助手，而是由模型、Agent 编排、工具、MCP、Skills、上下文和安全边界组成的执行系统。
+              当前仓库下可在线查看的 HTML 页面。点击卡片即可打开对应网页，而不是源码入口。
             </p>
-            <div class="card-footer">
-              <span>打开网页</span>
-              <span class="path">/codex-architecture.html</span>
-            </div>
-          </a>
+          </div>
 
-          <a class="card" href="agent-mcp-skill.html">
-            <span class="tag skill">Concepts</span>
-            <h3>Agent、MCP 与 Skill：概念和关系</h3>
-            <p>
-              面向非工程读者解释 Agent、MCP、Skill 的定义、分工、关系，并用“生成世界杯介绍 PPT”的任务例子串联三者。
-            </p>
-            <div class="card-footer">
-              <span>打开网页</span>
-              <span class="path">/agent-mcp-skill.html</span>
-            </div>
-          </a>
+          <div class="cards">
+            <a class="card" href="codex-architecture.html">
+              <span class="tag">Codex Agent</span>
+              <h3>Codex 技术原理与 Agent 产品架构</h3>
+              <p>
+                解释 Codex 如何由模型、Agent 编排、工具、MCP、Skills、上下文和安全边界组成。
+              </p>
+              <div class="card-footer">
+                <span>打开网页</span>
+                <span class="path">/codex-architecture.html</span>
+              </div>
+            </a>
 
-          <a class="card" href="pixel-maze.html">
-            <span class="tag game">Mini Game</span>
-            <h3>像素迷宫大冒险</h3>
-            <p>
-              8-bit 复古街机风格迷宫游戏。12 种动物角色、6 种墙体材质、普通 / 驾驶 / 困难三种模式，支持倒计时与 chiptune 背景音乐。
-            </p>
-            <div class="card-footer">
-              <span style="color: var(--game)">开始游戏</span>
-              <span class="path">/pixel-maze.html</span>
-            </div>
-          </a>
+            <a class="card" href="agent-mcp-skill.html">
+              <span class="tag">Concepts</span>
+              <h3>Agent、MCP 与 Skill：概念和关系</h3>
+              <p>
+                面向非工程读者解释 Agent、MCP、Skill 的定义、分工、关系和协作方式。
+              </p>
+              <div class="card-footer">
+                <span>打开网页</span>
+                <span class="path">/agent-mcp-skill.html</span>
+              </div>
+            </a>
 
-          <a class="card" href="sankey-tool.html">
-            <span class="tag" style="background:var(--soft-tool);color:var(--tool)">Tool</span>
-            <h3>桑基图生成器</h3>
-            <p>
-              粘贴流量数据，实时渲染桑基图。支持自定义颜色、节点样式、多种色系方案，可导出 SVG / PNG。
-            </p>
-            <div class="card-footer">
-              <span style="color: var(--tool)">打开工具</span>
-              <span class="path">/sankey-tool.html</span>
-            </div>
-          </a>
+            <a class="card" href="pixel-maze.html">
+              <span class="tag">Mini Game</span>
+              <h3>像素迷宫大冒险</h3>
+              <p>
+                8-bit 复古街机风格迷宫游戏，支持多角色、墙体材质、操控模式和倒计时。
+              </p>
+              <div class="card-footer">
+                <span>开始游戏</span>
+                <span class="path">/pixel-maze.html</span>
+              </div>
+            </a>
+
+            <a class="card" href="sankey-tool.html">
+              <span class="tag">Tool</span>
+              <h3>桑基图生成器</h3>
+              <p>
+                粘贴流量数据实时渲染桑基图，支持颜色、节点样式和 SVG / PNG 导出。
+              </p>
+              <div class="card-footer">
+                <span>打开工具</span>
+                <span class="path">/sankey-tool.html</span>
+              </div>
+            </a>
+          </div>
         </div>
       </section>
     </main>
 
     <footer>AI 知识网页目录，托管于 GitHub Pages。</footer>
+
+    <script>
+      (() => {
+        const text =
+          "Glad you stopped in. Good taste tends to find us. Now, what are we building?";
+        const target = document.getElementById("typewriter-text");
+        const cursor = document.querySelector(".cursor");
+        const actions = document.querySelector(".actions");
+        const menuButton = document.querySelector(".menu-button");
+        const mobileOverlay = document.querySelector(".mobile-overlay");
+        const copyButton = document.getElementById("copy-link");
+        const video = document.querySelector(".background-video");
+        const sensitivity = 0.8;
+        let index = 0;
+        let targetTime = 0;
+        let prevX = null;
+        let isSeeking = false;
+
+        window.setTimeout(() => {
+          actions.classList.add("is-visible");
+        }, 400);
+
+        window.setTimeout(() => {
+          const timer = window.setInterval(() => {
+            index += 1;
+            target.textContent = text.slice(0, index);
+
+            if (index >= text.length) {
+              window.clearInterval(timer);
+              cursor.style.display = "none";
+            }
+          }, 38);
+        }, 600);
+
+        const closeMenu = () => {
+          document.body.classList.remove("menu-open");
+          menuButton.setAttribute("aria-expanded", "false");
+          menuButton.setAttribute("aria-label", "打开菜单");
+        };
+
+        menuButton.addEventListener("click", () => {
+          const isOpen = document.body.classList.toggle("menu-open");
+          menuButton.setAttribute("aria-expanded", String(isOpen));
+          menuButton.setAttribute("aria-label", isOpen ? "关闭菜单" : "打开菜单");
+        });
+
+        mobileOverlay.addEventListener("click", (event) => {
+          if (event.target.closest("a")) closeMenu();
+        });
+
+        copyButton.addEventListener("click", async () => {
+          const url = "https://ralphlio.github.io/ai/";
+          try {
+            await navigator.clipboard.writeText(url);
+            copyButton.querySelector("span").innerHTML = "Copied: <u>directory link</u>";
+          } catch {
+            copyButton.querySelector("span").innerHTML = "Copy failed: <u>directory link</u>";
+          }
+
+          window.setTimeout(() => {
+            copyButton.querySelector("span").innerHTML =
+              "Reach us: <u>https://ralphlio.github.io/ai/</u>";
+          }, 1600);
+        });
+
+        const seekTowardTarget = () => {
+          if (!video.duration || isSeeking) return;
+          isSeeking = true;
+          video.currentTime = Math.max(0, Math.min(targetTime, video.duration));
+        };
+
+        video.addEventListener("loadedmetadata", () => {
+          targetTime = Math.min(video.duration * 0.18, video.duration);
+          video.currentTime = targetTime;
+        });
+
+        video.addEventListener("seeked", () => {
+          isSeeking = false;
+
+          if (Math.abs(video.currentTime - targetTime) > 0.03) {
+            seekTowardTarget();
+          }
+        });
+
+        window.addEventListener("mousemove", (event) => {
+          if (!video.duration) {
+            prevX = event.clientX;
+            return;
+          }
+
+          if (prevX === null) {
+            prevX = event.clientX;
+            return;
+          }
+
+          const delta = event.clientX - prevX;
+          prevX = event.clientX;
+          targetTime += (delta / window.innerWidth) * sensitivity * video.duration;
+          targetTime = Math.max(0, Math.min(targetTime, video.duration));
+          seekTowardTarget();
+        });
+      })();
+    </script>
   </body>
 </html>
