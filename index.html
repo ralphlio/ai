@@ -158,7 +158,8 @@
       }
 
       .pill:hover,
-      .pill:focus-visible {
+      .pill:focus-visible,
+      .pill.is-active {
         background: #000;
         color: #fff;
       }
@@ -220,9 +221,45 @@
         line-height: 1.5;
       }
 
+      .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 0 0 18px;
+      }
+
+      .tab {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 74px;
+        min-height: 34px;
+        padding: 7px 14px;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.68);
+        color: #000;
+        font: inherit;
+        font-size: 14px;
+        cursor: pointer;
+        backdrop-filter: blur(16px);
+        transition:
+          background-color 180ms ease,
+          border-color 180ms ease,
+          color 180ms ease;
+      }
+
+      .tab:hover,
+      .tab:focus-visible,
+      .tab.is-active {
+        border-color: #000;
+        background: #000;
+        color: #fff;
+      }
+
       .cards {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+        grid-template-columns: repeat(4, minmax(0, 1fr));
         gap: 12px;
       }
 
@@ -246,6 +283,10 @@
       .card:focus-visible {
         background: rgba(255, 255, 255, 0.92);
         transform: translateY(-3px);
+      }
+
+      .card.is-hidden {
+        display: none;
       }
 
       .tag {
@@ -354,6 +395,10 @@
       }
 
       @media (max-width: 980px) {
+        .cards {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
         .section-head {
           align-items: start;
           flex-direction: column;
@@ -411,11 +456,10 @@ Mainframe's Adaptive Response Interface Agent</p>
               <span id="typewriter-text"></span><span class="cursor" aria-hidden="true"></span>
             </h1>
             <div class="actions" aria-label="目录快捷操作">
-              <a class="pill" href="codex-architecture.html">Codex 架构</a>
-              <a class="pill" href="agent-mcp-skill.html">Agent / MCP / Skill</a>
-              <a class="pill" href="pixel-maze.html">像素迷宫游戏</a>
-              <a class="pill" href="sankey-tool.html">桑基图生成器</a>
-              <a class="pill" href="github-guide.html">GitHub 入门</a>
+              <button class="pill filter-trigger is-active" type="button" data-filter="all">All</button>
+              <button class="pill filter-trigger" type="button" data-filter="post">Post</button>
+              <button class="pill filter-trigger" type="button" data-filter="mini-game">Mini Game</button>
+              <button class="pill filter-trigger" type="button" data-filter="tool">Tool</button>
               <button class="pill pill-outline" type="button" id="copy-link">
                 <span>Reach us: <u>https://ralphlio.github.io/ai/</u></span>
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -437,9 +481,16 @@ Mainframe's Adaptive Response Interface Agent</p>
             </p>
           </div>
 
+          <div class="tabs" role="tablist" aria-label="按类型筛选文章">
+            <button class="tab is-active" type="button" role="tab" aria-selected="true" data-filter="all">All</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-filter="post">Post</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-filter="mini-game">Mini Game</button>
+            <button class="tab" type="button" role="tab" aria-selected="false" data-filter="tool">Tool</button>
+          </div>
+
           <div class="cards">
-            <a class="card" href="codex-architecture.html">
-              <span class="tag">Codex Agent</span>
+            <a class="card" href="codex-architecture.html" data-category="post">
+              <span class="tag">Post</span>
               <h3>Codex 技术原理与 Agent 产品架构</h3>
               <p>
                 解释 Codex 如何由模型、Agent 编排、工具、MCP、Skills、上下文和安全边界组成。
@@ -450,8 +501,8 @@ Mainframe's Adaptive Response Interface Agent</p>
               </div>
             </a>
 
-            <a class="card" href="agent-mcp-skill.html">
-              <span class="tag">Concepts</span>
+            <a class="card" href="agent-mcp-skill.html" data-category="post">
+              <span class="tag">Post</span>
               <h3>Agent、MCP 与 Skill：概念和关系</h3>
               <p>
                 面向非工程读者解释 Agent、MCP、Skill 的定义、分工、关系和协作方式。
@@ -462,7 +513,7 @@ Mainframe's Adaptive Response Interface Agent</p>
               </div>
             </a>
 
-            <a class="card" href="pixel-maze.html">
+            <a class="card" href="pixel-maze.html" data-category="mini-game">
               <span class="tag">Mini Game</span>
               <h3>像素迷宫大冒险</h3>
               <p>
@@ -474,7 +525,7 @@ Mainframe's Adaptive Response Interface Agent</p>
               </div>
             </a>
 
-            <a class="card" href="sankey-tool.html">
+            <a class="card" href="sankey-tool.html" data-category="tool">
               <span class="tag">Tool</span>
               <h3>桑基图生成器</h3>
               <p>
@@ -486,8 +537,8 @@ Mainframe's Adaptive Response Interface Agent</p>
               </div>
             </a>
 
-            <a class="card" href="github-guide.html">
-              <span class="tag">Guide</span>
+            <a class="card" href="github-guide.html" data-category="post">
+              <span class="tag">Post</span>
               <h3>普通人也能看懂的 GitHub 入门</h3>
               <p>
                 用简洁语言解释 GitHub、仓库、提交、Pages，并带你从零发布自己的网页。
@@ -512,6 +563,9 @@ Mainframe's Adaptive Response Interface Agent</p>
         const cursor = document.querySelector(".cursor");
         const actions = document.querySelector(".actions");
         const copyButton = document.getElementById("copy-link");
+        const directory = document.getElementById("pages");
+        const cards = Array.from(document.querySelectorAll(".card"));
+        const filterControls = Array.from(document.querySelectorAll("[data-filter]"));
         const video = document.querySelector(".background-video");
         const sensitivity = 0.8;
         let index = 0;
@@ -534,6 +588,32 @@ Mainframe's Adaptive Response Interface Agent</p>
             }
           }, 38);
         }, 600);
+
+        const setFilter = (filter, shouldScroll = false) => {
+          cards.forEach((card) => {
+            const isVisible = filter === "all" || card.dataset.category === filter;
+            card.classList.toggle("is-hidden", !isVisible);
+          });
+
+          filterControls.forEach((control) => {
+            const isActive = control.dataset.filter === filter;
+            control.classList.toggle("is-active", isActive);
+            if (control.getAttribute("role") === "tab") {
+              control.setAttribute("aria-selected", String(isActive));
+            }
+          });
+
+          if (shouldScroll) {
+            directory.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+        };
+
+        filterControls.forEach((control) => {
+          control.addEventListener("click", () => {
+            const fromHero = control.classList.contains("filter-trigger");
+            setFilter(control.dataset.filter, fromHero);
+          });
+        });
 
         copyButton.addEventListener("click", async () => {
           const url = "https://ralphlio.github.io/ai/";
