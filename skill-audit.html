@@ -262,6 +262,41 @@
         line-height: 1.55;
       }
 
+      .file-inventory,
+      .security-plan {
+        display: grid;
+        gap: 8px;
+        margin-top: 12px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .file-inventory b,
+      .security-plan b {
+        color: var(--ink);
+      }
+
+      .file-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .file-chip {
+        display: inline-flex;
+        max-width: 100%;
+        padding: 3px 8px;
+        overflow-wrap: anywhere;
+        border-radius: 999px;
+        background: var(--soft-blue);
+        color: #24546a;
+      }
+
       .score-strip {
         display: grid;
         grid-template-columns: 150px minmax(0, 1fr);
@@ -463,7 +498,7 @@
           <p class="eyebrow">Skill Audit Tool</p>
           <h1>Skill 审计与评估工具</h1>
           <p class="lead">
-            上传或粘贴一个 Skill 的 <code>SKILL.md</code> 内容，工具会从安全性、结构完整度、执行效率、可维护性和触发质量等维度评分，并给出设计评价与优化建议。
+            上传 Skill zip 包、<code>SKILL.md</code>，或直接粘贴 Skill 文本。工具会从 Skill 开发者视角解读设计思路、包结构、渐进式加载、安全风险、运行时行为和可维护性，并给出评分与优化建议。
           </p>
         </div>
         <a class="back-link" href="./">返回目录</a>
@@ -477,13 +512,17 @@
           <div class="panel-body">
             <div class="dropzone" id="dropzone">
               <div>
-                <strong>拖入 SKILL.md / .txt 文件</strong>
-                <span>也可以直接在下方粘贴 Skill 文本。若是 zip，请先解压后上传主要的 SKILL.md。</span>
+                <strong>拖入 Skill zip / SKILL.md / .txt 文件</strong>
+                <span>支持上传别人分享的 Skill 压缩包；工具会自动寻找包内 SKILL.md 并扫描脚本、资源与引用文件。</span>
               </div>
             </div>
             <div class="file-row">
-              <input id="file-input" type="file" accept=".md,.txt,.markdown,text/markdown,text/plain" />
+              <input id="file-input" type="file" accept=".zip,.md,.txt,.markdown,application/zip,text/markdown,text/plain" />
               <button class="btn secondary" type="button" id="load-sample">载入示例</button>
+            </div>
+            <div class="file-inventory" id="file-inventory">
+              <b>包结构</b>
+              <span>尚未上传文件。粘贴文本时会按单文件 Skill 处理。</span>
             </div>
             <textarea id="skill-input" spellcheck="false" placeholder="在这里粘贴 SKILL.md 内容，例如：
 ---
@@ -498,8 +537,8 @@ description: Use when...
 
             <div class="controls">
               <div class="field">
-                <label for="api-key">DeepSeek API Key（可选，仅用于当前页面，不保存）</label>
-                <input id="api-key" type="password" autocomplete="off" placeholder="sk-..." />
+                <label for="proxy-url">DeepSeek 安全代理地址（可选，推荐公开发布时使用）</label>
+                <input id="proxy-url" type="url" autocomplete="off" value="https://skill-audit-proxy.ralphlio.workers.dev" />
               </div>
               <div class="field">
                 <label for="model">模型</label>
@@ -510,12 +549,16 @@ description: Use when...
               </div>
               <div class="button-row">
                 <button class="btn" type="button" id="local-audit">本地规则审计</button>
-                <button class="btn" type="button" id="ai-audit">DeepSeek 深度评估</button>
+                <button class="btn" type="button" id="ai-audit">通过代理进行 AI 深度评估</button>
                 <button class="btn secondary" type="button" id="clear">清空</button>
               </div>
             </div>
             <div class="notice">
-              安全提示：在纯前端页面中调用第三方 API，会让 API Key 出现在浏览器网络请求里。建议只使用低额度、短期、专用 Key；不要把 Key 写入仓库。
+              公开网页不应直接保存或填写 DeepSeek API Key。推荐把 Key 放在服务端环境变量中，通过限流、鉴权、日志脱敏的代理接口调用模型；前端只提交待审计 Skill 内容。
+            </div>
+            <div class="security-plan">
+              <b>推荐安全方案</b>
+              <span>GitHub Pages 负责托管本页面；DeepSeek Key 放在 Cloudflare Worker、Vercel Function 或自己的后端中。代理接口只允许 POST、限制输入大小、做频率限制、隐藏 Key，并可要求简单访问密码或登录。</span>
             </div>
           </div>
         </div>
@@ -532,6 +575,7 @@ description: Use when...
       </section>
     </main>
 
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <script>
       (() => {
         const input = document.getElementById("skill-input");
@@ -539,16 +583,18 @@ description: Use when...
         const dropzone = document.getElementById("dropzone");
         const results = document.getElementById("results");
         const modeBadge = document.getElementById("mode-badge");
-        const apiKeyInput = document.getElementById("api-key");
+        const proxyInput = document.getElementById("proxy-url");
         const modelSelect = document.getElementById("model");
+        const fileInventory = document.getElementById("file-inventory");
+        let currentBundle = null;
 
         const metricLabels = {
-          security: "安全性",
-          structure: "内容结构",
-          efficiency: "执行效率",
-          trigger: "触发质量",
-          maintainability: "可维护性",
-          usability: "可用性",
+          security: "安全风险",
+          architecture: "包结构",
+          progressive: "渐进加载",
+          trigger: "触发设计",
+          runtime: "运行时行为",
+          learning: "学习价值",
         };
 
         const sampleSkill = `---
@@ -608,6 +654,157 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
 
         const countMatches = (text, pattern) => (text.match(pattern) || []).length;
 
+        const isTextLike = (name) =>
+          /\.(md|txt|json|ya?ml|js|ts|py|sh|bash|html|css|csv|xml|toml)$/i.test(name);
+
+        const isRiskyFile = (name) =>
+          /\.(sh|bash|py|js|ts|exe|bat|ps1)$/i.test(name) || /(^|\/)(scripts?|bin)\//i.test(name);
+
+        const makeSingleFileBundle = (text, sourceName = "pasted-skill") => ({
+          sourceName,
+          skillText: text,
+          files: [
+            {
+              name: sourceName.endsWith(".md") ? sourceName : "SKILL.md",
+              text,
+              size: new Blob([text]).size,
+              kind: "skill",
+            },
+          ],
+          warnings: [],
+        });
+
+        const renderInventory = (bundle) => {
+          if (!bundle) {
+            fileInventory.innerHTML = "<b>包结构</b><span>尚未上传文件。粘贴文本时会按单文件 Skill 处理。</span>";
+            return;
+          }
+
+          const files = bundle.files || [];
+          const chips = files
+            .slice(0, 18)
+            .map((file) => `<span class="file-chip">${escapeHtml(file.name)}</span>`)
+            .join("");
+          const hidden = files.length > 18 ? `<span>还有 ${files.length - 18} 个文件未展示。</span>` : "";
+          const warningHtml = bundle.warnings.length
+            ? `<span class="badge warn">注意</span><span>${escapeHtml(bundle.warnings.join("；"))}</span>`
+            : "";
+
+          fileInventory.innerHTML = `
+            <b>包结构：${escapeHtml(bundle.sourceName || "Skill")}</b>
+            <span>已识别 ${files.length} 个可读文件，其中 ${files.filter((file) => file.kind === "script").length} 个脚本/可执行相关文件。</span>
+            <div class="file-list">${chips}</div>
+            ${hidden}
+            ${warningHtml}`;
+        };
+
+        const inflateRaw = async (bytes) => {
+          if (!("DecompressionStream" in window)) {
+            throw new Error("当前浏览器不支持原生 zip 解压，请换用新版 Chrome/Edge，或等待 JSZip CDN 加载。");
+          }
+          const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate-raw"));
+          return new Uint8Array(await new Response(stream).arrayBuffer());
+        };
+
+        const parseZipWithNative = async (file) => {
+          const bytes = new Uint8Array(await file.arrayBuffer());
+          const view = new DataView(bytes.buffer);
+          const decoder = new TextDecoder();
+          const entries = [];
+          let offset = 0;
+
+          while (offset + 30 < bytes.length && view.getUint32(offset, true) === 0x04034b50) {
+            const flags = view.getUint16(offset + 6, true);
+            const method = view.getUint16(offset + 8, true);
+            const compressedSize = view.getUint32(offset + 18, true);
+            const nameLength = view.getUint16(offset + 26, true);
+            const extraLength = view.getUint16(offset + 28, true);
+            const nameStart = offset + 30;
+            const name = decoder.decode(bytes.slice(nameStart, nameStart + nameLength));
+            const dataStart = nameStart + nameLength + extraLength;
+
+            if (flags & 0x08) {
+              throw new Error("此 zip 使用 data descriptor，当前轻量解析器无法读取。请使用普通 zip 压缩方式，或保持网络可访问以加载 JSZip。");
+            }
+
+            const compressed = bytes.slice(dataStart, dataStart + compressedSize);
+            let data = new Uint8Array();
+            if (!name.endsWith("/")) {
+              if (method === 0) data = compressed;
+              else if (method === 8) data = await inflateRaw(compressed);
+              else throw new Error(`不支持的 zip 压缩方式：${method}`);
+            }
+
+            entries.push({
+              name,
+              dir: name.endsWith("/"),
+              asyncText: async () => decoder.decode(data),
+            });
+            offset = dataStart + compressedSize;
+          }
+
+          if (!entries.length) throw new Error("未识别到有效 zip 条目。");
+          return entries;
+        };
+
+        const readZipBundle = async (file) => {
+          let entries;
+          if (window.JSZip) {
+            const zip = await window.JSZip.loadAsync(file);
+            entries = Object.values(zip.files)
+              .filter((entry) => !entry.dir)
+              .map((entry) => ({
+                name: entry.name,
+                dir: entry.dir,
+                asyncText: () => entry.async("text"),
+              }));
+          } else {
+            entries = (await parseZipWithNative(file)).filter((entry) => !entry.dir);
+          }
+
+          const warnings = [];
+
+          if (entries.length > 80) warnings.push("文件数量较多，已优先读取文本类文件");
+
+          const files = [];
+          for (const entry of entries) {
+            if (!isTextLike(entry.name)) {
+              files.push({ name: entry.name, text: "", size: 0, kind: isRiskyFile(entry.name) ? "script" : "binary" });
+              continue;
+            }
+
+            const text = await entry.asyncText();
+            files.push({
+              name: entry.name,
+              text: text.slice(0, 180000),
+              size: text.length,
+              kind: /(^|\/)SKILL\.md$/i.test(entry.name) ? "skill" : isRiskyFile(entry.name) ? "script" : "resource",
+            });
+          }
+
+          const skillCandidates = files.filter((item) => /(^|\/)SKILL\.md$/i.test(item.name));
+          if (!skillCandidates.length) warnings.push("未找到 SKILL.md，已使用第一个 Markdown 文件作为主文本");
+          if (skillCandidates.length > 1) warnings.push(`发现 ${skillCandidates.length} 个 SKILL.md，请确认是否为多 Skill 包`);
+
+          const skillFile = skillCandidates[0] || files.find((item) => /\.md$/i.test(item.name)) || files.find((item) => item.text);
+          if (!skillFile) throw new Error("zip 中未找到可读取的文本文件。");
+
+          return {
+            sourceName: file.name,
+            skillText: skillFile.text,
+            files,
+            warnings,
+          };
+        };
+
+        const bundleContext = (bundle) => {
+          if (!bundle) return "";
+          return bundle.files
+            .map((file) => `\n\n--- FILE: ${file.name} (${file.kind}) ---\n${file.text.slice(0, 12000)}`)
+            .join("")
+            .slice(0, 50000);
+        };
+
         const scoreColor = (score) => {
           if (score >= 80) return "var(--good)";
           if (score >= 60) return "var(--warn)";
@@ -624,22 +821,28 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
           findings.push({ severity, title, detail });
         };
 
-        const auditSkill = (text) => {
+        const auditSkill = (text, bundle = null) => {
           const normalized = text.trim();
+          const activeBundle = bundle || makeSingleFileBundle(normalized);
+          const packageText = `${normalized}\n${bundleContext(activeBundle)}`;
           const lower = normalized.toLowerCase();
           const frontmatter = parseFrontmatter(normalized);
           const headings = countMatches(normalized, /^#{1,4}\s+/gm);
           const codeBlocks = countMatches(normalized, /```/g) / 2;
           const wordCount = normalized.split(/\s+/).filter(Boolean).length;
           const lineCount = normalized.split(/\n/).length;
+          const files = activeBundle.files || [];
+          const scriptFiles = files.filter((file) => file.kind === "script");
+          const resourceFiles = files.filter((file) => file.kind === "resource");
+          const binaryFiles = files.filter((file) => file.kind === "binary");
           const findings = [];
 
           let security = 72;
-          let structure = 58;
-          let efficiency = 64;
+          let architecture = 58;
+          let progressive = 64;
           let trigger = 60;
-          let maintainability = 62;
-          let usability = 62;
+          let runtime = 64;
+          let learning = 62;
 
           const name = frontmatter.data.name || "";
           const description = frontmatter.data.description || "";
@@ -649,50 +852,50 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
             description.length <= 1024 &&
             /use when|when to use|use this|适用|当.*时/i.test(description);
 
-          if (frontmatter.found) structure += 16;
+          if (frontmatter.found) architecture += 16;
           else {
-            structure -= 20;
+            architecture -= 20;
             trigger -= 18;
             addFinding(findings, "bad", "缺少 YAML frontmatter", "Skill 应包含 name 与 description 元数据，用于发现和触发。");
           }
 
           if (nameValid) {
-            structure += 8;
+            architecture += 8;
             trigger += 8;
           } else {
-            structure -= 12;
+            architecture -= 12;
             trigger -= 10;
             addFinding(findings, "bad", "name 不符合建议格式", "name 应为 64 字符以内的小写字母、数字和连字符，且避免保留词。");
           }
 
           if (descriptionUseful) {
             trigger += 20;
-            usability += 8;
+            learning += 8;
           } else {
             trigger -= 18;
             addFinding(findings, "warn", "description 触发条件不够清晰", "建议同时写清“做什么”和“什么时候使用”，减少误触发或漏触发。");
           }
 
-          if (headings >= 4) structure += 12;
+          if (headings >= 4) architecture += 12;
           else {
-            structure -= 8;
+            architecture -= 8;
             addFinding(findings, "warn", "章节层级偏少", "建议拆出 When to use、Workflow、Safety、Examples、Resources 等稳定章节。");
           }
 
           if (/workflow|steps|procedure|流程|步骤/i.test(normalized)) {
-            structure += 10;
-            usability += 8;
+            architecture += 10;
+            learning += 8;
           } else {
-            structure -= 8;
-            usability -= 8;
+            architecture -= 8;
+            learning -= 8;
             addFinding(findings, "warn", "缺少明确工作流", "Skill 最好提供步骤化执行流程，让 agent 在触发后知道先后顺序。");
           }
 
           if (/example|examples|示例|例子/i.test(normalized)) {
-            usability += 10;
-            maintainability += 5;
+            learning += 10;
+            architecture += 5;
           } else {
-            usability -= 8;
+            learning -= 8;
             addFinding(findings, "warn", "缺少示例", "加入 1-3 个典型输入输出例子，可以显著提升使用稳定性。");
           }
 
@@ -710,48 +913,66 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
             [/(api[_-]?key|token|password|secret)\s*[:=]\s*['"][^'"]+/i, "疑似硬编码密钥"],
             [/(send|post|upload|exfiltrate).*(http|https|webhook)/i, "疑似外发数据"],
             [/read.*(~\/|\/users\/|\/etc\/|\/var\/)/i, "宽泛读取本机路径"],
+            [/(ignore|bypass|override).*(previous|system|instruction|policy)/i, "疑似提示注入或越权指令"],
+            [/(base64|atob|eval|new Function)\s*\(/i, "疑似混淆或动态执行"],
           ];
 
           riskyPatterns.forEach(([pattern, label]) => {
-            if (pattern.test(normalized)) {
+            if (pattern.test(packageText)) {
               security -= 18;
+              runtime -= 8;
               addFinding(findings, "bad", `发现风险模式：${label}`, "请确认该行为是否与 Skill 目标一致，并增加用户确认与最小权限约束。");
             }
           });
 
-          if (/scripts?\//i.test(normalized)) {
-            efficiency += 12;
-            maintainability += 8;
+          if (/scripts?\//i.test(normalized) || scriptFiles.length) {
+            progressive += 12;
+            runtime += 8;
+            if (!/scripts?\//i.test(normalized) && scriptFiles.length) {
+              addFinding(findings, "warn", "包内有脚本但 SKILL.md 未明确引用", "从开发者视角看，脚本应被清楚说明用途、输入输出和调用时机，否则会降低可审计性。");
+              runtime -= 10;
+            }
           }
 
-          if (/reference|resources|templates|assets|schema|参考|模板/i.test(normalized)) {
-            efficiency += 8;
-            maintainability += 8;
+          if (/reference|resources|templates|assets|schema|参考|模板/i.test(normalized) || resourceFiles.length) {
+            progressive += 8;
+            architecture += 8;
           }
 
           if (/progressive disclosure|按需|as needed|only when|只在.*时/i.test(normalized)) {
-            efficiency += 10;
+            progressive += 10;
           } else if (wordCount > 1800) {
-            efficiency -= 12;
+            progressive -= 12;
             addFinding(findings, "warn", "正文偏长且缺少按需加载提示", "大型 Skill 应把细节拆到参考文件或脚本中，主文件保留触发、流程和路由。");
           }
 
           if (wordCount < 120) {
-            structure -= 18;
-            usability -= 15;
+            architecture -= 18;
+            learning -= 15;
             addFinding(findings, "bad", "内容过短", "当前内容可能不足以支撑稳定执行，建议补充流程、边界、示例和失败处理。");
           }
 
           if (wordCount > 2600) {
-            efficiency -= 16;
-            maintainability -= 8;
+            progressive -= 16;
+            architecture -= 8;
             addFinding(findings, "warn", "内容过长", "主 SKILL.md 过长会增加触发后的上下文成本，建议拆分资源文件。");
+          }
+
+          if (files.length > 1) architecture += 8;
+          if (resourceFiles.length && normalized.match(/\[[^\]]+\]\([^)]+\)|see |参考|详见/i)) progressive += 8;
+          if (binaryFiles.length) {
+            security -= 6;
+            addFinding(findings, "warn", "包内包含二进制或不可读文件", "公开分享的 Skill 应尽量解释这些文件的来源和用途，避免供应链风险。");
+          }
+          if (activeBundle.warnings?.length) {
+            architecture -= 6;
+            activeBundle.warnings.forEach((warning) => addFinding(findings, "warn", "包结构提示", warning));
           }
 
           if (/do not|don't|never|must not|不要|禁止|不得/i.test(normalized)) security += 6;
           if (/ask|confirm|approval|确认|授权/i.test(normalized)) security += 6;
-          if (codeBlocks > 0) usability += 4;
-          if (lineCount > 20 && headings > 2) maintainability += 8;
+          if (codeBlocks > 0) learning += 4;
+          if (lineCount > 20 && headings > 2) architecture += 8;
 
           if (findings.length === 0) {
             addFinding(findings, "good", "未发现明显结构或安全问题", "这个 Skill 已具备较好的基础形态，建议继续用真实任务测试触发稳定性。");
@@ -759,20 +980,20 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
 
           const scores = {
             security: clamp(security),
-            structure: clamp(structure),
-            efficiency: clamp(efficiency),
+            architecture: clamp(architecture),
+            progressive: clamp(progressive),
             trigger: clamp(trigger),
-            maintainability: clamp(maintainability),
-            usability: clamp(usability),
+            runtime: clamp(runtime),
+            learning: clamp(learning),
           };
 
           const overall = clamp(
             scores.security * 0.24 +
-              scores.structure * 0.18 +
-              scores.efficiency * 0.16 +
+              scores.architecture * 0.18 +
+              scores.progressive * 0.16 +
               scores.trigger * 0.16 +
-              scores.maintainability * 0.13 +
-              scores.usability * 0.13
+              scores.runtime * 0.13 +
+              scores.learning * 0.13
           );
 
           const strengths = [];
@@ -787,7 +1008,17 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
             overall,
             scores,
             findings,
-            stats: { wordCount, lineCount, headings, codeBlocks, name, descriptionLength: description.length },
+            stats: {
+              wordCount,
+              lineCount,
+              headings,
+              codeBlocks,
+              name,
+              descriptionLength: description.length,
+              fileCount: files.length,
+              scriptCount: scriptFiles.length,
+              resourceCount: resourceFiles.length,
+            },
             summary:
               overall >= 80
                 ? "整体质量较好，适合作为可复用 Skill 的基础版本。"
@@ -836,7 +1067,7 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
               </div>
               <div class="summary">
                 <h2>${escapeHtml(audit.summary)}</h2>
-                <p>统计：${audit.stats.wordCount} 词 / ${audit.stats.lineCount} 行 / ${audit.stats.headings} 个标题 / ${audit.stats.codeBlocks} 个代码块。${audit.stats.name ? `检测到 Skill 名称：${escapeHtml(audit.stats.name)}。` : ""}</p>
+                <p>统计：${audit.stats.wordCount} 词 / ${audit.stats.lineCount} 行 / ${audit.stats.headings} 个标题 / ${audit.stats.codeBlocks} 个代码块 / ${audit.stats.fileCount} 个文件 / ${audit.stats.scriptCount} 个脚本相关文件。${audit.stats.name ? `检测到 Skill 名称：${escapeHtml(audit.stats.name)}。` : ""}</p>
               </div>
             </div>
             <div class="metrics">${metricsHtml}</div>
@@ -858,20 +1089,30 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
           if (audit.scores.trigger >= 78) comments.push("触发描述较清楚，agent 更容易判断何时加载该 Skill");
           else comments.push("触发描述需要更具体，建议明确任务场景、输入类型和不适用范围");
 
-          if (audit.scores.efficiency >= 78) comments.push("内容拆分和脚本化意识较好，有利于降低上下文成本");
+          if (audit.scores.progressive >= 78) comments.push("内容拆分和脚本化意识较好，有利于降低上下文成本");
           else comments.push("可以把长参考资料、模板或确定性处理逻辑拆到资源文件和脚本中");
 
           if (audit.scores.security >= 78) comments.push("安全边界相对明确");
           else comments.push("需要补充外部网络、文件写入、敏感信息、用户确认等安全规则");
 
+          if (audit.scores.runtime < 68) comments.push("脚本、命令或资源访问需要补充输入输出、权限和失败处理说明");
+
           return comments.join("；") + "。";
         };
 
         const readFile = async (file) => {
-          const text = await file.text();
-          input.value = text;
+          let bundle;
+          if (/\.zip$/i.test(file.name) || file.type === "application/zip") {
+            bundle = await readZipBundle(file);
+          } else {
+            const text = await file.text();
+            bundle = makeSingleFileBundle(text, file.name);
+          }
+          currentBundle = bundle;
+          input.value = bundle.skillText;
+          renderInventory(bundle);
           modeBadge.textContent = "Loaded";
-          renderAudit(auditSkill(text));
+          renderAudit(auditSkill(bundle.skillText, bundle));
         };
 
         fileInput.addEventListener("change", async () => {
@@ -896,9 +1137,11 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
         });
 
         document.getElementById("load-sample").addEventListener("click", () => {
+          currentBundle = makeSingleFileBundle(sampleSkill, "sample/SKILL.md");
           input.value = sampleSkill;
+          renderInventory(currentBundle);
           modeBadge.textContent = "Sample";
-          renderAudit(auditSkill(sampleSkill));
+          renderAudit(auditSkill(sampleSkill, currentBundle));
         });
 
         document.getElementById("local-audit").addEventListener("click", () => {
@@ -907,37 +1150,57 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
             results.innerHTML = '<div class="empty">请先粘贴或上传 Skill 内容。</div>';
             return;
           }
+          if (!currentBundle || currentBundle.skillText !== text) {
+            currentBundle = makeSingleFileBundle(text);
+            renderInventory(currentBundle);
+          }
           modeBadge.textContent = "Local";
-          renderAudit(auditSkill(text));
+          renderAudit(auditSkill(text, currentBundle));
         });
 
         document.getElementById("clear").addEventListener("click", () => {
           input.value = "";
           fileInput.value = "";
+          currentBundle = null;
+          renderInventory(null);
           modeBadge.textContent = "Local";
           results.innerHTML = '<div class="empty">粘贴或上传 Skill 后，点击“本地规则审计”开始评估。</div>';
         });
 
-        const buildAiPrompt = (text, localAudit) => `你是 Agent Skill 审计专家。请参考 Claude Agent Skills 的通用设计原则，对以下 Skill 做审计。
+        const buildAiPrompt = (text, localAudit, bundle) => `你是 Agent Skill 架构师和安全审计专家。请站在 Skill 开发者、Skill 使用者和第三方安全审计者三种视角，对以下 Skill 包做专业分析。
 
 评估维度：
-1. 安全性：是否存在外部请求、文件访问、命令执行、数据泄露、越权、缺少确认等风险。
-2. 内容结构：frontmatter、name、description、章节、工作流、示例、边界是否完整。
-3. 执行效率：是否体现 progressive disclosure，是否把长资料拆为资源文件，是否使用脚本承载确定性操作。
-4. 触发质量：description 是否清楚说明做什么和何时使用。
-5. 可维护性：是否易于扩展、测试、定位问题。
-6. 可用性：是否给 agent 明确、可执行的步骤和例子。
+1. 安全风险：外部请求、文件访问、命令执行、数据泄露、越权、提示注入、供应链风险、缺少确认。
+2. 包结构：SKILL.md、frontmatter、resources、scripts、templates、引用关系是否清楚。
+3. 渐进加载：是否体现 metadata -> SKILL.md -> 按需资源/脚本的 progressive disclosure。
+4. 触发设计：description 是否清楚说明做什么、何时使用、何时不用。
+5. 运行时行为：脚本/命令/工具调用是否可审计、确定性强、输入输出明确。
+6. 学习价值：这个 Skill 有哪些值得学习的设计思路、抽象方式和可复用模式。
 
 请输出中文 Markdown，包含：
 - 总体评价
-- 设计思路评价
-- 6 个维度评分表，满分 100
-- 主要风险
-- 优化建议，按优先级排序
+- Skill 设计思路解读：它试图把什么经验封装成可复用能力
+- 值得学习的写法
+- 6 个维度评分表，满分 100，并说明理由
+- 主要安全风险，区分高/中/低
+- 包结构与 progressive disclosure 评价
+- 优化建议，按优先级排序，给出可执行改法
 - 推荐的 SKILL.md 结构
 
 本地规则审计参考：
 ${JSON.stringify(localAudit, null, 2)}
+
+包内文件摘要：
+${JSON.stringify(
+  (bundle?.files || []).map((file) => ({
+    name: file.name,
+    kind: file.kind,
+    size: file.size,
+    preview: file.text ? file.text.slice(0, 1200) : "[binary or unreadable]",
+  })),
+  null,
+  2
+)}
 
 待审计 Skill：
 \`\`\`markdown
@@ -946,37 +1209,41 @@ ${text.slice(0, 18000)}
 
         document.getElementById("ai-audit").addEventListener("click", async () => {
           const text = input.value.trim();
-          const apiKey = apiKeyInput.value.trim();
+          const proxyUrl = proxyInput.value.trim();
           if (!text) {
             results.innerHTML = '<div class="empty">请先粘贴或上传 Skill 内容。</div>';
             return;
           }
-          if (!apiKey) {
-            results.innerHTML = '<div class="empty">请先输入 DeepSeek API Key，或使用本地规则审计。</div>';
+          if (!proxyUrl) {
+            results.innerHTML = '<div class="empty">公开网页模式下请填写安全代理地址，或先使用本地规则审计。不要在前端填写 DeepSeek API Key。</div>';
             return;
           }
 
-          const localAudit = auditSkill(text);
+          if (!currentBundle || currentBundle.skillText !== text) {
+            currentBundle = makeSingleFileBundle(text);
+            renderInventory(currentBundle);
+          }
+
+          const localAudit = auditSkill(text, currentBundle);
           renderAudit(localAudit);
           modeBadge.textContent = "AI Running";
 
           try {
-            const response = await fetch("https://api.deepseek.com/chat/completions", {
+            const response = await fetch(proxyUrl, {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                Authorization: `Bearer ${apiKey}`,
               },
               body: JSON.stringify({
                 model: modelSelect.value,
-                messages: [
-                  {
-                    role: "system",
-                    content: "你是严谨的 AI Agent Skill 审计员。你会给出可执行、具体、按优先级排序的审计意见。",
-                  },
-                  { role: "user", content: buildAiPrompt(text, localAudit) },
-                ],
-                temperature: 0.2,
+                prompt: buildAiPrompt(text, localAudit, currentBundle),
+                localAudit,
+                files: currentBundle.files.map((file) => ({
+                  name: file.name,
+                  kind: file.kind,
+                  size: file.size,
+                  text: file.text.slice(0, 20000),
+                })),
               }),
             });
 
@@ -986,17 +1253,21 @@ ${text.slice(0, 18000)}
             }
 
             const data = await response.json();
-            const content = data.choices?.[0]?.message?.content || "DeepSeek 未返回可读内容。";
+            const content =
+              data.content ||
+              data.result ||
+              data.choices?.[0]?.message?.content ||
+              "代理接口未返回可读内容。";
             modeBadge.textContent = "AI";
             const aiBlock = document.createElement("article");
             aiBlock.className = "finding";
-            aiBlock.innerHTML = `<h3><span class="badge good">AI</span>DeepSeek 深度评估</h3><div class="ai-output">${escapeHtml(content)}</div>`;
+            aiBlock.innerHTML = `<h3><span class="badge good">AI</span>AI 深度评估</h3><div class="ai-output">${escapeHtml(content)}</div>`;
             results.querySelector(".findings").prepend(aiBlock);
           } catch (error) {
             modeBadge.textContent = "AI Error";
             const errorBlock = document.createElement("article");
             errorBlock.className = "finding";
-            errorBlock.innerHTML = `<h3><span class="badge bad">ERROR</span>DeepSeek 调用失败</h3><p>${escapeHtml(error.message || error)}</p><p>如果浏览器阻止跨域请求，建议改用后端代理或本地服务转发 API。</p>`;
+            errorBlock.innerHTML = `<h3><span class="badge bad">ERROR</span>AI 代理调用失败</h3><p>${escapeHtml(error.message || error)}</p><p>请确认代理接口已开启 CORS、限制请求大小，并在服务端环境变量中配置 DeepSeek API Key。</p>`;
             results.querySelector(".findings").prepend(errorBlock);
           }
         });
