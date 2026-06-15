@@ -222,7 +222,7 @@
 
       .cards {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
         gap: 12px;
       }
 
@@ -354,10 +354,6 @@
       }
 
       @media (max-width: 980px) {
-        .cards {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-
         .section-head {
           align-items: start;
           flex-direction: column;
@@ -419,6 +415,7 @@ Mainframe's Adaptive Response Interface Agent</p>
               <a class="pill" href="agent-mcp-skill.html">Agent / MCP / Skill</a>
               <a class="pill" href="pixel-maze.html">像素迷宫游戏</a>
               <a class="pill" href="sankey-tool.html">桑基图生成器</a>
+              <a class="pill" href="github-guide.html">GitHub 入门</a>
               <button class="pill pill-outline" type="button" id="copy-link">
                 <span>Reach us: <u>https://ralphlio.github.io/ai/</u></span>
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -486,6 +483,18 @@ Mainframe's Adaptive Response Interface Agent</p>
               <div class="card-footer">
                 <span>打开工具</span>
                 <span class="path">/sankey-tool.html</span>
+              </div>
+            </a>
+
+            <a class="card" href="github-guide.html">
+              <span class="tag">Guide</span>
+              <h3>普通人也能看懂的 GitHub 入门</h3>
+              <p>
+                用简洁语言解释 GitHub、仓库、提交、Pages，并带你从零发布自己的网页。
+              </p>
+              <div class="card-footer">
+                <span>阅读指南</span>
+                <span class="path">/github-guide.html</span>
               </div>
             </a>
           </div>
