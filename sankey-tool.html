@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>桑基图生成器</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0d1117;
+    --panel:    #161b22;
+    --surface:  #21262d;
+    --border:   #30363d;
+    --ink:      #e6edf3;
+    --muted:    #7d8590;
+    --accent:   #388bfd;
+    --green:    #3fb950;
+    --red:      #f85149;
+    --mono:     'IBM Plex Mono', monospace;
+    --sans:     'Inter', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 14px;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  /* ── 顶栏 ── */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    height: 52px;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel);
+    flex-shrink: 0;
+  }
+  .logo {
+    display: flex; align-items: center; gap: 10px;
+    font-weight: 600; font-size: 15px; letter-spacing: -.2px;
+  }
+  .logo-icon {
+    width: 28px; height: 28px;
+  }
+  .logo span { color: var(--muted); font-weight: 400; }
+  .header-actions { display: flex; gap: 8px; }
+  .btn {
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    padding: 6px 14px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); transition: all .15s;
+  }
+  .btn-ghost { background: transparent; color: var(--muted); }
+  .btn-ghost:hover { background: var(--surface); color: var(--ink); }
+  .btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn-primary:hover { filter: brightness(1.15); }
+
+  /* ── 主体 ── */
+  .main {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── 左侧编辑器 ── */
+  .editor-col {
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    background: var(--panel);
+  }
+  .editor-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .tab {
+    padding: 10px 18px; font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer; border-bottom: 2px solid transparent;
+    transition: color .15s;
+  }
+  .tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--ink); }
+
+  .tab-content { display: none; flex: 1; overflow-y: auto; padding: 16px; }
+  .tab-content.active { display: flex; flex-direction: column; gap: 14px; }
+
+  /* 数据编辑器 */
+  .field-label {
+    font-size: 11px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .6px;
+    margin-bottom: 6px;
+  }
+  .field-hint { font-size: 12px; color: var(--muted); line-height: 1.6; margin-bottom: 8px; }
+  textarea {
+    font-family: var(--mono); font-size: 12.5px; line-height: 1.7;
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 12px; resize: vertical; width: 100%;
+    outline: none; transition: border-color .15s;
+  }
+  textarea:focus { border-color: var(--accent); }
+  .parse-error {
+    font-size: 12px; color: var(--red); font-family: var(--mono);
+    padding: 8px 10px; background: rgba(248,81,73,.08);
+    border: 1px solid rgba(248,81,73,.25); border-radius: 6px;
+    display: none;
+  }
+  .parse-error.show { display: block; }
+
+  /* 示例按钮 */
+  .examples { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ex-btn {
+    font-size: 12px; padding: 4px 10px; border-radius: 99px;
+    border: 1px solid var(--border); background: transparent;
+    color: var(--muted); cursor: pointer; font-family: var(--sans);
+    transition: all .15s;
+  }
+  .ex-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* 样式设置 */
+  .setting-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0; border-bottom: 1px solid var(--border);
+  }
+  .setting-row:last-child { border-bottom: none; }
+  .setting-label { font-size: 13px; color: var(--ink); }
+  .setting-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  input[type=range] {
+    -webkit-appearance: none; width: 110px; height: 4px;
+    background: var(--border); border-radius: 2px; outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 14px; height: 14px;
+    border-radius: 50%; background: var(--accent); cursor: pointer;
+  }
+  .range-val { font-family: var(--mono); font-size: 12px; color: var(--muted); width: 32px; text-align: right; }
+  select {
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border); border-radius: 6px;
+    padding: 5px 8px; font-size: 13px; font-family: var(--sans);
+    outline: none; cursor: pointer;
+  }
+  select:focus { border-color: var(--accent); }
+  .toggle {
+    width: 36px; height: 20px; border-radius: 10px;
+    background: var(--border); cursor: pointer; position: relative;
+    transition: background .2s; border: none; flex-shrink: 0;
+  }
+  .toggle.on { background: var(--accent); }
+  .toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 14px; height: 14px; border-radius: 50%; background: #fff;
+    transition: left .2s;
+  }
+  .toggle.on::after { left: 19px; }
+
+  /* ── 右侧预览 ── */
+  .preview-col {
+    display: flex; flex-direction: column; overflow: hidden;
+    background: var(--bg);
+  }
+  .preview-toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 16px; border-bottom: 1px solid var(--border);
+    background: var(--panel); flex-shrink: 0;
+  }
+  .preview-info { font-size: 12px; color: var(--muted); font-family: var(--mono); }
+  .preview-info b { color: var(--ink); }
+  .chart-wrap {
+    flex: 1; overflow: auto; display: flex;
+    align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  #chart-svg {
+    max-width: 100%; height: auto;
+    filter: drop-shadow(0 0 40px rgba(56,139,253,.06));
+  }
+  .empty-state {
+    text-align: center; color: var(--muted);
+  }
+  .empty-state svg { margin-bottom: 16px; opacity: .3; }
+  .empty-state p { font-size: 14px; line-height: 1.7; }
+
+  /* ── 状态栏 ── */
+  footer {
+    height: 28px; display: flex; align-items: center; gap: 20px;
+    padding: 0 16px; border-top: 1px solid var(--border);
+    background: var(--panel); flex-shrink: 0;
+  }
+  .status-item { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+  .status-item b { color: var(--green); }
+  .status-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--green); display: inline-block; margin-right: 5px;
+  }
+
+  /* ── 节点 tooltip ── */
+  .tooltip {
+    position: fixed; pointer-events: none;
+    background: var(--panel); border: 1px solid var(--border);
+    border-radius: 8px; padding: 8px 12px;
+    font-size: 12px; font-family: var(--mono); color: var(--ink);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    z-index: 999; opacity: 0; transition: opacity .1s;
+    max-width: 200px;
+  }
+  .tooltip.show { opacity: 1; }
+  .tooltip strong { display: block; margin-bottom: 4px; font-size: 13px; }
+  .tooltip .trow { color: var(--muted); }
+  .tooltip .trow b { color: var(--ink); }
+
+  @media (max-width: 800px) {
+    .main { grid-template-columns: 1fr; }
+    .editor-col { max-height: 45vh; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <svg class="logo-icon" viewBox="0 0 28 28" fill="none">
+      <rect x="2" y="8" width="6" height="12" rx="2" fill="#388bfd" opacity=".9"/>
+      <rect x="11" y="4" width="6" height="8" rx="2" fill="#3fb950" opacity=".9"/>
+      <rect x="11" y="16" width="6" height="8" rx="2" fill="#d2a8ff" opacity=".9"/>
+      <rect x="20" y="6" width="6" height="5" rx="2" fill="#ffa657" opacity=".9"/>
+      <rect x="20" y="14" width="6" height="8" rx="2" fill="#f85149" opacity=".9"/>
+      <path d="M8 12 Q14 10 17 7" stroke="#388bfd" stroke-width="1.5" fill="none" opacity=".5"/>
+      <path d="M8 16 Q14 18 17 20" stroke="#388bfd" stroke-width="1.5" fill="none" opacity=".5"/>
+      <path d="M17 7 Q23 7 26 9" stroke="#3fb950" stroke-width="1.5" fill="none" opacity=".5"/>
+      <path d="M17 20 Q23 20 26 18" stroke="#d2a8ff" stroke-width="1.5" fill="none" opacity=".5"/>
+    </svg>
+    桑基图生成器 <span>Sankey Diagram</span>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" id="exportSVG">↓ 导出 SVG</button>
+    <button class="btn btn-ghost" id="exportPNG">↓ 导出 PNG</button>
+  </div>
+</header>
+
+<div class="main">
+  <!-- 编辑器 -->
+  <div class="editor-col">
+    <div class="editor-tabs">
+      <div class="tab active" data-tab="data">数据</div>
+      <div class="tab" data-tab="style">样式</div>
+    </div>
+
+    <!-- 数据 Tab -->
+    <div class="tab-content active" id="tab-data">
+      <div>
+        <div class="field-label">快速示例</div>
+        <div class="examples">
+          <button class="ex-btn" data-ex="energy">能源流向</button>
+          <button class="ex-btn" data-ex="budget">预算分配</button>
+          <button class="ex-btn" data-ex="traffic">流量来源</button>
+          <button class="ex-btn" data-ex="supply">供应链</button>
+        </div>
+      </div>
+
+      <div>
+        <div class="field-label">流量数据</div>
+        <div class="field-hint">每行一条流向：<code style="background:var(--surface);padding:1px 5px;border-radius:3px;font-size:11px">来源节点 → 目标节点 数值</code><br>节点名称相同时自动合并。</div>
+        <textarea id="dataInput" rows="14" spellcheck="false"></textarea>
+        <div class="parse-error" id="parseError"></div>
+      </div>
+
+      <div>
+        <div class="field-label">节点颜色（可选）</div>
+        <div class="field-hint">每行：<code style="background:var(--surface);padding:1px 5px;border-radius:3px;font-size:11px">节点名称 #颜色值</code>　不填则自动分配。</div>
+        <textarea id="colorInput" rows="5" spellcheck="false" placeholder="太阳能 #f0a500
+风能 #3fb950
+煤炭 #7d8590"></textarea>
+      </div>
+    </div>
+
+    <!-- 样式 Tab -->
+    <div class="tab-content" id="tab-style">
+      <div class="setting-row">
+        <div><div class="setting-label">节点宽度</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="range" id="nodeWidth" min="8" max="40" value="20">
+          <span class="range-val" id="nodeWidthVal">20</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">节点间距</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="range" id="nodePad" min="4" max="40" value="14">
+          <span class="range-val" id="nodePadVal">14</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">流量透明度</div></div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <input type="range" id="linkOpacity" min="10" max="90" value="42">
+          <span class="range-val" id="linkOpacityVal">42</span>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">圆角节点</div></div>
+        <button class="toggle on" id="toggleRound"></button>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">节点标签位置</div></div>
+        <select id="labelPos">
+          <option value="auto">自动</option>
+          <option value="left">左侧</option>
+          <option value="right">右侧</option>
+          <option value="inside">内部</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div>
+          <div class="setting-label">背景颜色</div>
+        </div>
+        <select id="bgSelect">
+          <option value="#0d1117">深色（默认）</option>
+          <option value="#ffffff">白色</option>
+          <option value="#1a1a2e">深蓝</option>
+          <option value="#f6f8f7">浅灰</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">色系方案</div></div>
+        <select id="colorScheme">
+          <option value="default">彩虹渐变</option>
+          <option value="cool">冷色系</option>
+          <option value="warm">暖色系</option>
+          <option value="pastel">马卡龙</option>
+          <option value="mono">单色蓝</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- 预览区 -->
+  <div class="preview-col">
+    <div class="preview-toolbar">
+      <span class="preview-info" id="previewInfo">— 等待数据 —</span>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:12px;color:var(--muted)">缩放</span>
+        <select id="scaleSelect" style="font-size:12px;padding:3px 6px">
+          <option value="fit">适应</option>
+          <option value="0.75">75%</option>
+          <option value="1">100%</option>
+          <option value="1.5">150%</option>
+        </select>
+      </div>
+    </div>
+    <div class="chart-wrap" id="chartWrap">
+      <div class="empty-state" id="emptyState">
+        <svg width="64" height="64" viewBox="0 0 64 64" fill="none">
+          <rect x="4" y="20" width="12" height="24" rx="3" fill="#7d8590"/>
+          <rect x="26" y="12" width="12" height="16" rx="3" fill="#7d8590"/>
+          <rect x="26" y="36" width="12" height="16" rx="3" fill="#7d8590"/>
+          <rect x="48" y="16" width="12" height="10" rx="3" fill="#7d8590"/>
+          <rect x="48" y="32" width="12" height="20" rx="3" fill="#7d8590"/>
+        </svg>
+        <p>在左侧输入流量数据<br>图表将实时渲染</p>
+      </div>
+      <svg id="chart-svg" style="display:none"></svg>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <span class="status-item"><span class="status-dot"></span><b id="statNodes">0</b> 个节点</span>
+  <span class="status-item">流向 <b id="statLinks">0</b> 条</span>
+  <span class="status-item">总流量 <b id="statTotal">0</b></span>
+</footer>
+
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+/* ============================================================
+   数据示例
+============================================================ */
+const EXAMPLES = {
+  energy: `太阳能 → 发电 120
+风能 → 发电 85
+煤炭 → 发电 200
+天然气 → 发电 150
+发电 → 工业用电 230
+发电 → 居民用电 180
+发电 → 商业用电 100
+发电 → 输电损耗 45`,
+
+  budget: `政府预算 → 教育 320
+政府预算 → 医疗 280
+政府预算 → 基建 210
+政府预算 → 国防 150
+政府预算 → 社保 180
+教育 → 基础教育 200
+教育 → 高等教育 120
+医疗 → 公立医院 200
+医疗 → 社区医疗 80
+基建 → 交通 130
+基建 → 水利 80`,
+
+  traffic: `自然搜索 → 首页 420
+付费广告 → 首页 180
+社交媒体 → 首页 95
+直接访问 → 首页 210
+首页 → 产品页 380
+首页 → 博客 180
+首页 → 关于我们 90
+首页 → 跳出 255
+产品页 → 购物车 220
+产品页 → 跳出 160
+购物车 → 完成购买 140
+购物车 → 放弃 80`,
+
+  supply: `原材料供应商 → 零部件厂 350
+原材料供应商 → 直接生产 120
+零部件厂 → 组装工厂 300
+零部件厂 → 二级分销 50
+直接生产 → 组装工厂 120
+组装工厂 → 品牌仓库 380
+品牌仓库 → 线下零售 180
+品牌仓库 → 电商平台 120
+品牌仓库 → 直营门店 80
+线下零售 → 消费者 180
+电商平台 → 消费者 120
+直营门店 → 消费者 80`,
+};
+
+/* ============================================================
+   色系方案
+============================================================ */
+const COLOR_SCHEMES = {
+  default: ['#388bfd','#3fb950','#d2a8ff','#ffa657','#f85149','#79c0ff','#56d364','#ff7b72','#e3b341','#bc8cff'],
+  cool:    ['#388bfd','#79c0ff','#a5d6ff','#56d364','#3fb950','#2ea043','#d2a8ff','#bc8cff','#8b949e','#58a6ff'],
+  warm:    ['#ffa657','#f0883e','#e3b341','#f85149','#ff7b72','#ffd700','#ff6e6e','#ffb86c','#ff9500','#f4a261'],
+  pastel:  ['#a8d8ea','#aa96da','#fcbad3','#ffffd2','#b5ead7','#ffdac1','#e2f0cb','#d4a5a5','#9ec1cf','#d4e1c0'],
+  mono:    ['#388bfd','#58a6ff','#79c0ff','#a5d6ff','#1f6feb','#1158c7','#0d419d','#0550ae','#2188ff','#4393f5'],
+};
+
+/* ============================================================
+   解析数据
+============================================================ */
+function parseData(raw, colorRaw) {
+  const links = [];
+  const nodeSet = new Map(); // name → color
+  const errors = [];
+
+  // 解析颜色覆盖
+  const customColors = {};
+  (colorRaw || '').split('\n').forEach(line => {
+    const m = line.trim().match(/^(.+?)\s+(#[0-9a-fA-F]{3,8})\s*$/);
+    if (m) customColors[m[1].trim()] = m[2];
+  });
+
+  raw.split('\n').forEach((line, i) => {
+    line = line.trim();
+    if (!line || line.startsWith('#') || line.startsWith('//')) return;
+    // 支持 → 或 -> 或 >
+    const m = line.match(/^(.+?)\s*(?:→|->|>)\s*(.+?)\s+([0-9]+(?:\.[0-9]+)?)\s*$/);
+    if (!m) { if (line) errors.push(`第 ${i+1} 行格式不正确：${line}`); return; }
+    const [, src, tgt, val] = m;
+    if (src === tgt) { errors.push(`第 ${i+1} 行：来源和目标不能相同`); return; }
+    links.push({ source: src.trim(), target: tgt.trim(), value: parseFloat(val) });
+    nodeSet.set(src.trim(), null);
+    nodeSet.set(tgt.trim(), null);
+  });
+
+  return { links, nodeNames: [...nodeSet.keys()], customColors, errors };
+}
+
+/* ============================================================
+   桑基图布局算法
+============================================================ */
+function computeSankey(links, nodeNames, settings) {
+  const { width, height, nodeWidth, nodePad } = settings;
+
+  // 建立节点索引
+  const nodes = nodeNames.map((name, i) => ({ id: i, name, value: 0, x: 0, y: 0, h: 0 }));
+  const nodeIdx = Object.fromEntries(nodeNames.map((n, i) => [n, i]));
+
+  // 统计节点总流入/流出
+  const inflow  = new Array(nodes.length).fill(0);
+  const outflow = new Array(nodes.length).fill(0);
+  links.forEach(({ source, target, value }) => {
+    outflow[nodeIdx[source]] += value;
+    inflow[nodeIdx[target]]  += value;
+  });
+  nodes.forEach((n, i) => { n.value = Math.max(inflow[i], outflow[i]); });
+
+  // 分层（拓扑排序 BFS）
+  const adj  = Array.from({ length: nodes.length }, () => []);
+  const indeg = new Array(nodes.length).fill(0);
+  links.forEach(({ source, target }) => {
+    adj[nodeIdx[source]].push(nodeIdx[target]);
+    indeg[nodeIdx[target]]++;
+  });
+  const layer = new Array(nodes.length).fill(0);
+  const queue = nodes.filter((_, i) => indeg[i] === 0).map(n => n.id);
+  const visited = new Set(queue);
+  while (queue.length) {
+    const cur = queue.shift();
+    adj[cur].forEach(next => {
+      layer[next] = Math.max(layer[next], layer[cur] + 1);
+      if (!visited.has(next)) { visited.add(next); queue.push(next); }
+    });
+  }
+  // 未被访问的节点（孤岛）
+  nodes.forEach((n, i) => { if (!visited.has(i)) layer[i] = 0; });
+
+  const maxLayer = Math.max(...layer);
+  nodes.forEach((n, i) => { n.layer = layer[i]; });
+
+  // 每列节点列表
+  const cols = Array.from({ length: maxLayer + 1 }, () => []);
+  nodes.forEach(n => cols[n.layer].push(n));
+
+  // X 坐标
+  const colX = Array.from({ length: maxLayer + 1 }, (_, l) =>
+    maxLayer === 0 ? width / 2 - nodeWidth / 2 :
+    l * (width - nodeWidth) / maxLayer
+  );
+  nodes.forEach(n => { n.x = colX[n.layer]; });
+
+  // Y 坐标（按值比例分配高度）
+  const totalVal = Math.max(1, ...cols.map(col => col.reduce((s, n) => s + n.value, 0)));
+  const maxColVal = Math.max(1, ...cols.map(col => col.reduce((s, n) => s + n.value, 0)));
+  cols.forEach(col => {
+    if (!col.length) return;
+    const colVal = col.reduce((s, n) => s + n.value, 0);
+    const totalH = height - nodePad * (col.length - 1);
+    let cy = 0;
+    col.forEach(n => {
+      n.h = Math.max(4, (n.value / maxColVal) * totalH);
+      n.y = cy;
+      cy += n.h + nodePad;
+    });
+    // 垂直居中
+    const used = cy - nodePad;
+    const offset = (height - used) / 2;
+    col.forEach(n => { n.y += offset; });
+  });
+
+  return nodes;
+}
+
+/* ============================================================
+   渲染 SVG
+============================================================ */
+function render() {
+  const raw      = document.getElementById('dataInput').value;
+  const colorRaw = document.getElementById('colorInput').value;
+  const errEl    = document.getElementById('parseError');
+  const svg      = document.getElementById('chart-svg');
+  const empty    = document.getElementById('emptyState');
+
+  const { links, nodeNames, customColors, errors } = parseData(raw, colorRaw);
+
+  if (errors.length) { errEl.textContent = errors[0]; errEl.classList.add('show'); }
+  else errEl.classList.remove('show');
+
+  if (!links.length) {
+    svg.style.display = 'none'; empty.style.display = 'block';
+    document.getElementById('statNodes').textContent = 0;
+    document.getElementById('statLinks').textContent = 0;
+    document.getElementById('statTotal').textContent = 0;
+    document.getElementById('previewInfo').textContent = '— 等待数据 —';
+    return;
+  }
+
+  svg.style.display = 'block'; empty.style.display = 'none';
+
+  // 读取样式设置
+  const nodeWidth  = +document.getElementById('nodeWidth').value;
+  const nodePad    = +document.getElementById('nodePad').value;
+  const linkOp     = +document.getElementById('linkOpacity').value / 100;
+  const roundNode  = document.getElementById('toggleRound').classList.contains('on');
+  const labelPos   = document.getElementById('labelPos').value;
+  const bgColor    = document.getElementById('bgSelect').value;
+  const scheme     = document.getElementById('colorScheme').value;
+  const palette    = COLOR_SCHEMES[scheme];
+  const scaleOpt   = document.getElementById('scaleSelect').value;
+
+  const W = 900, H = 520;
+  const PAD = { t: 20, r: 120, b: 20, l: 120 };
+  const iW = W - PAD.l - PAD.r;
+  const iH = H - PAD.t - PAD.b;
+
+  const nodes = computeSankey(links, nodeNames, {
+    width: iW, height: iH, nodeWidth, nodePad
+  });
+  const nodeIdx = Object.fromEntries(nodeNames.map((n, i) => [n, i]));
+
+  // 颜色分配
+  const nodeColor = {};
+  nodeNames.forEach((name, i) => {
+    nodeColor[name] = customColors[name] || palette[i % palette.length];
+  });
+
+  // 统计
+  const totalFlow = links.reduce((s, l) => s + l.value, 0);
+  document.getElementById('statNodes').textContent = nodeNames.length;
+  document.getElementById('statLinks').textContent = links.length;
+  document.getElementById('statTotal').textContent = totalFlow.toLocaleString();
+  document.getElementById('previewInfo').innerHTML =
+    `<b>${nodeNames.length}</b> 个节点 &nbsp;·&nbsp; <b>${links.length}</b> 条流向 &nbsp;·&nbsp; 总流量 <b>${totalFlow.toLocaleString()}</b>`;
+
+  // SVG 尺寸与缩放
+  let viewScale = 1;
+  if (scaleOpt !== 'fit') viewScale = parseFloat(scaleOpt);
+  svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+  svg.setAttribute('width',  scaleOpt === 'fit' ? '100%' : W * viewScale);
+  svg.setAttribute('height', scaleOpt === 'fit' ? 'auto' : H * viewScale);
+
+  // 清空
+  while (svg.firstChild) svg.removeChild(svg.lastChild);
+
+  // defs
+  const defs = el('defs');
+  svg.appendChild(defs);
+
+  // 背景
+  const bg = el('rect', { x: 0, y: 0, width: W, height: H, fill: bgColor });
+  svg.appendChild(bg);
+
+  const g = el('g', { transform: `translate(${PAD.l},${PAD.t})` });
+  svg.appendChild(g);
+
+  // 节点出入口偏移追踪
+  const nodeOutY = {}; // 每个节点当前出口 Y 偏移
+  const nodeInY  = {};
+  nodeNames.forEach(n => { nodeOutY[n] = 0; nodeInY[n] = 0; });
+
+  // 按源节点的 Y 排序 links
+  const sortedLinks = [...links].sort((a, b) => {
+    const na = nodes[nodeIdx[a.source]], nb = nodes[nodeIdx[b.source]];
+    return (na.y + nodeOutY[a.source]) - (nb.y + nodeOutY[b.source]);
+  });
+
+  // 预计算每条 link 的厚度
+  const maxVal = Math.max(1, ...nodes.map(n => n.value));
+  const linkData = sortedLinks.map(link => {
+    const src = nodes[nodeIdx[link.source]];
+    const tgt = nodes[nodeIdx[link.target]];
+    const srcH = src.h, tgtH = tgt.h;
+    const ratio = link.value / Math.max(src.value, 0.001);
+    const thickness = Math.max(1.5, ratio * srcH);
+    return { ...link, src, tgt, thickness };
+  });
+
+  // 为每条 link 分配出入口 Y
+  const linkAssigned = linkData.map(ld => {
+    const sy = nodes[nodeIdx[ld.source]].y + nodeOutY[ld.source];
+    const ty = nodes[nodeIdx[ld.target]].y + nodeInY[ld.target];
+    nodeOutY[ld.source] += ld.thickness;
+    nodeInY[ld.target]  += ld.thickness;
+    return { ...ld, sy, ty };
+  });
+
+  // 渐变定义
+  linkAssigned.forEach((ld, i) => {
+    const gradId = `lg${i}`;
+    const grad = el('linearGradient', { id: gradId, x1: '0%', y1: '0%', x2: '100%', y2: '0%' });
+    grad.appendChild(el('stop', { offset: '0%', 'stop-color': nodeColor[ld.source], 'stop-opacity': linkOp }));
+    grad.appendChild(el('stop', { offset: '100%', 'stop-color': nodeColor[ld.target], 'stop-opacity': linkOp }));
+    defs.appendChild(grad);
+  });
+
+  // 绘制流量带
+  linkAssigned.forEach((ld, i) => {
+    const x0 = ld.src.x + nodeWidth;
+    const x1 = ld.tgt.x;
+    const cy = (x0 + x1) / 2;
+    const y0t = ld.sy, y0b = ld.sy + ld.thickness;
+    const y1t = ld.ty, y1b = ld.ty + ld.thickness;
+
+    const d = [
+      `M ${x0} ${y0t}`,
+      `C ${cy} ${y0t}, ${cy} ${y1t}, ${x1} ${y1t}`,
+      `L ${x1} ${y1b}`,
+      `C ${cy} ${y1b}, ${cy} ${y0b}, ${x0} ${y0b}`,
+      'Z'
+    ].join(' ');
+
+    const path = el('path', {
+      d, fill: `url(#lg${i})`,
+      class: 'sankey-link',
+      'data-source': ld.source,
+      'data-target': ld.target,
+      'data-value': ld.value,
+    });
+    path.style.cursor = 'pointer';
+    path.style.transition = 'opacity .15s';
+    g.appendChild(path);
+
+    // hover
+    path.addEventListener('mouseenter', function(e) {
+      showTooltip(e, `<strong>${ld.source} → ${ld.target}</strong>
+        <div class="trow">流量：<b>${ld.value.toLocaleString()}</b></div>
+        <div class="trow">占比：<b>${(ld.value/totalFlow*100).toFixed(1)}%</b></div>`);
+      this.style.opacity = '1';
+      document.querySelectorAll('.sankey-link').forEach(p => {
+        if (p !== this) p.style.opacity = '0.25';
+      });
+    });
+    path.addEventListener('mousemove', moveTooltip);
+    path.addEventListener('mouseleave', function() {
+      hideTooltip();
+      document.querySelectorAll('.sankey-link').forEach(p => p.style.opacity = '');
+    });
+  });
+
+  // 绘制节点
+  nodes.forEach(node => {
+    const rx = roundNode ? Math.min(4, nodeWidth / 2) : 0;
+    const rect = el('rect', {
+      x: node.x, y: node.y,
+      width: nodeWidth, height: node.h,
+      fill: nodeColor[node.name],
+      rx, ry: rx,
+      class: 'sankey-node',
+      'data-name': node.name,
+    });
+    rect.style.cursor = 'pointer';
+    g.appendChild(rect);
+
+    // 光晕
+    const glow = el('rect', {
+      x: node.x - 2, y: node.y - 2,
+      width: nodeWidth + 4, height: node.h + 4,
+      fill: 'none', stroke: nodeColor[node.name],
+      'stroke-width': 2, rx: rx + 2,
+      opacity: 0, class: 'node-glow',
+    });
+    g.appendChild(glow);
+
+    rect.addEventListener('mouseenter', function(e) {
+      glow.setAttribute('opacity', '0.7');
+      const inVal  = links.filter(l => l.target === node.name).reduce((s, l) => s + l.value, 0);
+      const outVal = links.filter(l => l.source === node.name).reduce((s, l) => s + l.value, 0);
+      showTooltip(e, `<strong>${node.name}</strong>
+        ${inVal  ? `<div class="trow">流入：<b>${inVal.toLocaleString()}</b></div>` : ''}
+        ${outVal ? `<div class="trow">流出：<b>${outVal.toLocaleString()}</b></div>` : ''}
+        <div class="trow">占比：<b>${(node.value/totalFlow*100).toFixed(1)}%</b></div>`);
+    });
+    rect.addEventListener('mousemove', moveTooltip);
+    rect.addEventListener('mouseleave', function() {
+      glow.setAttribute('opacity', '0');
+      hideTooltip();
+    });
+
+    // 标签
+    const isLeft  = node.layer === 0;
+    const isRight = node.layer === Math.max(...nodes.map(n => n.layer));
+    let lx, anchor;
+    if (labelPos === 'left')   { lx = node.x - 8; anchor = 'end'; }
+    else if (labelPos === 'right') { lx = node.x + nodeWidth + 8; anchor = 'start'; }
+    else if (labelPos === 'inside') { lx = node.x + nodeWidth / 2; anchor = 'middle'; }
+    else { // auto
+      if (isRight) { lx = node.x + nodeWidth + 8; anchor = 'start'; }
+      else if (isLeft) { lx = node.x - 8; anchor = 'end'; }
+      else { lx = node.x + nodeWidth + 8; anchor = 'start'; }
+    }
+    const ly = node.y + node.h / 2;
+    const isDark = bgColor === '#0d1117' || bgColor === '#1a1a2e';
+
+    const text = el('text', {
+      x: lx, y: ly,
+      'text-anchor': anchor,
+      'dominant-baseline': 'middle',
+      'font-family': 'Inter, system-ui, sans-serif',
+      'font-size': '12',
+      fill: isDark ? '#c9d1d9' : '#24292f',
+      'font-weight': '500',
+    });
+    text.textContent = node.name;
+    g.appendChild(text);
+
+    // 数值标签（节点内若够大则显示）
+    if (node.h > 24 && labelPos === 'inside') {
+      const vtext = el('text', {
+        x: node.x + nodeWidth / 2, y: ly + 14,
+        'text-anchor': 'middle', 'dominant-baseline': 'middle',
+        'font-family': 'IBM Plex Mono, monospace', 'font-size': '10',
+        fill: 'rgba(255,255,255,.7)',
+      });
+      vtext.textContent = node.value.toLocaleString();
+      g.appendChild(vtext);
+    }
+  });
+}
+
+/* ============================================================
+   辅助函数
+============================================================ */
+function el(tag, attrs = {}) {
+  const e = document.createElementNS('http://www.w3.org/2000/svg', tag);
+  Object.entries(attrs).forEach(([k, v]) => e.setAttribute(k, v));
+  return e;
+}
+
+const tooltip = document.getElementById('tooltip');
+function showTooltip(e, html) {
+  tooltip.innerHTML = html;
+  tooltip.classList.add('show');
+  moveTooltip(e);
+}
+function moveTooltip(e) {
+  const x = e.clientX + 14, y = e.clientY - 10;
+  tooltip.style.left = Math.min(x, window.innerWidth - 220) + 'px';
+  tooltip.style.top  = Math.min(y, window.innerHeight - 100) + 'px';
+}
+function hideTooltip() { tooltip.classList.remove('show'); }
+
+/* ============================================================
+   交互绑定
+============================================================ */
+// 标签切换
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+// 示例数据
+document.querySelectorAll('.ex-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.getElementById('dataInput').value = EXAMPLES[btn.dataset.ex];
+    render();
+  });
+});
+
+// toggle
+document.getElementById('toggleRound').addEventListener('click', function() {
+  this.classList.toggle('on'); render();
+});
+
+// range 实时显示
+['nodeWidth','nodePad','linkOpacity'].forEach(id => {
+  const el = document.getElementById(id);
+  const vEl = document.getElementById(id + 'Val');
+  el.addEventListener('input', () => { vEl.textContent = el.value; render(); });
+});
+
+// select
+['labelPos','bgSelect','colorScheme','scaleSelect'].forEach(id => {
+  document.getElementById(id).addEventListener('change', render);
+});
+
+// 数据输入防抖
+let timer;
+['dataInput','colorInput'].forEach(id => {
+  document.getElementById(id).addEventListener('input', () => {
+    clearTimeout(timer); timer = setTimeout(render, 300);
+  });
+});
+
+// 导出 SVG
+document.getElementById('exportSVG').addEventListener('click', () => {
+  const svg = document.getElementById('chart-svg');
+  if (svg.style.display === 'none') return;
+  const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sankey.svg'; a.click();
+});
+
+// 导出 PNG
+document.getElementById('exportPNG').addEventListener('click', () => {
+  const svg = document.getElementById('chart-svg');
+  if (svg.style.display === 'none') return;
+  const canvas = document.createElement('canvas');
+  canvas.width = 1800; canvas.height = 1040;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  const blob = new Blob([svg.outerHTML], { type: 'image/svg+xml' });
+  img.onload = () => {
+    ctx.drawImage(img, 0, 0, 1800, 1040);
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    a.download = 'sankey.png'; a.click();
+  };
+  img.src = URL.createObjectURL(blob);
+});
+
+/* ============================================================
+   初始化
+============================================================ */
+document.getElementById('dataInput').value = EXAMPLES.energy;
+render();
+</script>
+</body>
+</html>
