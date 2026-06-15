@@ -293,10 +293,35 @@
         width: fit-content;
         margin-bottom: 30px;
         padding: 5px 9px;
-        border: 1px solid rgba(0, 0, 0, 0.16);
+        border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 999px;
-        color: rgba(0, 0, 0, 0.72);
         font-size: 12px;
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.72),
+          0 8px 18px rgba(24, 32, 38, 0.08);
+        backdrop-filter: blur(14px) saturate(1.08);
+      }
+
+      .card[data-category="post"] .tag {
+        border-color: #c9bed7;
+        background: rgba(237, 232, 243, 0.78);
+        color: #5b4e68;
+      }
+
+      .card[data-category="mini-game"] .tag {
+        border-color: #c8c7a7;
+        background: rgba(240, 238, 216, 0.78);
+        color: #676333;
+      }
+
+      .card[data-category="tool"] .tag {
+        border-color: #b6cec2;
+        background: rgba(228, 240, 234, 0.78);
+        color: #3f6654;
+      }
+
+      .reach-text {
+        color: rgba(0, 0, 0, 0.46);
       }
 
       .card h3 {
@@ -461,7 +486,7 @@ Mainframe's Adaptive Response Interface Agent</p>
               <button class="pill filter-trigger" type="button" data-filter="mini-game">Mini Game</button>
               <button class="pill filter-trigger" type="button" data-filter="tool">Tool</button>
               <button class="pill pill-outline" type="button" id="copy-link">
-                <span>Reach us: <u>https://ralphlio.github.io/ai/</u></span>
+                <span class="reach-text">Reach us: <u>https://ralphlio.github.io/ai/</u></span>
                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2" />
                   <rect x="5" y="5" width="11" height="11" rx="2" stroke="currentColor" stroke-width="2" />
@@ -639,6 +664,7 @@ Mainframe's Adaptive Response Interface Agent</p>
           window.setTimeout(() => {
             copyButton.querySelector("span").innerHTML =
               "Reach us: <u>https://ralphlio.github.io/ai/</u>";
+            copyButton.querySelector("span").classList.add("reach-text");
           }, 1600);
         });
 
