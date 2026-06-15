@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>像素迷宫 PIXEL MAZE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #14132b;
+    --panel: #1e1c3a;
+    --panel-deep: #16142e;
+    --line: #2f2c55;
+    --ink: #e8e6ff;
+    --dim: #8d89bd;
+    --yellow: #ffd23f;
+    --cyan: #2de2e6;
+    --red: #ff3864;
+    --green: #3df08c;
+    --px: 'Press Start 2P', 'Heiti SC', 'SimHei', 'Microsoft YaHei', monospace;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    background-image:
+      radial-gradient(circle at 20% 0%, rgba(45,226,230,.06), transparent 40%),
+      radial-gradient(circle at 90% 100%, rgba(255,210,63,.05), transparent 40%);
+    color: var(--ink);
+    font-family: var(--px);
+    -webkit-font-smoothing: none;
+    overflow-x: hidden;
+  }
+  ::selection { background: var(--yellow); color: #14132b; }
+
+  .wrap {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 18px 16px 40px;
+  }
+
+  /* ===== 顶栏 ===== */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 4px 18px;
+    flex-wrap: wrap;
+  }
+  .logo {
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--yellow);
+    text-shadow: 3px 3px 0 #6b4a00, 0 0 18px rgba(255,210,63,.35);
+  }
+  .logo small { display: block; font-size: 9px; color: var(--cyan); margin-top: 7px; letter-spacing: 4px; text-shadow: none; }
+  .credit { font-size: 9px; color: var(--dim); letter-spacing: 1px; }
+  .credit b { color: var(--cyan); }
+
+  /* ===== 布局 ===== */
+  .layout { display: grid; grid-template-columns: 300px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+
+  /* ===== 操作台面板 ===== */
+  .console {
+    background: var(--panel);
+    border: 3px solid var(--line);
+    box-shadow: 0 6px 0 #0c0b1d, inset 0 0 0 2px #14132b;
+    padding: 14px;
+  }
+  .console h2 {
+    font-size: 10px;
+    color: var(--cyan);
+    letter-spacing: 2px;
+    border-bottom: 2px dashed var(--line);
+    padding-bottom: 9px;
+    margin-bottom: 12px;
+  }
+  .group { margin-bottom: 16px; }
+  .group:last-child { margin-bottom: 4px; }
+  .label { font-size: 9px; color: var(--dim); letter-spacing: 1px; margin-bottom: 8px; display: flex; justify-content: space-between; }
+  .label .val { color: var(--yellow); }
+
+  .seg { display: grid; gap: 6px; }
+  .seg.c2 { grid-template-columns: 1fr 1fr; }
+  .seg.c3 { grid-template-columns: 1fr 1fr 1fr; }
+  .seg.c4 { grid-template-columns: repeat(4, 1fr); }
+
+  button, select { font-family: var(--px); }
+  .btn {
+    background: var(--panel-deep);
+    border: 2px solid var(--line);
+    color: var(--ink);
+    font-size: 9px;
+    padding: 9px 4px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: transform .05s;
+    text-align: center;
+    line-height: 1.5;
+  }
+  .btn:hover { border-color: var(--cyan); }
+  .btn:active { transform: translateY(2px); }
+  .btn.on { background: var(--yellow); color: #14132b; border-color: var(--yellow); box-shadow: 0 0 12px rgba(255,210,63,.4); }
+  .btn.danger.on { background: var(--red); border-color: var(--red); color: #fff; box-shadow: 0 0 12px rgba(255,56,100,.45); }
+
+  .avatars { display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+  .avatar {
+    font-size: 18px;
+    padding: 7px 0;
+    background: var(--panel-deep);
+    border: 2px solid var(--line);
+    cursor: pointer;
+    text-align: center;
+    line-height: 1;
+  }
+  .avatar:hover { border-color: var(--cyan); }
+  .avatar.on { border-color: var(--yellow); background: #2c2950; box-shadow: 0 0 10px rgba(255,210,63,.35); }
+
+  .colorRow { display: flex; align-items: center; gap: 10px; }
+  input[type=color] {
+    width: 44px; height: 32px; padding: 0; border: 2px solid var(--line);
+    background: var(--panel-deep); cursor: pointer;
+  }
+  .colorRow span { font-size: 8px; color: var(--dim); line-height: 1.6; }
+
+  .bigBtn {
+    width: 100%;
+    background: var(--green);
+    color: #06281a;
+    border: none;
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 14px 0 12px;
+    cursor: pointer;
+    box-shadow: 0 5px 0 #1a7a48;
+    margin-top: 4px;
+  }
+  .bigBtn:active { transform: translateY(3px); box-shadow: 0 2px 0 #1a7a48; }
+
+  .modeHint { font-size: 8px; color: var(--dim); line-height: 1.9; margin-top: 8px; border-left: 3px solid var(--line); padding-left: 8px; }
+
+  /* ===== 游戏屏幕 ===== */
+  .screenCol { display: flex; flex-direction: column; gap: 12px; }
+  .hud {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .hudBox {
+    flex: 1;
+    min-width: 110px;
+    background: var(--panel);
+    border: 3px solid var(--line);
+    padding: 10px 12px;
+    box-shadow: 0 4px 0 #0c0b1d;
+  }
+  .hudBox .k { font-size: 8px; color: var(--dim); letter-spacing: 1px; margin-bottom: 7px; }
+  .hudBox .v { font-size: 14px; color: var(--cyan); letter-spacing: 1px; }
+  .hudBox .v.warn { color: var(--red); animation: blink .5s steps(2) infinite; }
+  @keyframes blink { 50% { opacity: .25; } }
+
+  .crt {
+    position: relative;
+    background: #000;
+    border: 4px solid var(--line);
+    box-shadow: 0 8px 0 #0c0b1d, 0 0 40px rgba(45,226,230,.08);
+    overflow: hidden;
+  }
+  canvas#game { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+  .crt::after {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 2px, transparent 2px 4px);
+    mix-blend-mode: multiply;
+  }
+  .crt::before {
+    content: '';
+    position: absolute; inset: 0;
+    pointer-events: none;
+    z-index: 2;
+    background: radial-gradient(ellipse at center, transparent 62%, rgba(0,0,0,.38));
+  }
+
+  /* ===== 覆盖层 ===== */
+  .overlay {
+    position: absolute; inset: 0;
+    z-index: 5;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(10,9,25,.82);
+    text-align: center;
+  }
+  .overlay.show { display: flex; }
+  .overlay .card { padding: 24px; }
+  .overlay h3 { font-size: 22px; letter-spacing: 3px; margin-bottom: 16px; }
+  .overlay h3.win { color: var(--yellow); text-shadow: 3px 3px 0 #6b4a00; }
+  .overlay h3.lose { color: var(--red); text-shadow: 3px 3px 0 #5c0d22; }
+  .overlay p { font-size: 10px; color: var(--ink); line-height: 2.1; margin-bottom: 18px; }
+  .overlay .btn { font-size: 10px; padding: 12px 18px; }
+
+  /* ===== 方向键 ===== */
+  .dpadRow { display: flex; justify-content: center; }
+  .dpad {
+    display: grid;
+    grid-template-columns: repeat(3, 64px);
+    grid-template-rows: repeat(3, 64px);
+    gap: 6px;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .dkey {
+    background: var(--panel);
+    border: 3px solid var(--line);
+    color: var(--cyan);
+    font-size: 16px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #0c0b1d;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .dkey:active, .dkey.held { background: var(--cyan); color: #04282a; transform: translateY(3px); box-shadow: 0 1px 0 #0c0b1d; }
+  .dkey.blank { visibility: hidden; }
+  .kbdHint { text-align: center; font-size: 8px; color: var(--dim); letter-spacing: 1px; margin-top: 2px; }
+
+  @media (max-width: 900px) {
+    .logo { font-size: 16px; }
+    .hudBox .v { font-size: 12px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hudBox .v.warn { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="logo">PIXEL MAZE<small>像 素 迷 宫 大 冒 险</small></div>
+    <div class="credit">INSERT COIN ▸ 选择动物 ▸ 冲向 <b>🚩 终点</b></div>
+  </header>
+
+  <div class="layout">
+    <!-- ===== 操作台 ===== -->
+    <aside class="console">
+      <h2>▦ 操作台 CONSOLE</h2>
+
+      <div class="group">
+        <div class="label"><span>迷宫大小</span><span class="val" id="sizeVal">15×15</span></div>
+        <div class="seg c4">
+          <button class="btn szBtn" data-size="11">小</button>
+          <button class="btn szBtn on" data-size="15">中</button>
+          <button class="btn szBtn" data-size="21">大</button>
+          <button class="btn szBtn" data-size="31">巨</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="label"><span>墙体材质</span></div>
+        <div class="seg c3">
+          <button class="btn matBtn on" data-mat="brick">砖墙</button>
+          <button class="btn matBtn" data-mat="hedge">树篱</button>
+          <button class="btn matBtn" data-mat="ice">冰块</button>
+          <button class="btn matBtn" data-mat="lava">熔岩</button>
+          <button class="btn matBtn" data-mat="neon">霓虹</button>
+          <button class="btn matBtn" data-mat="stone">石壁</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="label"><span>背景颜色</span></div>
+        <div class="colorRow">
+          <input type="color" id="bgColor" value="#1a1626">
+          <span>点击选择迷宫地面颜色<br>材质会自动配套描边</span>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="label"><span>我的角色</span></div>
+        <div class="avatars" id="avatars"></div>
+      </div>
+
+      <div class="group">
+        <div class="label"><span>操控模式</span></div>
+        <div class="seg">
+          <button class="btn modeBtn on" data-mode="normal">🐾 普通 · 长按方向键移动</button>
+          <button class="btn modeBtn" data-mode="drive">🏎️ 驾驶 · 高速直行撞墙反弹</button>
+          <button class="btn modeBtn danger" data-mode="hard">💀 困难 · 高速直行撞墙即输</button>
+        </div>
+        <div class="modeHint" id="modeHint">长按 ↑↓←→ 或 WASD，松开即停，稳扎稳打。</div>
+      </div>
+
+      <div class="group">
+        <div class="label"><span>倒计时模式</span></div>
+        <div class="seg c4">
+          <button class="btn tmBtn on" data-time="0">关</button>
+          <button class="btn tmBtn" data-time="30">30s</button>
+          <button class="btn tmBtn" data-time="60">60s</button>
+          <button class="btn tmBtn" data-time="120">120s</button>
+        </div>
+      </div>
+
+      <div class="group">
+        <div class="label"><span>8-BIT 音乐</span></div>
+        <div class="seg c2">
+          <button class="btn" id="musicToggle">♪ 播放</button>
+          <button class="btn" id="musicNext">⏭ 换曲</button>
+        </div>
+        <div class="modeHint" id="trackName">当前曲目：像素冒险</div>
+      </div>
+
+      <button class="bigBtn" id="newMaze">★ 生成新迷宫 ★</button>
+    </aside>
+
+    <!-- ===== 屏幕区 ===== -->
+    <section class="screenCol">
+      <div class="hud">
+        <div class="hudBox"><div class="k">TIME 时间</div><div class="v" id="hudTime">--</div></div>
+        <div class="hudBox"><div class="k">MODE 模式</div><div class="v" id="hudMode">普通</div></div>
+        <div class="hudBox"><div class="k">STEPS 步数</div><div class="v" id="hudSteps">0</div></div>
+        <div class="hudBox"><div class="k">STATUS 状态</div><div class="v" id="hudStatus">READY</div></div>
+      </div>
+
+      <div class="crt" id="crt">
+        <canvas id="game" width="930" height="930"></canvas>
+        <div class="overlay" id="overlay">
+          <div class="card">
+            <h3 id="ovTitle" class="win">YOU WIN!</h3>
+            <p id="ovText"></p>
+            <button class="btn" id="ovBtn">▶ 再来一局</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="dpadRow">
+        <div class="dpad" id="dpad">
+          <div class="dkey blank"></div>
+          <button class="dkey" data-dir="up">▲</button>
+          <div class="dkey blank"></div>
+          <button class="dkey" data-dir="left">◀</button>
+          <div class="dkey blank"></div>
+          <button class="dkey" data-dir="right">▶</button>
+          <div class="dkey blank"></div>
+          <button class="dkey" data-dir="down">▼</button>
+          <div class="dkey blank"></div>
+        </div>
+      </div>
+      <div class="kbdHint">键盘：↑↓←→ / WASD ｜ 触屏：使用方向键按钮</div>
+    </section>
+  </div>
+</div>
+
+<script>
+/* ================= 基础状态 ================= */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+const DIRS = {
+  up:    { dx: 0, dy: -1, opp: 'down'  },
+  down:  { dx: 0, dy: 1,  opp: 'up'    },
+  left:  { dx: -1, dy: 0, opp: 'right' },
+  right: { dx: 1, dy: 0,  opp: 'left'  },
+};
+
+const state = {
+  size: 15,
+  material: 'brick',
+  bgColor: '#1a1626',
+  avatar: '🐱',
+  mode: 'normal',          // normal | drive | hard
+  countdown: 0,            // 0 = 关闭
+  maze: null,              // 二维数组 1=墙 0=路
+  player: { x: 1, y: 1, px: 1, py: 1, dir: null, queued: null, moving: false },
+  goal: { x: 0, y: 0 },
+  steps: 0,
+  startTime: 0,
+  timeLeft: 0,
+  playing: false,
+  over: false,
+};
+
+const MODE_NAMES = { normal: '普通', drive: '驾驶', hard: '困难' };
+const MODE_HINTS = {
+  normal: '长按 ↑↓←→ 或 WASD，松开即停，稳扎稳打。',
+  drive:  '按一下方向键就全速直行！撞墙会反弹折返，掌握节奏提前转向。',
+  hard:   '驾驶模式 + 撞墙即游戏结束。手抖勿入，勇者上路！',
+};
+const SPEED = { normal: 7, drive: 8, hard: 8 }; // 格/秒
+
+/* ================= 迷宫生成（递归回溯） ================= */
+function genMaze(n) {
+  const g = Array.from({ length: n }, () => Array(n).fill(1));
+  const stack = [[1, 1]];
+  g[1][1] = 0;
+  while (stack.length) {
+    const [cx, cy] = stack[stack.length - 1];
+    const opts = [];
+    for (const d of Object.values(DIRS)) {
+      const nx = cx + d.dx * 2, ny = cy + d.dy * 2;
+      if (nx > 0 && ny > 0 && nx < n - 1 && ny < n - 1 && g[ny][nx] === 1) opts.push([nx, ny, d]);
+    }
+    if (!opts.length) { stack.pop(); continue; }
+    const [nx, ny, d] = opts[Math.random() * opts.length | 0];
+    g[cy + d.dy][cx + d.dx] = 0;
+    g[ny][nx] = 0;
+    stack.push([nx, ny]);
+  }
+  // 随机打通少量墙，制造环路（驾驶模式更好玩）
+  const extra = Math.floor(n / 5);
+  let tries = 0, opened = 0;
+  while (opened < extra && tries < 500) {
+    tries++;
+    const x = 1 + (Math.random() * (n - 2) | 0);
+    const y = 1 + (Math.random() * (n - 2) | 0);
+    if (g[y][x] !== 1) continue;
+    const h = g[y][x - 1] === 0 && g[y][x + 1] === 0;
+    const v = g[y - 1][x] === 0 && g[y + 1][x] === 0;
+    if (h !== v) { g[y][x] = 0; opened++; }
+  }
+  return g;
+}
+
+/* ================= 材质贴图 ================= */
+const MATS = {
+  brick: { base: '#b5512f', mk(c, s) {
+    c.fillStyle = '#b5512f'; c.fillRect(0, 0, s, s);
+    c.fillStyle = '#8f3c20';
+    const h = s / 4;
+    for (let r = 0; r < 4; r++) {
+      c.fillRect(0, r * h, s, Math.max(1, s * .04));
+      const off = (r % 2) * s / 2;
+      c.fillRect((off + s / 4) % s, r * h, Math.max(1, s * .04), h);
+    }
+    c.fillStyle = 'rgba(255,255,255,.10)';
+    c.fillRect(0, 0, s, Math.max(1, s * .06));
+  }},
+  hedge: { base: '#2e7d32', mk(c, s) {
+    c.fillStyle = '#2e7d32'; c.fillRect(0, 0, s, s);
+    const cols = ['#1b5e20', '#43a047', '#66bb6a', '#245c28'];
+    const px = Math.max(2, s / 8);
+    for (let i = 0; i < 22; i++) {
+      c.fillStyle = cols[i % cols.length];
+      c.fillRect((Math.random() * s) | 0, (Math.random() * s) | 0, px, px);
+    }
+  }},
+  ice: { base: '#7fd4f2', mk(c, s) {
+    c.fillStyle = '#7fd4f2'; c.fillRect(0, 0, s, s);
+    c.strokeStyle = 'rgba(255,255,255,.75)';
+    c.lineWidth = Math.max(1, s * .05);
+    c.beginPath();
+    c.moveTo(s * .1, s * .8); c.lineTo(s * .45, s * .45); c.lineTo(s * .4, s * .2);
+    c.moveTo(s * .6, s * .9); c.lineTo(s * .75, s * .55); c.lineTo(s * .95, s * .4);
+    c.stroke();
+    c.fillStyle = 'rgba(255,255,255,.35)';
+    c.fillRect(0, 0, s, s * .12);
+    c.fillStyle = 'rgba(20,60,110,.25)';
+    c.fillRect(0, s * .85, s, s * .15);
+  }},
+  lava: { base: '#3a2424', mk(c, s) {
+    c.fillStyle = '#3a2424'; c.fillRect(0, 0, s, s);
+    c.strokeStyle = '#ff6d1f';
+    c.lineWidth = Math.max(1.5, s * .07);
+    c.beginPath();
+    c.moveTo(0, s * .3); c.lineTo(s * .35, s * .42); c.lineTo(s * .5, s * .2);
+    c.moveTo(s * .4, s); c.lineTo(s * .55, s * .7); c.lineTo(s, s * .62);
+    c.stroke();
+    c.fillStyle = '#ffd23f';
+    c.fillRect(s * .3, s * .38, Math.max(2, s * .08), Math.max(2, s * .08));
+    c.fillStyle = 'rgba(0,0,0,.3)';
+    c.fillRect(0, 0, s, s * .08);
+  }},
+  neon: { base: '#191230', mk(c, s) {
+    c.fillStyle = '#191230'; c.fillRect(0, 0, s, s);
+    c.strokeStyle = '#e84ff5';
+    c.lineWidth = Math.max(2, s * .09);
+    c.strokeRect(c.lineWidth / 2, c.lineWidth / 2, s - c.lineWidth, s - c.lineWidth);
+    c.strokeStyle = 'rgba(45,226,230,.8)';
+    c.lineWidth = Math.max(1, s * .04);
+    c.strokeRect(s * .25, s * .25, s * .5, s * .5);
+  }},
+  stone: { base: '#6f7587', mk(c, s) {
+    c.fillStyle = '#6f7587'; c.fillRect(0, 0, s, s);
+    c.fillStyle = '#565b6b';
+    c.fillRect(0, s * .45, s, Math.max(1, s * .05));
+    c.fillRect(s * .3, 0, Math.max(1, s * .05), s * .45);
+    c.fillRect(s * .65, s * .5, Math.max(1, s * .05), s * .5);
+    c.fillStyle = 'rgba(255,255,255,.12)';
+    c.fillRect(0, 0, s, s * .08);
+    c.fillStyle = 'rgba(0,0,0,.18)';
+    c.fillRect(0, s * .92, s, s * .08);
+  }},
+};
+
+let wallTile = null;
+function buildWallTile(cell) {
+  const t = document.createElement('canvas');
+  t.width = t.height = Math.max(8, Math.round(cell));
+  MATS[state.material].mk(t.getContext('2d'), t.width);
+  wallTile = t;
+}
+
+/* ================= 渲染 ================= */
+const cv = $('#game');
+const ctx = cv.getContext('2d');
+let cell = 0;
+
+function fitCanvas() {
+  const n = state.size;
+  const target = 930;
+  cell = Math.floor(target / n);
+  cv.width = cv.height = cell * n;
+  buildWallTile(cell);
+}
+
+function shade(hex, f) {
+  const v = parseInt(hex.slice(1), 16);
+  const r = Math.min(255, Math.max(0, ((v >> 16) & 255) * f)) | 0;
+  const g = Math.min(255, Math.max(0, ((v >> 8) & 255) * f)) | 0;
+  const b = Math.min(255, Math.max(0, (v & 255) * f)) | 0;
+  return `rgb(${r},${g},${b})`;
+}
+
+function draw() {
+  const n = state.size, m = state.maze;
+  ctx.fillStyle = state.bgColor;
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  // 地面棋盘格微纹理
+  ctx.fillStyle = shade(state.bgColor, 1.18);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    if (m[y][x] === 0 && (x + y) % 2 === 0) ctx.fillRect(x * cell, y * cell, cell, cell);
+  }
+  // 墙
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    if (m[y][x] === 1) ctx.drawImage(wallTile, x * cell, y * cell, cell, cell);
+  }
+  // 入口标记（顶部缺口处的绿色箭头）
+  ctx.fillStyle = '#3df08c';
+  const ax = 1.5 * cell, ay = .5 * cell, aw = cell * .26;
+  ctx.beginPath();
+  ctx.moveTo(ax, ay + aw);
+  ctx.lineTo(ax - aw, ay - aw * .4);
+  ctx.lineTo(ax + aw, ay - aw * .4);
+  ctx.closePath();
+  ctx.fill();
+  // 终点
+  ctx.font = `${cell * .72}px serif`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const pulse = 1 + Math.sin(performance.now() / 220) * .07;
+  ctx.save();
+  ctx.translate((state.goal.x + .5) * cell, (state.goal.y + .5) * cell);
+  ctx.scale(pulse, pulse);
+  ctx.fillText('🚩', 0, cell * .04);
+  ctx.restore();
+  // 玩家
+  const p = state.player;
+  ctx.save();
+  ctx.translate((p.px + .5) * cell, (p.py + .5) * cell);
+  if ((state.mode !== 'normal') && p.dir) {
+    const wob = Math.sin(performance.now() / 60) * .08;
+    ctx.rotate(wob);
+  }
+  ctx.font = `${cell * .78}px serif`;
+  ctx.fillText(state.avatar, 0, cell * .05);
+  ctx.restore();
+}
+
+/* ================= 游戏循环 ================= */
+const held = new Set();
+let lastT = 0;
+
+function cellOpen(x, y) {
+  const m = state.maze, n = state.size;
+  return x >= 0 && y >= 0 && x < n && y < n && m[y][x] === 0;
+}
+
+function tryStartMove(dir) {
+  const p = state.player, d = DIRS[dir];
+  if (cellOpen(p.x + d.dx, p.y + d.dy)) {
+    p.dir = dir; p.moving = true;
+    return true;
+  }
+  return false;
+}
+
+function onWallHit(dir) {
+  const p = state.player;
+  if (state.mode === 'hard') {
+    sfx.crash();
+    gameOver(false, '💥 撞上了墙壁！困难模式不容失误。');
+    return;
+  }
+  if (state.mode === 'drive') {
+    // 反弹
+    const opp = DIRS[dir].opp;
+    sfx.bounce();
+    if (cellOpen(p.x + DIRS[opp].dx, p.y + DIRS[opp].dy)) {
+      p.dir = opp; p.moving = true;
+    } else {
+      p.dir = null; p.moving = false;
+    }
+    return;
+  }
+  p.dir = null; p.moving = false;
+}
+
+function step(dt) {
+  const p = state.player;
+  if (!state.playing) return;
+
+  // 倒计时
+  if (state.countdown > 0) {
+    state.timeLeft -= dt;
+    if (state.timeLeft <= 0) {
+      state.timeLeft = 0;
+      updateHUD();
+      gameOver(false, '⏰ 时间到！迷宫还在嘲笑你……');
+      return;
+    }
+  }
+
+  if (!p.moving) {
+    // 静止时：普通模式看按键；驾驶模式看排队方向
+    if (state.mode === 'normal') {
+      for (const dir of held) { if (tryStartMove(dir)) { sfx.blip(); break; } }
+    } else if (p.queued) {
+      if (tryStartMove(p.queued)) sfx.blip();
+      p.queued = null;
+    }
+  }
+
+  if (p.moving && p.dir) {
+    const d = DIRS[p.dir];
+    const sp = SPEED[state.mode] * dt;
+    const tx = p.x + d.dx, ty = p.y + d.dy;
+    p.px += d.dx * sp;
+    p.py += d.dy * sp;
+    const passed = d.dx ? (d.dx > 0 ? p.px >= tx : p.px <= tx) : (d.dy > 0 ? p.py >= ty : p.py <= ty);
+    if (passed) {
+      p.x = tx; p.y = ty; p.px = tx; p.py = ty;
+      state.steps++;
+      if (p.x === state.goal.x && p.y === state.goal.y) { win(); return; }
+      // 到达格中心，决定下一步
+      if (state.mode === 'normal') {
+        p.moving = false; p.dir = null;
+        for (const dir of held) { if (tryStartMove(dir)) break; }
+      } else {
+        // 驾驶/困难：优先转向，否则直行，否则撞墙
+        let turned = false;
+        if (p.queued && p.queued !== p.dir) {
+          const q = DIRS[p.queued];
+          if (cellOpen(p.x + q.dx, p.y + q.dy)) { p.dir = p.queued; turned = true; }
+          p.queued = null;
+        }
+        const nd = DIRS[p.dir];
+        if (!cellOpen(p.x + nd.dx, p.y + nd.dy)) {
+          if (!turned) onWallHit(p.dir);
+          else { /* 刚转向后立即撞墙也按规则处理 */ onWallHit(p.dir); }
+        }
+      }
+    }
+  }
+  updateHUD();
+}
+
+function loop(t) {
+  const dt = Math.min(.05, (t - lastT) / 1000 || 0);
+  lastT = t;
+  if (state.maze) { step(dt); draw(); }
+  requestAnimationFrame(loop);
+}
+
+/* ================= HUD / 开始 / 结束 ================= */
+function fmt(sec) {
+  sec = Math.max(0, sec);
+  const m = (sec / 60) | 0, s = Math.ceil(sec % 60);
+  return m ? `${m}:${String(s === 60 ? 0 : s).padStart(2, '0')}` : `${Math.ceil(sec)}s`;
+}
+
+function updateHUD() {
+  const t = $('#hudTime');
+  if (state.countdown > 0) {
+    t.textContent = fmt(state.timeLeft);
+    t.classList.toggle('warn', state.playing && state.timeLeft <= 10);
+  } else {
+    t.textContent = state.playing ? fmt((performance.now() - state.startTime) / 1000) : '--';
+    t.classList.remove('warn');
+  }
+  $('#hudSteps').textContent = state.steps;
+  $('#hudMode').textContent = MODE_NAMES[state.mode];
+}
+
+function newGame() {
+  const n = state.size;
+  state.maze = genMaze(n);
+  state.maze[0][1] = 0;                 // 入口：顶部外墙开口
+  state.maze[n - 1][n - 2] = 0;         // 出口：底部外墙开口
+  state.goal = { x: n - 2, y: n - 1 };  // 走出出口即获胜
+  Object.assign(state.player, { x: 1, y: 1, px: 1, py: 1, dir: null, queued: null, moving: false });
+  state.steps = 0;
+  state.playing = true;
+  state.over = false;
+  state.startTime = performance.now();
+  state.timeLeft = state.countdown;
+  fitCanvas();
+  $('#overlay').classList.remove('show');
+  $('#hudStatus').textContent = 'GO!';
+  $('#hudStatus').style.color = 'var(--green)';
+  updateHUD();
+}
+
+function gameOver(winFlag, msg) {
+  state.playing = false;
+  state.over = true;
+  const p = state.player;
+  p.moving = false; p.dir = null; p.queued = null;
+  const ov = $('#overlay'), title = $('#ovTitle');
+  title.textContent = winFlag ? 'YOU WIN!' : 'GAME OVER';
+  title.className = winFlag ? 'win' : 'lose';
+  $('#ovText').innerHTML = msg;
+  ov.classList.add('show');
+  $('#hudStatus').textContent = winFlag ? 'WIN' : 'OVER';
+  $('#hudStatus').style.color = winFlag ? 'var(--yellow)' : 'var(--red)';
+  if (winFlag) sfx.win(); else sfx.lose();
+}
+
+function win() {
+  const used = ((performance.now() - state.startTime) / 1000).toFixed(1);
+  gameOver(true, `${state.avatar} 用时 <b style="color:var(--yellow)">${used}s</b> ｜ 步数 <b style="color:var(--cyan)">${state.steps}</b><br>逃出了 ${state.size}×${state.size} 迷宫！`);
+}
+
+/* ================= 输入 ================= */
+const KEYMAP = {
+  ArrowUp: 'up', ArrowDown: 'down', ArrowLeft: 'left', ArrowRight: 'right',
+  w: 'up', s: 'down', a: 'left', d: 'right',
+  W: 'up', S: 'down', A: 'left', D: 'right',
+};
+
+function press(dir) {
+  audio.unlock();
+  if (!state.playing) return;
+  held.add(dir);
+  if (state.mode === 'normal') {
+    if (!state.player.moving) tryStartMove(dir) && sfx.blip();
+  } else {
+    state.player.queued = dir;
+    if (!state.player.moving) { /* 立即尝试 */ if (tryStartMove(dir)) { sfx.blip(); state.player.queued = null; } }
+  }
+}
+function release(dir) { held.delete(dir); }
+
+document.addEventListener('keydown', e => {
+  const dir = KEYMAP[e.key];
+  if (!dir) return;
+  e.preventDefault();
+  if (!e.repeat) press(dir);
+});
+document.addEventListener('keyup', e => {
+  const dir = KEYMAP[e.key];
+  if (dir) release(dir);
+});
+
+$$('#dpad .dkey[data-dir]').forEach(btn => {
+  const dir = btn.dataset.dir;
+  const down = e => { e.preventDefault(); btn.classList.add('held'); press(dir); };
+  const up = e => { e.preventDefault(); btn.classList.remove('held'); release(dir); };
+  btn.addEventListener('pointerdown', down);
+  btn.addEventListener('pointerup', up);
+  btn.addEventListener('pointerleave', up);
+  btn.addEventListener('pointercancel', up);
+  btn.addEventListener('contextmenu', e => e.preventDefault());
+});
+
+/* ================= 8-bit 音频引擎 ================= */
+const audio = {
+  ctx: null,
+  unlocked: false,
+  unlock() {
+    if (!this.ctx) {
+      try { this.ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) { return; }
+    }
+    if (this.ctx.state === 'suspended') this.ctx.resume();
+    this.unlocked = true;
+  },
+  beep(freq, dur, type = 'square', vol = .12, when = 0, slideTo = null) {
+    if (!this.ctx) return;
+    const t0 = this.ctx.currentTime + when;
+    const o = this.ctx.createOscillator();
+    const g = this.ctx.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(freq, t0);
+    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo, t0 + dur);
+    g.gain.setValueAtTime(vol, t0);
+    g.gain.exponentialRampToValueAtTime(.0001, t0 + dur);
+    o.connect(g).connect(this.ctx.destination);
+    o.start(t0); o.stop(t0 + dur + .02);
+  },
+};
+
+const sfx = {
+  blip()  { audio.beep(660, .06, 'square', .05); },
+  bounce(){ audio.beep(300, .12, 'square', .1, 0, 120); },
+  crash() { audio.beep(180, .35, 'sawtooth', .16, 0, 40); },
+  win()   { [523, 659, 784, 1047].forEach((f, i) => audio.beep(f, .16, 'square', .12, i * .13)); },
+  lose()  { [392, 330, 262, 196].forEach((f, i) => audio.beep(f, .22, 'triangle', .13, i * .18)); },
+};
+
+/* ---- 曲目：音名转频率 ---- */
+const NOTE_RE = /^([A-G])(#?)(\d)$/;
+const SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+function nf(name) {
+  if (name === '-') return 0;
+  const m = NOTE_RE.exec(name);
+  const semi = SEMI[m[1]] + (m[2] ? 1 : 0) + (+m[3] + 1) * 12;
+  return 440 * Math.pow(2, (semi - 69) / 12);
+}
+
+// 每首曲子：bpm + 旋律(每格1个八分音符) + 低音(每格1个四分音符)
+const TRACKS = [
+  {
+    name: '像素冒险',
+    bpm: 150,
+    melody: ('E5 E5 - E5 - C5 E5 - G5 - - - G4 - - - ' +
+             'C5 - - G4 - - E4 - - A4 - B4 - A#4 A4 - ' +
+             'G4 E5 - G5 A5 - F5 G5 - E5 - C5 D5 B4 - -').split(' '),
+    bass: ('C3 G3 C3 G3 A2 E3 A2 E3 F2 C3 F2 C3 G2 D3 G2 D3 ' +
+           'C3 G3 C3 G3 A2 E3 A2 E3').split(' '),
+  },
+  {
+    name: '紧张追逐',
+    bpm: 176,
+    melody: ('A4 - C5 A4 E5 - D5 C5 A4 - C5 A4 G5 - F5 E5 ' +
+             'F5 - A5 F5 C5 - D5 E5 D5 C5 B4 C5 A4 - - -').split(' '),
+    bass: ('A2 A2 E3 E3 F2 F2 C3 C3 D3 D3 A2 A2 E3 E3 E2 E2').split(' '),
+  },
+  {
+    name: '悠闲漫步',
+    bpm: 104,
+    melody: ('C5 - E5 - G5 - E5 - D5 - F5 - A5 - F5 - ' +
+             'B4 - D5 - G5 - D5 - C5 - E5 - C5 - - -').split(' '),
+    bass: ('C3 E3 G3 E3 D3 F3 A3 F3 G2 B2 D3 B2 C3 E3 G3 E3').split(' '),
+  },
+];
+
+const music = {
+  on: false,
+  idx: 0,
+  pos: 0,
+  timer: null,
+  nextAt: 0,
+  start() {
+    audio.unlock();
+    if (!audio.ctx) return;
+    this.stop();
+    this.on = true;
+    this.pos = 0;
+    this.nextAt = audio.ctx.currentTime + .08;
+    this.timer = setInterval(() => this.tick(), 60);
+    $('#musicToggle').textContent = '♪ 停止';
+    $('#musicToggle').classList.add('on');
+  },
+  stop() {
+    this.on = false;
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
+    $('#musicToggle').textContent = '♪ 播放';
+    $('#musicToggle').classList.remove('on');
+  },
+  tick() {
+    if (!this.on || !audio.ctx) return;
+    const tr = TRACKS[this.idx];
+    const eighth = 60 / tr.bpm / 2;
+    // 提前调度 0.25 秒内的音符
+    while (this.nextAt < audio.ctx.currentTime + .25) {
+      const i = this.pos % tr.melody.length;
+      const mNote = tr.melody[i];
+      if (mNote !== '-') audio.beep(nf(mNote), eighth * .92, 'square', .055, this.nextAt - audio.ctx.currentTime);
+      if (i % 2 === 0) {
+        const bNote = tr.bass[(i / 2) % tr.bass.length];
+        if (bNote !== '-') audio.beep(nf(bNote), eighth * 1.7, 'triangle', .08, this.nextAt - audio.ctx.currentTime);
+      }
+      this.nextAt += eighth;
+      this.pos++;
+    }
+  },
+  next() {
+    this.idx = (this.idx + 1) % TRACKS.length;
+    $('#trackName').textContent = '当前曲目：' + TRACKS[this.idx].name;
+    if (this.on) this.start();
+  },
+};
+
+$('#musicToggle').addEventListener('click', () => music.on ? music.stop() : music.start());
+$('#musicNext').addEventListener('click', () => music.next());
+
+/* ================= 控件绑定 ================= */
+function bindSeg(selector, cb) {
+  $$(selector).forEach(btn => btn.addEventListener('click', () => {
+    $$(selector).forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    cb(btn);
+  }));
+}
+
+bindSeg('.szBtn', b => {
+  state.size = +b.dataset.size;
+  $('#sizeVal').textContent = `${state.size}×${state.size}`;
+  newGame();
+});
+bindSeg('.matBtn', b => {
+  state.material = b.dataset.mat;
+  buildWallTile(cell);
+});
+bindSeg('.modeBtn', b => {
+  state.mode = b.dataset.mode;
+  $('#modeHint').textContent = MODE_HINTS[state.mode];
+  newGame();
+});
+bindSeg('.tmBtn', b => {
+  state.countdown = +b.dataset.time;
+  newGame();
+});
+
+$('#bgColor').addEventListener('input', e => { state.bgColor = e.target.value; });
+$('#newMaze').addEventListener('click', () => { audio.unlock(); newGame(); });
+$('#ovBtn').addEventListener('click', () => newGame());
+
+/* 角色列表 */
+const ANIMALS = ['🐱', '🐶', '🦊', '🐰', '🐼', '🐸', '🐯', '🐹', '🦁', '🐷', '🐨', '🐭'];
+const av = $('#avatars');
+ANIMALS.forEach((a, i) => {
+  const d = document.createElement('button');
+  d.className = 'avatar' + (i === 0 ? ' on' : '');
+  d.textContent = a;
+  d.addEventListener('click', () => {
+    $$('.avatar').forEach(x => x.classList.remove('on'));
+    d.classList.add('on');
+    state.avatar = a;
+  });
+  av.appendChild(d);
+});
+
+/* ================= 启动 ================= */
+newGame();
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
