@@ -540,29 +540,15 @@ description: Use when...
 ..."></textarea>
 
             <div class="controls">
-              <div class="field">
-                <label for="proxy-url">DeepSeek 安全代理地址（可选，推荐公开发布时使用）</label>
-                <input id="proxy-url" type="url" autocomplete="off" value="https://skill-audit-proxy.ralphlio.workers.dev" />
-              </div>
-              <div class="field">
-                <label for="model">模型</label>
-                <select id="model">
-                  <option value="deepseek-chat">deepseek-chat</option>
-                  <option value="deepseek-reasoner">deepseek-reasoner</option>
-                </select>
-              </div>
+              <input id="proxy-url" type="hidden" value="https://skill-audit-proxy.ralphlio.workers.dev" />
+              <input id="model" type="hidden" value="deepseek-reasoner" />
               <div class="button-row">
-                <button class="btn" type="button" id="local-audit">本地规则审计</button>
-                <button class="btn" type="button" id="ai-audit">通过代理进行 AI 深度评估</button>
+                <button class="btn" type="button" id="analyze">分析</button>
                 <button class="btn secondary" type="button" id="clear">清空</button>
               </div>
             </div>
-            <div class="notice">
-              公开网页不应直接保存或填写 DeepSeek API Key。推荐把 Key 放在服务端环境变量中，通过限流、鉴权、日志脱敏的代理接口调用模型；前端只提交待审计 Skill 内容。
-            </div>
             <div class="security-plan">
-              <b>推荐安全方案</b>
-              <span>GitHub Pages 负责托管本页面；DeepSeek Key 放在 Cloudflare Worker、Vercel Function 或自己的后端中。代理接口只允许 POST、限制输入大小、做频率限制、隐藏 Key，并可要求简单访问密码或登录。</span>
+              <b>分析框架</b>
               <span>当前 AI 深度评估固定使用 <a href="./skills/auditing-agent-skills/SKILL.md">auditing-agent-skills</a> 审计框架与 <a href="./skills/auditing-agent-skills/references/rubric.md">rubric</a>。</span>
             </div>
           </div>
@@ -574,7 +560,7 @@ description: Use when...
             <span class="badge good" id="mode-badge">Local</span>
           </div>
           <div class="panel-body" id="results">
-            <div class="empty">粘贴或上传 Skill 后，点击“本地规则审计”开始评估。</div>
+            <div class="empty">粘贴或上传 Skill 后，点击“分析”开始评估。</div>
           </div>
         </div>
       </section>
@@ -592,6 +578,7 @@ description: Use when...
         const modelSelect = document.getElementById("model");
         const fileInventory = document.getElementById("file-inventory");
         let currentBundle = null;
+        let pendingFile = null;
 
         const metricLabels = {
           metadata: "Metadata 合规",
@@ -1216,15 +1203,27 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
             bundle = makeSingleFileBundle(text, file.name);
           }
           currentBundle = bundle;
+          pendingFile = null;
           input.value = bundle.skillText;
           renderInventory(bundle);
           modeBadge.textContent = "Loaded";
-          renderAudit(auditSkill(bundle.skillText, bundle));
+          return bundle;
         };
 
-        fileInput.addEventListener("change", async () => {
+        const markPendingFile = (file) => {
+          pendingFile = file;
+          currentBundle = null;
+          modeBadge.textContent = "Ready";
+          input.value = "";
+          fileInventory.innerHTML = `
+            <b>已选择：${escapeHtml(file.name)}</b>
+            <span>点击“分析”后开始读取文件、解析 Skill 包并进行深度评估。</span>`;
+          results.innerHTML = '<div class="empty">文件已选择。点击“分析”开始处理。</div>';
+        };
+
+        fileInput.addEventListener("change", () => {
           const file = fileInput.files && fileInput.files[0];
-          if (file) await readFile(file);
+          if (file) markPendingFile(file);
         });
 
         dropzone.addEventListener("dragover", (event) => {
@@ -1240,38 +1239,56 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
           event.preventDefault();
           dropzone.style.borderColor = "#aeb9b5";
           const file = event.dataTransfer.files && event.dataTransfer.files[0];
-          if (file) await readFile(file);
+          if (file) markPendingFile(file);
         });
 
         document.getElementById("load-sample").addEventListener("click", () => {
           currentBundle = makeSingleFileBundle(sampleSkill, "sample/SKILL.md");
+          pendingFile = null;
           input.value = sampleSkill;
           renderInventory(currentBundle);
-          modeBadge.textContent = "Sample";
-          renderAudit(auditSkill(sampleSkill, currentBundle));
+          modeBadge.textContent = "Ready";
+          results.innerHTML = '<div class="empty">示例已载入。点击“分析”开始处理。</div>';
         });
 
-        document.getElementById("local-audit").addEventListener("click", () => {
+        input.addEventListener("input", () => {
+          if (pendingFile) {
+            pendingFile = null;
+            fileInput.value = "";
+            currentBundle = null;
+            renderInventory(null);
+            modeBadge.textContent = "Ready";
+          }
+        });
+
+        const prepareAnalysisBundle = async () => {
+          if (pendingFile) {
+            modeBadge.textContent = "Reading";
+            results.innerHTML = '<div class="empty">正在读取并解析 Skill 包...</div>';
+            return readFile(pendingFile);
+          }
+
           const text = input.value.trim();
           if (!text) {
-            results.innerHTML = '<div class="empty">请先粘贴或上传 Skill 内容。</div>';
-            return;
+            throw new Error("请先粘贴或上传 Skill 内容。");
           }
+
           if (!currentBundle || currentBundle.skillText !== text) {
             currentBundle = makeSingleFileBundle(text);
             renderInventory(currentBundle);
           }
-          modeBadge.textContent = "Local";
-          renderAudit(auditSkill(text, currentBundle));
-        });
+
+          return currentBundle;
+        };
 
         document.getElementById("clear").addEventListener("click", () => {
           input.value = "";
           fileInput.value = "";
           currentBundle = null;
+          pendingFile = null;
           renderInventory(null);
           modeBadge.textContent = "Local";
-          results.innerHTML = '<div class="empty">粘贴或上传 Skill 后，点击“本地规则审计”开始评估。</div>';
+          results.innerHTML = '<div class="empty">粘贴或上传 Skill 后，点击“分析”开始评估。</div>';
         });
 
         const auditSkillReference = `# Online audit skill: auditing-agent-skills
@@ -1353,24 +1370,23 @@ ${JSON.stringify(
 ${text.slice(0, 18000)}
 \`\`\``;
 
-        document.getElementById("ai-audit").addEventListener("click", async () => {
-          const text = input.value.trim();
+        document.getElementById("analyze").addEventListener("click", async () => {
           const proxyUrl = proxyInput.value.trim();
-          if (!text) {
-            results.innerHTML = '<div class="empty">请先粘贴或上传 Skill 内容。</div>';
-            return;
-          }
           if (!proxyUrl) {
-            results.innerHTML = '<div class="empty">公开网页模式下请填写安全代理地址，或先使用本地规则审计。不要在前端填写 DeepSeek API Key。</div>';
+            results.innerHTML = '<div class="empty">分析服务暂不可用，请稍后重试。</div>';
             return;
           }
 
-          if (!currentBundle || currentBundle.skillText !== text) {
-            currentBundle = makeSingleFileBundle(text);
-            renderInventory(currentBundle);
+          let analysisBundle;
+          try {
+            analysisBundle = await prepareAnalysisBundle();
+          } catch (error) {
+            results.innerHTML = `<div class="empty">${escapeHtml(error.message || error)}</div>`;
+            return;
           }
 
-          const localAudit = auditSkill(text, currentBundle);
+          const text = analysisBundle.skillText.trim();
+          const localAudit = auditSkill(text, analysisBundle);
           renderAudit(localAudit);
           modeBadge.textContent = "AI Running";
 
@@ -1382,9 +1398,9 @@ ${text.slice(0, 18000)}
               },
               body: JSON.stringify({
                 model: modelSelect.value,
-                prompt: buildAiPrompt(text, localAudit, currentBundle),
+                prompt: buildAiPrompt(text, localAudit, analysisBundle),
                 localAudit,
-                files: currentBundle.files.map((file) => ({
+                files: analysisBundle.files.map((file) => ({
                   name: file.name,
                   kind: file.kind,
                   size: file.size,
