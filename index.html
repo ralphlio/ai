@@ -41,10 +41,6 @@
         font-family: var(--font-body);
       }
 
-      body.menu-open {
-        overflow: hidden;
-      }
-
       a {
         color: inherit;
       }
@@ -70,124 +66,12 @@
           linear-gradient(180deg, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.14) 40%, rgba(255, 255, 255, 0.5));
       }
 
-      .site-nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
-        padding: 16px 20px;
-      }
-
-      .logo {
-        display: inline-flex;
-        align-items: center;
-        gap: 12px;
-        text-decoration: none;
-      }
-
-      .logo-text {
-        color: #000;
-        font-family: var(--font-heading);
-        font-size: 21px;
-        letter-spacing: 0;
-      }
-
-      .logo-star {
-        color: #000;
-        font-size: 25px;
-        letter-spacing: 0;
-        line-height: 1;
-        user-select: none;
-      }
-
-      .desktop-links,
-      .desktop-cta {
-        display: none;
-      }
-
-      .menu-button {
-        position: relative;
-        z-index: 11;
-        display: inline-flex;
-        flex-direction: column;
-        gap: 5px;
-        align-items: center;
-        justify-content: center;
-        width: 42px;
-        height: 42px;
-        padding: 0;
-        border: 0;
-        border-radius: 50%;
-        background: transparent;
-        cursor: pointer;
-      }
-
-      .menu-button span {
-        display: block;
-        width: 24px;
-        height: 2px;
-        background: #000;
-        transition:
-          opacity 300ms ease,
-          transform 300ms ease;
-      }
-
-      .menu-open .menu-button span:nth-child(1) {
-        transform: translateY(7px) rotate(45deg);
-      }
-
-      .menu-open .menu-button span:nth-child(2) {
-        opacity: 0;
-      }
-
-      .menu-open .menu-button span:nth-child(3) {
-        transform: translateY(-7px) rotate(-45deg);
-      }
-
-      .mobile-overlay {
-        position: fixed;
-        inset: 0;
-        z-index: 9;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        gap: 32px;
-        padding: 0 32px;
-        background: rgba(255, 255, 255, 0.95);
-        opacity: 0;
-        pointer-events: none;
-        backdrop-filter: blur(10px);
-        transition: opacity 220ms ease;
-      }
-
-      .menu-open .mobile-overlay {
-        opacity: 1;
-        pointer-events: auto;
-      }
-
-      .mobile-overlay a {
-        width: fit-content;
-        font-size: 32px;
-        font-weight: 500;
-        line-height: 1;
-        text-decoration: none;
-      }
-
-      .mobile-overlay a:last-child {
-        text-decoration: underline;
-        text-underline-offset: 2px;
-      }
-
       .hero {
         position: relative;
         z-index: 2;
         display: flex;
         min-height: 100vh;
-        padding: 112px 20px 48px;
+        padding: 48px 20px;
         overflow: hidden;
       }
 
@@ -428,18 +312,6 @@
       }
 
       @media (min-width: 640px) {
-        .site-nav {
-          padding: 20px 32px;
-        }
-
-        .logo-text {
-          font-size: 26px;
-        }
-
-        .logo-star {
-          font-size: 30px;
-        }
-
         .hero {
           padding-right: 32px;
           padding-left: 32px;
@@ -471,43 +343,9 @@
       }
 
       @media (min-width: 768px) {
-        .menu-button,
-        .mobile-overlay {
-          display: none;
-        }
-
-        .desktop-links {
-          display: flex;
-          color: #000;
-          font-size: 23px;
-          line-height: 1;
-        }
-
-        .desktop-links a {
-          text-decoration: none;
-          transition: opacity 180ms ease;
-        }
-
-        .desktop-links a:hover,
-        .desktop-links a:focus-visible,
-        .desktop-cta:hover,
-        .desktop-cta:focus-visible {
-          opacity: 0.6;
-        }
-
-        .desktop-cta {
-          display: inline-flex;
-          color: #000;
-          font-size: 23px;
-          line-height: 1;
-          text-decoration: underline;
-          text-underline-offset: 2px;
-          transition: opacity 180ms ease;
-        }
-
         .hero {
           align-items: center;
-          padding: 104px 40px 0;
+          padding: 0 40px;
         }
 
         .hero-inner {
@@ -566,38 +404,6 @@
       />
     </video>
     <div class="video-wash" aria-hidden="true"></div>
-
-    <nav class="site-nav" aria-label="主导航">
-      <a class="logo" href="./" aria-label="AI 知识网页目录首页">
-        <span class="logo-text">Mainframe&reg;</span>
-        <span class="logo-star">✳︎</span>
-      </a>
-      <div class="desktop-links" aria-label="页面快速入口">
-        <a href="codex-architecture.html">Labs</a><span>,&nbsp;</span>
-        <a href="agent-mcp-skill.html">Studio</a><span>,&nbsp;</span>
-        <a href="pixel-maze.html">Openings</a><span>,&nbsp;</span>
-        <a href="sankey-tool.html">Shop</a>
-      </div>
-      <a class="desktop-cta" href="#pages">Get in touch</a>
-      <button
-        class="menu-button"
-        type="button"
-        aria-label="打开菜单"
-        aria-expanded="false"
-      >
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
-    </nav>
-
-    <div class="mobile-overlay" aria-label="移动端菜单">
-      <a href="codex-architecture.html">Labs</a>
-      <a href="agent-mcp-skill.html">Studio</a>
-      <a href="pixel-maze.html">Openings</a>
-      <a href="sankey-tool.html">Shop</a>
-      <a href="#pages">Get in touch</a>
-    </div>
 
     <main>
       <section class="hero" aria-labelledby="hero-title">
@@ -696,8 +502,6 @@ Mainframe's Adaptive Response Interface Agent</p>
         const target = document.getElementById("typewriter-text");
         const cursor = document.querySelector(".cursor");
         const actions = document.querySelector(".actions");
-        const menuButton = document.querySelector(".menu-button");
-        const mobileOverlay = document.querySelector(".mobile-overlay");
         const copyButton = document.getElementById("copy-link");
         const video = document.querySelector(".background-video");
         const sensitivity = 0.8;
@@ -721,22 +525,6 @@ Mainframe's Adaptive Response Interface Agent</p>
             }
           }, 38);
         }, 600);
-
-        const closeMenu = () => {
-          document.body.classList.remove("menu-open");
-          menuButton.setAttribute("aria-expanded", "false");
-          menuButton.setAttribute("aria-label", "打开菜单");
-        };
-
-        menuButton.addEventListener("click", () => {
-          const isOpen = document.body.classList.toggle("menu-open");
-          menuButton.setAttribute("aria-expanded", String(isOpen));
-          menuButton.setAttribute("aria-label", isOpen ? "关闭菜单" : "打开菜单");
-        });
-
-        mobileOverlay.addEventListener("click", (event) => {
-          if (event.target.closest("a")) closeMenu();
-        });
 
         copyButton.addEventListener("click", async () => {
           const url = "https://ralphlio.github.io/ai/";
