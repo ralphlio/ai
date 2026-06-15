@@ -1,0 +1,900 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>普通人也能看懂的 GitHub 入门</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #243020;
+        --muted: #6d6d5f;
+        --soft: #f7efd8;
+        --paper: #fff8e8;
+        --line: #d9caa8;
+        --accent: #2e7894;
+        --accent-2: #5e8d50;
+        --warn: #b36b2c;
+        --code: #2c342d;
+        --sun: #f3bd57;
+        --sky: #cfe8ed;
+        --grass: #b9d69a;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 80% 8%, rgba(243, 189, 87, 0.38), transparent 9rem),
+          radial-gradient(circle at 16% 7%, rgba(255, 255, 255, 0.86), transparent 10rem),
+          linear-gradient(180deg, #cfe8ed 0, #f6ead0 34rem, var(--paper) 72rem);
+        font-family:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      body::before,
+      body::after {
+        content: "";
+        position: fixed;
+        z-index: -2;
+        pointer-events: none;
+      }
+
+      body::before {
+        inset: 0;
+        opacity: 0.34;
+        background-image:
+          linear-gradient(rgba(111, 86, 47, 0.08) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(111, 86, 47, 0.06) 1px, transparent 1px);
+        background-size: 42px 42px;
+        mix-blend-mode: multiply;
+      }
+
+      body::after {
+        right: -8vw;
+        bottom: -18vw;
+        width: 62vw;
+        height: 32vw;
+        border-radius: 50% 50% 0 0;
+        background:
+          radial-gradient(circle at 28% 10%, rgba(255, 255, 255, 0.38), transparent 18%),
+          linear-gradient(180deg, #c8dda1, #8fbf78);
+        filter: blur(0.2px);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .page {
+        position: relative;
+        width: min(1120px, calc(100% - 36px));
+        margin: 0 auto;
+      }
+
+      .sky-decoration {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .cloud {
+        position: absolute;
+        width: 150px;
+        height: 48px;
+        border: 2px solid rgba(74, 94, 79, 0.18);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.52);
+        box-shadow:
+          34px -14px 0 4px rgba(255, 255, 255, 0.52),
+          78px 2px 0 0 rgba(255, 255, 255, 0.52);
+        transform: rotate(-3deg);
+      }
+
+      .cloud.one {
+        top: 96px;
+        left: 8vw;
+      }
+
+      .cloud.two {
+        top: 178px;
+        right: 16vw;
+        transform: scale(0.74) rotate(4deg);
+      }
+
+      .leaf {
+        position: absolute;
+        width: 22px;
+        height: 11px;
+        border: 1px solid rgba(65, 91, 43, 0.35);
+        border-radius: 100% 0 100% 0;
+        background: rgba(130, 163, 82, 0.34);
+        transform: rotate(var(--r));
+        animation: drift 9s ease-in-out infinite;
+      }
+
+      .leaf:nth-child(3) {
+        top: 28vh;
+        left: 5vw;
+        --r: 24deg;
+      }
+
+      .leaf:nth-child(4) {
+        top: 14vh;
+        right: 9vw;
+        --r: -34deg;
+        animation-delay: -3s;
+      }
+
+      .leaf:nth-child(5) {
+        top: 64vh;
+        left: 12vw;
+        --r: 62deg;
+        animation-delay: -5s;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.05fr) minmax(340px, 0.95fr);
+        gap: 46px;
+        align-items: center;
+        min-height: 78vh;
+        padding: 58px 0 42px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 18px;
+        color: var(--accent);
+        font-size: 14px;
+        font-weight: 800;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 32px;
+        height: 2px;
+        background: currentColor;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 800px;
+        margin-bottom: 24px;
+        font-size: clamp(42px, 7vw, 78px);
+        line-height: 0.98;
+        letter-spacing: 0;
+        text-shadow: 0 2px 0 rgba(255, 255, 255, 0.65);
+      }
+
+      .lead {
+        max-width: 700px;
+        margin-bottom: 26px;
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 1.75;
+      }
+
+      .quick-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .quick-nav a,
+      .button-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 8px 14px;
+        border: 2px solid rgba(96, 91, 68, 0.18);
+        border-radius: 999px 850px 980px 780px;
+        background: rgba(255, 255, 255, 0.62);
+        color: var(--ink);
+        font-size: 14px;
+        text-decoration: none;
+        box-shadow: 0 5px 0 rgba(128, 111, 65, 0.09);
+      }
+
+      .quick-nav a:hover,
+      .button-link:hover {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .hero-art {
+        position: relative;
+        padding: 26px;
+        border: 2px solid rgba(91, 86, 55, 0.2);
+        border-radius: 34px 26px 38px 24px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.74), rgba(255, 246, 221, 0.86)),
+          repeating-linear-gradient(0deg, rgba(90, 72, 38, 0.04), rgba(90, 72, 38, 0.04) 1px, transparent 1px, transparent 8px);
+        box-shadow:
+          0 22px 70px rgba(67, 70, 44, 0.16),
+          inset 0 0 0 8px rgba(255, 255, 255, 0.34);
+      }
+
+      .hero-art::before {
+        content: "";
+        position: absolute;
+        top: -18px;
+        right: 48px;
+        width: 74px;
+        height: 74px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #ffd886 0 42%, rgba(255, 216, 134, 0.18) 44% 68%, transparent 70%);
+        filter: blur(0.1px);
+      }
+
+      .hero-art svg {
+        display: block;
+        width: 100%;
+        height: auto;
+      }
+
+      section {
+        position: relative;
+        padding: 42px 0;
+      }
+
+      section + section::before {
+        content: "";
+        display: block;
+        width: min(420px, 72%);
+        height: 16px;
+        margin: 0 auto 28px;
+        border-radius: 50%;
+        background:
+          radial-gradient(ellipse at center, rgba(82, 116, 67, 0.16), transparent 70%);
+      }
+
+      .section-head {
+        max-width: 760px;
+        margin-bottom: 22px;
+      }
+
+      .section-head h2 {
+        margin-bottom: 12px;
+        font-size: clamp(30px, 4vw, 46px);
+        line-height: 1.08;
+      }
+
+      .section-head p {
+        color: var(--muted);
+        font-size: 17px;
+        line-height: 1.75;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .card,
+      .note,
+      .step,
+      .faq-item {
+        border: 2px solid rgba(108, 96, 61, 0.17);
+        border-radius: 22px 16px 24px 18px;
+        background:
+          linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 247, 226, 0.76));
+        box-shadow:
+          0 14px 34px rgba(73, 75, 46, 0.08),
+          inset 0 1px 0 rgba(255, 255, 255, 0.74);
+      }
+
+      .card {
+        position: relative;
+        min-height: 210px;
+        padding: 22px;
+      }
+
+      .card::after {
+        content: "";
+        position: absolute;
+        right: 18px;
+        bottom: 16px;
+        width: 34px;
+        height: 18px;
+        border: 2px solid rgba(94, 141, 80, 0.16);
+        border-radius: 50%;
+        background: rgba(185, 214, 154, 0.24);
+        transform: rotate(-12deg);
+      }
+
+      .card strong {
+        display: block;
+        margin-bottom: 10px;
+        font-size: 22px;
+      }
+
+      .card p,
+      .note p,
+      .step p,
+      .faq-item p {
+        margin-bottom: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .compare {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .compare .card:first-child {
+        border-top: 8px solid rgba(94, 141, 80, 0.55);
+      }
+
+      .compare .card:last-child {
+        border-top: 8px solid rgba(46, 120, 148, 0.55);
+      }
+
+      .flow {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .flow-step {
+        position: relative;
+        min-height: 128px;
+        padding: 18px;
+        border: 2px solid rgba(108, 96, 61, 0.17);
+        border-radius: 22px 18px 24px 16px;
+        background: rgba(255, 255, 255, 0.76);
+        box-shadow: 0 12px 28px rgba(73, 75, 46, 0.08);
+      }
+
+      .flow-step:not(:last-child)::after {
+        content: "→";
+        position: absolute;
+        top: 50%;
+        right: -13px;
+        z-index: 1;
+        color: var(--accent);
+        font-size: 20px;
+        transform: translateY(-50%);
+      }
+
+      .flow-step b {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--accent);
+      }
+
+      .flow-step span {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .steps {
+        display: grid;
+        gap: 12px;
+        counter-reset: step;
+      }
+
+      .step {
+        display: grid;
+        grid-template-columns: 54px minmax(0, 1fr);
+        gap: 18px;
+        padding: 18px;
+        counter-increment: step;
+      }
+
+      .step::before {
+        content: counter(step);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 50%;
+        background: var(--ink);
+        color: #fff;
+        font-weight: 800;
+      }
+
+      .step h3 {
+        margin-bottom: 8px;
+        font-size: 21px;
+      }
+
+      .example {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(280px, 0.8fr);
+        gap: 16px;
+        align-items: stretch;
+      }
+
+      pre {
+        margin: 0;
+        padding: 20px;
+        overflow: auto;
+        border: 5px solid rgba(255, 248, 232, 0.78);
+        border-radius: 18px;
+        background: var(--code);
+        color: #f6f8fa;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      code {
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+          monospace;
+      }
+
+      .browser-preview {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+        overflow: hidden;
+        border: 2px solid rgba(108, 96, 61, 0.17);
+        border-radius: 22px;
+        background:
+          linear-gradient(180deg, rgba(229, 241, 221, 0.85), rgba(255, 255, 255, 0.9));
+        box-shadow: 0 14px 34px rgba(73, 75, 46, 0.08);
+      }
+
+      .browser-bar {
+        display: flex;
+        gap: 6px;
+        padding: 10px;
+        border-bottom: 1px solid var(--line);
+        background: #e8dcbf;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: #d45d5d;
+      }
+
+      .dot:nth-child(2) {
+        background: #dfb34c;
+      }
+
+      .dot:nth-child(3) {
+        background: #58a86a;
+      }
+
+      .browser-body {
+        display: grid;
+        place-items: center;
+        min-height: 260px;
+        padding: 28px;
+        text-align: center;
+        background:
+          radial-gradient(circle at 78% 24%, rgba(243, 189, 87, 0.34), transparent 22%),
+          linear-gradient(180deg, transparent 0 62%, rgba(185, 214, 154, 0.42) 63%);
+      }
+
+      .browser-body h3 {
+        margin-bottom: 10px;
+        font-size: 30px;
+      }
+
+      .notes {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .note {
+        padding: 20px;
+      }
+
+      .note.warning {
+        border-left: 8px solid var(--warn);
+      }
+
+      .note.good {
+        border-left: 8px solid var(--accent-2);
+      }
+
+      .faq {
+        display: grid;
+        gap: 12px;
+      }
+
+      .faq-item {
+        padding: 18px 20px;
+      }
+
+      .faq-item h3 {
+        margin-bottom: 8px;
+        font-size: 20px;
+      }
+
+      footer {
+        padding: 44px 0 58px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      @keyframes drift {
+        0%,
+        100% {
+          translate: 0 0;
+        }
+
+        50% {
+          translate: 14px 18px;
+        }
+      }
+
+      @media (max-width: 920px) {
+        .hero,
+        .example,
+        .compare,
+        .notes {
+          grid-template-columns: 1fr;
+        }
+
+        .grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .flow {
+          grid-template-columns: 1fr;
+        }
+
+        .flow-step:not(:last-child)::after {
+          top: auto;
+          right: auto;
+          bottom: -20px;
+          left: 24px;
+          transform: rotate(90deg);
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          width: min(100% - 28px, 1120px);
+        }
+
+        .hero {
+          min-height: auto;
+          padding-top: 38px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .step {
+          grid-template-columns: 1fr;
+        }
+
+        .cloud {
+          opacity: 0.42;
+          transform: scale(0.58);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="sky-decoration" aria-hidden="true">
+      <span class="cloud one"></span>
+      <span class="cloud two"></span>
+      <span class="leaf"></span>
+      <span class="leaf"></span>
+      <span class="leaf"></span>
+    </div>
+    <main class="page">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">GitHub 入门</p>
+          <h1>普通人也能看懂的 GitHub：从保存代码到发布网页</h1>
+          <p class="lead">
+            GitHub 可以先理解成一个“带历史记录的项目云盘”。你可以用它保存代码、管理网页、展示作品，也可以把一个简单网站发布到互联网上。
+          </p>
+          <nav class="quick-nav" aria-label="文章目录">
+            <a href="#basics">基础概念</a>
+            <a href="#pages">发布网页</a>
+            <a href="#workflow">日常更新</a>
+            <a href="#faq">常见问题</a>
+          </nav>
+        </div>
+
+        <div class="hero-art" aria-label="GitHub 托管项目示意图">
+          <svg viewBox="0 0 620 430" role="img" aria-labelledby="hero-art-title">
+            <title id="hero-art-title">本地电脑、GitHub 仓库和线上网页之间的关系</title>
+            <defs>
+              <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0" stop-color="#bfe2ed" />
+                <stop offset="0.62" stop-color="#f6e4bd" />
+                <stop offset="1" stop-color="#d7e6b5" />
+              </linearGradient>
+              <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+                <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#58603c" flood-opacity="0.18" />
+              </filter>
+            </defs>
+            <rect width="620" height="430" rx="26" fill="url(#sky)" />
+            <circle cx="512" cy="74" r="42" fill="#ffd37a" opacity="0.88" />
+            <path d="M0 320c92-44 163-48 248-15 94 36 187 33 372-47v172H0Z" fill="#9dc57f" opacity="0.84" />
+            <path d="M0 354c108-38 232-29 314 0 94 33 168 24 306-36v112H0Z" fill="#7fb26f" opacity="0.72" />
+            <path d="M64 122c18-18 44-18 61-2 22-9 53 5 58 28 24 3 42 17 42 36H42c-10-29 1-53 22-62Z" fill="#fff" opacity="0.55" />
+            <path d="M438 126c15-14 35-13 49-1 19-8 43 4 48 24 21 3 36 14 37 30H420c-8-24 0-43 18-53Z" fill="#fff" opacity="0.48" />
+
+            <g filter="url(#softShadow)">
+              <path d="M72 235h126v88H72Z" fill="#fff8e8" stroke="#6f6b4f" stroke-width="3" />
+              <path d="M60 235l75-60 76 60Z" fill="#bd7c43" stroke="#6f6b4f" stroke-width="3" stroke-linejoin="round" />
+              <rect x="94" y="262" width="34" height="61" rx="4" fill="#76a1b5" stroke="#6f6b4f" stroke-width="3" />
+              <rect x="146" y="262" width="34" height="30" rx="4" fill="#f7d88f" stroke="#6f6b4f" stroke-width="3" />
+              <text x="135" y="352" text-anchor="middle" font-size="20" font-weight="700" fill="#243020">本地电脑</text>
+              <text x="135" y="378" text-anchor="middle" font-size="14" fill="#5f6655">写代码、改图片</text>
+            </g>
+
+            <g filter="url(#softShadow)">
+              <path d="M252 142h132c14 0 25 11 25 25v136c0 14-11 25-25 25H252c-14 0-25-11-25-25V167c0-14 11-25 25-25Z" fill="#fffdf8" stroke="#2e7894" stroke-width="4" />
+              <path d="M257 190h122M257 226h122M257 262h84" stroke="#9bb7aa" stroke-width="12" stroke-linecap="round" />
+              <path d="M286 104c19 17 45 17 64 0 15 17 15 38 0 55-19-13-45-13-64 0-15-17-15-38 0-55Z" fill="#5e8d50" stroke="#466f3f" stroke-width="3" />
+              <text x="318" y="352" text-anchor="middle" font-size="20" font-weight="700" fill="#243020">GitHub 仓库</text>
+              <text x="318" y="378" text-anchor="middle" font-size="14" fill="#5f6655">保存版本、托管代码</text>
+            </g>
+
+            <g filter="url(#softShadow)">
+              <path d="M470 174h58l24 150H446Z" fill="#fff8e8" stroke="#6f6b4f" stroke-width="3" stroke-linejoin="round" />
+              <path d="M457 174h84l-13-42h-58Z" fill="#7aa4b6" stroke="#6f6b4f" stroke-width="3" stroke-linejoin="round" />
+              <path d="M479 211h40M473 254h52M466 297h66" stroke="#d9caa8" stroke-width="6" stroke-linecap="round" />
+              <circle cx="499" cy="153" r="13" fill="#ffd37a" />
+              <path d="M499 118v-24M499 212v24M464 153h-24M558 153h-24M474 128l-17-17M524 178l17 17M524 128l17-17M474 178l-17 17" stroke="#ffd37a" stroke-width="4" stroke-linecap="round" opacity="0.8" />
+              <text x="499" y="352" text-anchor="middle" font-size="20" font-weight="700" fill="#243020">线上网页</text>
+              <text x="499" y="378" text-anchor="middle" font-size="14" fill="#5f6655">分享链接、展示作品</text>
+            </g>
+
+            <path d="M204 246c26-16 45-17 69-2" fill="none" stroke="#2e7894" stroke-width="5" stroke-linecap="round" stroke-dasharray="8 10" />
+            <path d="M260 229l18 13-20 9" fill="none" stroke="#2e7894" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M408 244c28-17 48-18 73 0" fill="none" stroke="#5e8d50" stroke-width="5" stroke-linecap="round" stroke-dasharray="8 10" />
+            <path d="M468 229l18 13-20 9" fill="none" stroke="#5e8d50" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+
+            <rect x="118" y="28" width="384" height="44" rx="22" fill="rgba(255,255,255,0.58)" stroke="#d9caa8" />
+            <text x="310" y="56" text-anchor="middle" font-size="17" font-weight="700" fill="#243020">修改 → 提交 → 推送 → 自动发布</text>
+          </svg>
+        </div>
+      </section>
+
+      <section id="basics">
+        <div class="section-head">
+          <h2>先理解几个词</h2>
+          <p>不需要一开始就懂全部命令。先把下面几个词和生活里的概念对应起来，就能读懂大多数 GitHub 页面。</p>
+        </div>
+
+        <div class="grid">
+          <article class="card">
+            <strong>仓库</strong>
+            <p>一个项目文件夹。一个网站、一个工具、一份电子简历，都可以放在一个仓库里。</p>
+          </article>
+          <article class="card">
+            <strong>提交</strong>
+            <p>保存一个版本。它会记录谁在什么时候改了什么，方便以后回看或恢复。</p>
+          </article>
+          <article class="card">
+            <strong>推送</strong>
+            <p>把本地修改上传到 GitHub。只提交不推送，别人还看不到你的新版本。</p>
+          </article>
+          <article class="card">
+            <strong>分支</strong>
+            <p>项目的一个副本。适合试验新想法，确认没问题后再合并回主版本。</p>
+          </article>
+          <article class="card">
+            <strong>Pull Request</strong>
+            <p>请求把某些修改合并进项目。团队通常用它来讨论和检查代码。</p>
+          </article>
+          <article class="card">
+            <strong>GitHub Pages</strong>
+            <p>GitHub 提供的网页发布功能。它能把仓库里的 HTML 页面变成公开网址。</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>Git 和 GitHub 有什么区别</h2>
+          <p>两者经常一起出现，但不是同一个东西。</p>
+        </div>
+        <div class="compare">
+          <article class="card">
+            <strong>Git</strong>
+            <p>本地版本管理工具。它像“修订记录”，帮你记录每次改动。</p>
+          </article>
+          <article class="card">
+            <strong>GitHub</strong>
+            <p>网上的项目托管平台。它像“云端项目空间”，让项目可备份、可协作、可展示。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="pages">
+        <div class="section-head">
+          <h2>新手实操：用 GitHub 发布自己的网页</h2>
+          <p>如果你只想拥有一个个人主页或作品展示页，可以从 GitHub Pages 开始。</p>
+        </div>
+
+        <div class="flow" aria-label="GitHub Pages 发布流程">
+          <div class="flow-step">
+            <b>1. 注册账号</b>
+            <span>进入 github.com，创建一个 GitHub 账号。</span>
+          </div>
+          <div class="flow-step">
+            <b>2. 创建仓库</b>
+            <span>新建仓库，比如命名为 my-homepage。</span>
+          </div>
+          <div class="flow-step">
+            <b>3. 上传网页</b>
+            <span>准备一个 index.html，并上传到仓库。</span>
+          </div>
+          <div class="flow-step">
+            <b>4. 开启 Pages</b>
+            <span>在 Settings 里找到 Pages，选择 main 分支。</span>
+          </div>
+          <div class="flow-step">
+            <b>5. 访问网址</b>
+            <span>等待片刻，打开 GitHub 给出的网页链接。</span>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>一个最简单的网页示例</h2>
+          <p>网页项目最少可以只有一个文件：<code>index.html</code>。</p>
+        </div>
+        <div class="example">
+          <pre><code>&lt;!doctype html&gt;
+&lt;html lang="zh-CN"&gt;
+  &lt;head&gt;
+    &lt;meta charset="utf-8" /&gt;
+    &lt;title&gt;我的个人主页&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;你好，我是 Ralph&lt;/h1&gt;
+    &lt;p&gt;这里展示我的作品和文章。&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+          <div class="browser-preview" aria-label="网页预览示意">
+            <div class="browser-bar">
+              <span class="dot"></span>
+              <span class="dot"></span>
+              <span class="dot"></span>
+            </div>
+            <div class="browser-body">
+              <div>
+                <h3>你好，我是 Ralph</h3>
+                <p>这里展示我的作品和文章。</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="workflow">
+        <div class="section-head">
+          <h2>日常更新网页的流程</h2>
+          <p>发布之后，后续维护通常就是重复下面这套动作。</p>
+        </div>
+
+        <div class="steps">
+          <article class="step">
+            <div>
+              <h3>修改本地文件</h3>
+              <p>比如更新文案、替换图片、调整颜色，先在电脑上的项目文件夹里完成。</p>
+            </div>
+          </article>
+          <article class="step">
+            <div>
+              <h3>提交修改</h3>
+              <p>提交相当于保存一个新版本。提交信息要简短说明这次改了什么。</p>
+            </div>
+          </article>
+          <article class="step">
+            <div>
+              <h3>推送到 GitHub</h3>
+              <p>推送后，远程仓库才会收到新代码。GitHub Pages 会根据新代码重新发布网页。</p>
+            </div>
+          </article>
+          <article class="step">
+            <div>
+              <h3>打开网页检查</h3>
+              <p>Pages 有时会延迟几分钟。若网页没立刻变化，先刷新或稍后再看。</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>安全提醒</h2>
+          <p>GitHub 很适合公开展示，但不是所有文件都应该放上去。</p>
+        </div>
+        <div class="notes">
+          <article class="note warning">
+            <h3>不要上传这些内容</h3>
+            <p>密码、GitHub token、API key、私钥文件、个人身份证件、包含隐私的数据文件。</p>
+          </article>
+          <article class="note good">
+            <h3>建议上传这些内容</h3>
+            <p>网页代码、公开图片、项目说明、作品案例、不会泄露隐私的文档和配置示例。</p>
+          </article>
+        </div>
+      </section>
+
+      <section id="faq">
+        <div class="section-head">
+          <h2>常见问题</h2>
+          <p>刚开始使用 GitHub 时，最容易卡在这些地方。</p>
+        </div>
+        <div class="faq">
+          <article class="faq-item">
+            <h3>为什么我看到的是代码，不是网页？</h3>
+            <p>你可能打开了 GitHub 仓库文件页面。网页要从 GitHub Pages 提供的网址访问。</p>
+          </article>
+          <article class="faq-item">
+            <h3>为什么网页没有马上更新？</h3>
+            <p>GitHub Pages 发布和浏览器缓存都可能有延迟。通常等一会儿再刷新即可。</p>
+          </article>
+          <article class="faq-item">
+            <h3>公开仓库是不是所有人都能看？</h3>
+            <p>是的。公开仓库适合作品展示，不适合存放密钥、密码或私人资料。</p>
+          </article>
+          <article class="faq-item">
+            <h3>我一定要会命令行吗？</h3>
+            <p>不一定。新手可以先用网页上传文件，之后再学习 GitHub Desktop、Codex 或命令行。</p>
+          </article>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-head">
+          <h2>推荐学习路径</h2>
+          <p>不用一次学完。先完成一个小网页，你就已经掌握了最重要的部分。</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <strong>第一步</strong>
+            <p>理解仓库、提交、推送和 GitHub Pages。</p>
+          </article>
+          <article class="card">
+            <strong>第二步</strong>
+            <p>学会修改网页并反复发布更新。</p>
+          </article>
+          <article class="card">
+            <strong>第三步</strong>
+            <p>再学习分支、Pull Request、多人协作和自定义域名。</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      GitHub 可以先从一个小网页开始学。能保存、能更新、能发布，就已经很实用了。
+    </footer>
+  </body>
+</html>
