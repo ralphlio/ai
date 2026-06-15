@@ -2,6 +2,21 @@
 
 Use this rubric to evaluate Claude Agent Skills and Codex skills. Score each dimension from 0 to 100.
 
+Before scoring, produce a functional interpretation. Explain the Skill's purpose, domain, target user, main workflows, expected inputs/outputs, and module responsibilities. Generic comments that could apply to any Skill are not sufficient.
+
+## Functional Interpretation Checklist
+
+For every package, answer:
+
+- What does this Skill let the agent do?
+- What user requests should trigger it?
+- What are the major workflows?
+- Which bundled files own which capability?
+- Which files are core instructions, reference knowledge, templates, metadata, scripts, or suspicious/unexplained assets?
+- What is the likely runtime path from trigger to result?
+- What design choices are worth learning from?
+- What advice is specific to this Skill's domain rather than generic Skill hygiene?
+
 ## 1. Metadata Compliance
 
 Check:

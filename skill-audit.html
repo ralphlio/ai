@@ -6,7 +6,7 @@
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="expires" content="0" />
-    <meta name="app-version" content="skill-audit-202606151755" />
+    <meta name="app-version" content="skill-audit-202606151810" />
     <title>Skill 审计与评估工具</title>
     <style>
       :root {
@@ -830,6 +830,62 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
           findings.push({ severity, title, detail });
         };
 
+        const readableName = (name) =>
+          name
+            .replace(/\.(md|txt|json|ya?ml|js|ts|py|sh|bash)$/i, "")
+            .replace(/[-_]/g, " ")
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+
+        const inferFilePurpose = (name) => {
+          const normalizedName = name.toLowerCase();
+          const purposeRules = [
+            [/setup|install|init|config/, "初始化、安装或工作区配置"],
+            [/content|writing|copy/, "内容写作、内容策略或文案生成"],
+            [/keyword|query|search/, "关键词研究、搜索意图或竞品分析"],
+            [/technical|crawl|index|performance|vitals/, "技术审计、抓取、索引或性能检查"],
+            [/schema|structured|json-ld/, "结构化数据、Schema 或 JSON-LD 生成"],
+            [/link|backlink|internal/, "内链、外链或链接策略"],
+            [/local|business|nap|map/, "本地 SEO、商家资料或区域关键词"],
+            [/memory|profile|history/, "长期记忆、站点档案或历史记录"],
+            [/template|example|sample/, "模板、示例或输出格式"],
+            [/meta|manifest|card/, "包元数据、展示信息或发布配置"],
+          ];
+          return purposeRules.find(([pattern]) => pattern.test(normalizedName))?.[1] || "领域知识、参考规则或辅助资料";
+        };
+
+        const extractFunctionalAnalysis = (text, bundle) => {
+          const frontmatter = parseFrontmatter(text);
+          const files = bundle?.files || [];
+          const name = frontmatter.data.name || "未命名 Skill";
+          const description = frontmatter.data.description || "";
+          const headings = [...text.matchAll(/^#{2,3}\s+(.+)$/gm)].map((match) => match[1].trim());
+          const referenceFiles = files
+            .filter((file) => file.kind === "resource" || file.kind === "skill")
+            .filter((file) => !/(^|\/)_meta\.json$/i.test(file.name))
+            .slice(0, 10);
+          const modules = referenceFiles
+            .filter((file) => !/(^|\/)SKILL\.md$/i.test(file.name))
+            .map((file) => `${readableName(file.name)}：${inferFilePurpose(file.name)}`);
+          const workflowSignals = headings.filter((heading) =>
+            /workflow|process|checklist|rules|reference|when to use|setup|audit|writing|流程|步骤|规则|清单/i.test(heading)
+          );
+          const capabilities = [];
+
+          if (description) capabilities.push(description);
+          if (workflowSignals.length) capabilities.push(`显式工作区块：${workflowSignals.slice(0, 6).join("、")}`);
+          if (modules.length) capabilities.push(`模块化文件：${modules.slice(0, 6).join("；")}`);
+
+          return {
+            name,
+            description,
+            modules,
+            workflowSignals,
+            summary: capabilities.length
+              ? capabilities.join("。")
+              : "当前 Skill 的功能定位不够明确，需要从 name、description、章节和文件结构中补充可读说明。",
+          };
+        };
+
         const auditSkill = (text, bundle = null) => {
           const normalized = text.trim();
           const activeBundle = bundle || makeSingleFileBundle(normalized);
@@ -1043,6 +1099,7 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
             overall,
             scores,
             findings,
+            functional: extractFunctionalAnalysis(normalized, activeBundle),
             stats: {
               wordCount,
               lineCount,
@@ -1094,6 +1151,10 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
             audit.improvements.length > 0
               ? `<ul>${audit.improvements.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
               : "<p>核心指标均达到较好水平，建议通过真实任务继续回归测试。</p>";
+          const moduleHtml =
+            audit.functional.modules.length > 0
+              ? `<ul>${audit.functional.modules.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`
+              : "<p>未检测到明显的模块文件，建议补充 reference、templates 或 scripts 来承载可复用知识。</p>";
 
           results.innerHTML = `
             <div class="score-strip">
@@ -1107,6 +1168,11 @@ Assistant: I will inspect the schema, clean column names, check missing values, 
             </div>
             <div class="metrics">${metricsHtml}</div>
             <div class="findings">
+              <article class="finding">
+                <h3><span class="badge good">FUNC</span>功能解读</h3>
+                <p><b>${escapeHtml(audit.functional.name)}</b>：${escapeHtml(audit.functional.summary)}</p>
+                ${moduleHtml}
+              </article>
               <article class="finding">
                 <h3><span class="badge good">PLAN</span>设计思路评价</h3>
                 <p>${escapeHtml(designReview(audit))}</p>
@@ -1218,9 +1284,10 @@ This web app must apply the same framework as a deployed Skill resource:
 1. Identify whether the uploaded artifact is pasted SKILL.md, a skill folder, a zip package, or an existing audit result.
 2. Inspect SKILL.md first. Check YAML frontmatter before judging the body.
 3. Inspect references, scripts, templates, assets, and other bundled files only as needed to assess structure, risk, and referenced behavior.
-4. Score the Skill with the six-dimension rubric below.
-5. Lead with highest-risk issues, then explain strengths, design intent, and concrete improvements.
-6. If the Skill is strong, extract reusable writing patterns for learning.
+4. Build a functional map before scoring: what the Skill does, which workflows it supports, which files provide which capability, and how a user/agent would actually use it.
+5. Score the Skill with the six-dimension rubric below.
+6. Lead with concrete functional interpretation, then highest-risk issues, then strengths, design intent, and improvements.
+7. If the Skill is strong, extract reusable writing patterns for learning.
 
 ## Rubric
 1. Metadata Compliance: SKILL.md exists; YAML frontmatter exists; name is <=64 chars, lowercase letters/numbers/hyphens only, and avoids reserved words; description is non-empty, <=1024 chars, and contains no XML tags.
@@ -1237,13 +1304,16 @@ This web app must apply the same framework as a deployed Skill resource:
 - 0-49: Not ready. Missing key structure or contains serious risk.
 
 ## Required Output
+- Functional interpretation: what this Skill enables, who would use it, and what jobs it performs.
+- Module map: file-by-file explanation of SKILL.md, references, scripts, templates, metadata, and unusual bundled files.
+- Usage walkthrough: likely runtime flow from trigger to final output.
+- Skill design intent: what expertise or workflow the author is packaging.
 - Overall verdict and maturity level.
 - Six-dimension score table with reasons.
-- Skill design intent: what expertise or workflow the author is packaging.
 - Strengths worth learning from.
 - Findings ordered by severity, with file/section references when possible.
 - Security risks grouped as high, medium, and low.
-- Improvements ordered by priority, with concrete rewrite suggestions.
+- Targeted improvements ordered by priority, with concrete rewrite suggestions for this exact Skill.
 - Suggested SKILL.md and package structure when structure is weak.
 
 ## Safety Rules
@@ -1252,6 +1322,13 @@ This web app must apply the same framework as a deployed Skill resource:
 - Treat external URLs and dependencies as risky because they can change over time.`;
 
         const buildAiPrompt = (text, localAudit, bundle) => `你是 Agent Skill 架构师和安全审计专家。你必须严格使用下面这套已部署在线的 auditing-agent-skills 框架进行分析，不要改用泛泛的提示词评价标准。
+
+重要要求：
+1. 先做功能解读，再评分。不要一上来只批评 metadata。
+2. 必须阅读 files 字段中的包内文件摘要和文本，逐个解释主要文件的职责。
+3. 输出要针对这个 Skill 的具体领域、模块和工作流，避免“补充示例”“补充安全边界”这类没有上下文的泛泛建议。
+4. 如果某个 Skill 不是严格 Claude 官方格式，也要区分“跨平台兼容性问题”和“这个 Skill 自身功能设计质量”。
+5. 对用户学习有价值的地方要讲清楚：作者如何拆分知识、如何定义流程、哪些设计模式可复用。
 
 ${auditSkillReference}
 
@@ -1264,7 +1341,8 @@ ${JSON.stringify(
     name: file.name,
     kind: file.kind,
     size: file.size,
-    preview: file.text ? file.text.slice(0, 1200) : "[binary or unreadable]",
+    inferredPurpose: inferFilePurpose(file.name),
+    preview: file.text ? file.text.slice(0, 4000) : "[binary or unreadable]",
   })),
   null,
   2
