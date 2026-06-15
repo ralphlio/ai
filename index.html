@@ -159,6 +159,10 @@
         border-left-color: var(--game);
       }
 
+      .mini-item:nth-child(4) {
+        border-left-color: var(--tool);
+      }
+
       .mini-item b {
         font-size: 15px;
       }
@@ -331,6 +335,10 @@
               <b>像素迷宫游戏</b>
               <span>8-bit 复古风格迷宫，支持多种操控模式与角色选择。</span>
             </a>
+            <a class="mini-item" href="sankey-tool.html">
+              <b>桑基图生成器</b>
+              <span>粘贴流量数据，实时生成可导出的桑基图。</span>
+            </a>
           </div>
         </div>
       </section>
@@ -377,6 +385,18 @@
             <div class="card-footer">
               <span style="color: var(--game)">开始游戏</span>
               <span class="path">/pixel-maze.html</span>
+            </div>
+          </a>
+
+          <a class="card" href="sankey-tool.html">
+            <span class="tag" style="background:var(--soft-tool);color:var(--tool)">Tool</span>
+            <h3>桑基图生成器</h3>
+            <p>
+              粘贴流量数据，实时渲染桑基图。支持自定义颜色、节点样式、多种色系方案，可导出 SVG / PNG。
+            </p>
+            <div class="card-footer">
+              <span style="color: var(--tool)">打开工具</span>
+              <span class="path">/sankey-tool.html</span>
             </div>
           </a>
         </div>
