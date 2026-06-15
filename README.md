@@ -17,6 +17,7 @@
 - `agent-mcp-skill.html`：Agent、MCP 与 Skill 的概念和关系
 - `pixel-maze.html`：像素迷宫小游戏
 - `sankey-tool.html`：桑基图生成器
+- `skill-audit.html`：Skill 审计与评估工具
 - `github-guide.html`：普通人也能看懂的 GitHub 入门
 
 ## English
@@ -36,6 +37,7 @@ Current pages:
 - `agent-mcp-skill.html`: Concepts and relationships between Agent, MCP, and Skill
 - `pixel-maze.html`: Pixel maze mini game
 - `sankey-tool.html`: Sankey diagram generator
+- `skill-audit.html`: Skill audit and evaluation tool
 - `github-guide.html`: A beginner-friendly GitHub guide
 
 ## Notes
