@@ -1,0 +1,1734 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>小鲨鱼珊瑚飞行 | 海底反应力网页小游戏</title>
+    <meta
+      name="description"
+      content="一款海底珊瑚礁主题的反应力网页小游戏，按空格键控制小鲨鱼上浮，避开珊瑚柱，收集珍珠获得加分。"
+    />
+    <meta
+      name="keywords"
+      content="小鲨鱼游戏, 网页小游戏, Flappy Bird 玩法, 海底游戏, 珊瑚礁, 珍珠收集, Canvas Game, Mini Game"
+    />
+    <meta name="author" content="Ralph Li" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#073f5f" />
+    <link rel="canonical" href="https://ralphlio.github.io/ai/turtle-reef-flight.html" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AI 知识网页目录" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content="小鲨鱼珊瑚飞行 | 海底反应力网页小游戏" />
+    <meta
+      property="og:description"
+      content="按空格键控制小鲨鱼上浮，在海底珊瑚礁之间穿梭，收集珍珠获得额外分数。"
+    />
+    <meta property="og:url" content="https://ralphlio.github.io/ai/turtle-reef-flight.html" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="小鲨鱼珊瑚飞行 | 海底反应力网页小游戏" />
+    <meta
+      name="twitter:description"
+      content="一款海底珊瑚礁主题的反应力网页小游戏，按空格键控制小鲨鱼上浮，避开珊瑚柱并收集珍珠。"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "小鲨鱼珊瑚飞行",
+        "description": "一款海底珊瑚礁主题的反应力网页小游戏，按空格键控制小鲨鱼上浮，避开珊瑚柱，收集珍珠获得加分。",
+        "url": "https://ralphlio.github.io/ai/turtle-reef-flight.html",
+        "inLanguage": "zh-CN",
+        "applicationCategory": "GameApplication",
+        "operatingSystem": "Any",
+        "genre": "Arcade"
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #06314d;
+        --ink: #effcff;
+        --muted: rgba(239, 252, 255, 0.74);
+        --glass: rgba(4, 37, 58, 0.58);
+        --line: rgba(255, 255, 255, 0.18);
+        --aqua: #5de2d8;
+        --coral: #ff8d86;
+        --gold: #f7d97b;
+        --deep: #031d31;
+        --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow: hidden;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 16% 18%, rgba(93, 226, 216, 0.28), transparent 32%),
+          radial-gradient(circle at 84% 92%, rgba(255, 141, 134, 0.22), transparent 35%),
+          linear-gradient(180deg, #0a6285 0%, #064163 46%, #031b32 100%);
+        font-family: var(--font);
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .shell {
+        position: relative;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        height: 100vh;
+        min-height: 560px;
+        padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+          max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+      }
+
+      .topbar {
+        z-index: 3;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        width: min(1180px, 100%);
+        margin: 0 auto 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--ink);
+        text-decoration: none;
+        font-weight: 800;
+        letter-spacing: 0;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 38px;
+        height: 38px;
+        place-items: center;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.13);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 16px 40px rgba(0, 0, 0, 0.16);
+      }
+
+      .brand-mark svg {
+        width: 25px;
+        height: 25px;
+      }
+
+      .home-link {
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 999px;
+        padding: 10px 14px;
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 700;
+        text-decoration: none;
+        backdrop-filter: blur(16px);
+      }
+
+      .stage {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 300px;
+        gap: 18px;
+        width: min(1180px, 100%);
+        min-height: 0;
+        margin: 0 auto;
+      }
+
+      .game-frame {
+        position: relative;
+        min-height: 0;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        border-radius: 18px;
+        background: rgba(4, 31, 49, 0.3);
+        box-shadow: 0 24px 90px rgba(0, 0, 0, 0.28);
+      }
+
+      canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+
+      .panel {
+        align-self: stretch;
+        min-height: 0;
+        padding: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 18px;
+        background: var(--glass);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.24);
+        backdrop-filter: blur(20px);
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        color: var(--aqua);
+        font-size: 13px;
+        font-weight: 800;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 32px;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 0.95;
+        letter-spacing: 0;
+      }
+
+      .summary {
+        margin: 16px 0 22px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 18px;
+      }
+
+      .stat {
+        min-height: 84px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .stat strong {
+        display: block;
+        color: var(--gold);
+        font-size: 30px;
+        line-height: 1;
+      }
+
+      .stat span {
+        display: block;
+        margin-top: 8px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .controls {
+        display: grid;
+        gap: 10px;
+      }
+
+      button {
+        min-height: 48px;
+        border: 0;
+        border-radius: 12px;
+        background: var(--coral);
+        color: #2c0710;
+        cursor: pointer;
+        font: 800 15px/1 var(--font);
+        box-shadow: 0 12px 26px rgba(255, 98, 95, 0.24);
+      }
+
+      button.secondary {
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--ink);
+        box-shadow: none;
+      }
+
+      .hint {
+        margin-top: 16px;
+        padding: 14px;
+        border-left: 3px solid var(--aqua);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--muted);
+        font-size: 13px;
+        line-height: 1.65;
+      }
+
+      .overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        display: grid;
+        place-items: center;
+        padding: 22px;
+        pointer-events: none;
+      }
+
+      .message {
+        width: min(430px, 100%);
+        padding: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 18px;
+        background: rgba(3, 31, 49, 0.72);
+        box-shadow: 0 24px 90px rgba(0, 0, 0, 0.28);
+        text-align: center;
+        backdrop-filter: blur(18px);
+      }
+
+      .message h2 {
+        margin: 0 0 10px;
+        font-size: clamp(26px, 5vw, 44px);
+        line-height: 1;
+      }
+
+      .message p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .bubbles {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+        pointer-events: none;
+      }
+
+      .bubble {
+        position: absolute;
+        bottom: -80px;
+        width: var(--size);
+        height: var(--size);
+        left: var(--left);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.08);
+        animation: rise var(--duration) linear infinite;
+        animation-delay: var(--delay);
+      }
+
+      @keyframes rise {
+        to {
+          transform: translate3d(var(--drift), -112vh, 0);
+          opacity: 0.1;
+        }
+      }
+
+      @media (max-width: 900px) {
+        body {
+          overflow: auto;
+        }
+
+        .shell {
+          height: auto;
+          min-height: 100vh;
+        }
+
+        .stage {
+          grid-template-columns: 1fr;
+        }
+
+        .game-frame {
+          height: min(68vh, 680px);
+          min-height: 460px;
+        }
+
+        .panel {
+          order: -1;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .stats {
+          grid-template-columns: 1fr;
+        }
+
+        .game-frame {
+          min-height: 430px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bubbles" aria-hidden="true">
+      <span class="bubble" style="--left: 8%; --size: 18px; --duration: 13s; --delay: -3s; --drift: 28px"></span>
+      <span class="bubble" style="--left: 21%; --size: 10px; --duration: 9s; --delay: -6s; --drift: -18px"></span>
+      <span class="bubble" style="--left: 36%; --size: 24px; --duration: 16s; --delay: -2s; --drift: 32px"></span>
+      <span class="bubble" style="--left: 56%; --size: 12px; --duration: 11s; --delay: -5s; --drift: -22px"></span>
+      <span class="bubble" style="--left: 72%; --size: 20px; --duration: 15s; --delay: -8s; --drift: 20px"></span>
+      <span class="bubble" style="--left: 88%; --size: 14px; --duration: 10s; --delay: -1s; --drift: -28px"></span>
+    </div>
+
+    <main class="shell">
+      <nav class="topbar" aria-label="页面导航">
+        <a class="brand" href="index.html" aria-label="返回目录">
+          <span class="brand-mark">
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M14 34c1-11 8-19 18-19s17 8 18 19c-7 5-29 5-36 0Z" fill="#5de2d8" />
+              <path d="M23 32c2-8 7-12 9-12s7 4 9 12c-5 4-13 4-18 0Z" fill="#1f8e83" />
+              <path d="M13 34 4 29c4-4 9-4 13 0Zm38 0 9-5c-4-4-9-4-13 0Z" fill="#8af1c6" />
+              <circle cx="31" cy="27" r="2" fill="#031d31" />
+            </svg>
+          </span>
+          <span>小鲨鱼珊瑚飞行</span>
+        </a>
+        <a class="home-link" href="index.html">返回目录</a>
+      </nav>
+
+      <section class="stage" aria-label="小鲨鱼珊瑚飞行游戏">
+        <div class="game-frame">
+          <canvas id="game" width="900" height="640" aria-label="小鲨鱼穿越海底珊瑚礁游戏画面"></canvas>
+          <div class="overlay" id="overlay">
+            <div class="message">
+              <h2 id="message-title">准备下潜</h2>
+              <p id="message-body">按空格键让小鲨鱼上浮，穿过珊瑚礁空隙。再次按空格开始。</p>
+            </div>
+          </div>
+        </div>
+
+        <aside class="panel" aria-label="游戏信息与操作">
+          <div class="eyebrow">Reef Runner</div>
+          <h1>小鲨鱼珊瑚飞行</h1>
+          <p class="summary">
+            控制一只小鲨鱼在海底珊瑚礁之间穿梭。按空格键上浮，越过珊瑚柱得一分，吃到珍珠加十分。
+          </p>
+
+          <div class="stats">
+            <div class="stat">
+              <strong id="score">0</strong>
+              <span>当前得分</span>
+            </div>
+            <div class="stat">
+              <strong id="best">0</strong>
+              <span>最佳成绩</span>
+            </div>
+          </div>
+
+          <div class="controls">
+            <button id="start-button" type="button">开始游戏</button>
+            <button class="secondary" id="pause-button" type="button">暂停 / 继续</button>
+          </div>
+
+          <p class="hint">
+            键盘：空格键上浮，P 键暂停。触屏设备也可以点击游戏画面控制。珍珠 +10 分，碰到珊瑚、海床或水面都会结束。
+          </p>
+        </aside>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const canvas = document.getElementById("game");
+        const ctx = canvas.getContext("2d");
+        const frame = canvas.parentElement;
+        const overlay = document.getElementById("overlay");
+        const messageTitle = document.getElementById("message-title");
+        const messageBody = document.getElementById("message-body");
+        const scoreEl = document.getElementById("score");
+        const bestEl = document.getElementById("best");
+        const startButton = document.getElementById("start-button");
+        const pauseButton = document.getElementById("pause-button");
+
+        const world = {
+          width: 900,
+          height: 640,
+          floor: 74,
+          ceiling: 20
+        };
+
+        const state = {
+          mode: "ready",
+          score: 0,
+          best: Number(localStorage.getItem("sharkReefBest") || 0),
+          time: 0,
+          speed: 3.2,
+          pipes: [],
+          particles: [],
+          bubbles: [],
+          pearls: [],
+          popups: [],
+          nextPearlIn: 180
+        };
+
+        const turtle = {
+          x: 210,
+          y: 280,
+          vy: 0,
+          radius: 26,
+          rotation: 0
+        };
+
+        const config = {
+          gravity: 0.34,
+          flap: -7.4,
+          pipeWidth: 88,
+          pipeGap: 178,
+          pipeSpacing: 300
+        };
+
+        bestEl.textContent = state.best;
+
+        function resizeCanvas() {
+          const rect = frame.getBoundingClientRect();
+          const dpr = Math.min(window.devicePixelRatio || 1, 2);
+          canvas.width = Math.max(1, Math.floor(rect.width * dpr));
+          canvas.height = Math.max(1, Math.floor(rect.height * dpr));
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+          world.width = rect.width;
+          world.height = rect.height;
+          world.floor = Math.max(64, rect.height * 0.12);
+        }
+
+        function reset() {
+          state.mode = "ready";
+          state.score = 0;
+          state.time = 0;
+          state.speed = 3.2;
+          state.pipes = [];
+          state.particles = [];
+          state.bubbles = [];
+          state.pearls = [];
+          state.popups = [];
+          state.nextPearlIn = 160 + Math.random() * 120;
+          turtle.x = Math.max(130, world.width * 0.24);
+          turtle.y = world.height * 0.42;
+          turtle.vy = 0;
+          updateScore();
+          spawnPipe(world.width + 120);
+          spawnPipe(world.width + 120 + config.pipeSpacing);
+          spawnPipe(world.width + 120 + config.pipeSpacing * 2);
+          showMessage("准备下潜", "按空格键让小鲨鱼上浮，穿过珊瑚礁空隙。再次按空格开始。");
+        }
+
+        function start() {
+          if (state.mode === "playing") {
+            flap();
+            return;
+          }
+          if (state.mode === "paused") {
+            state.mode = "playing";
+            hideMessage();
+            return;
+          }
+          reset();
+          state.mode = "playing";
+          hideMessage();
+          flap();
+        }
+
+        function pause() {
+          if (state.mode === "playing") {
+            state.mode = "paused";
+            showMessage("已暂停", "按 P、空格键或按钮继续。");
+          } else if (state.mode === "paused") {
+            state.mode = "playing";
+            hideMessage();
+          }
+        }
+
+        function flap() {
+          turtle.vy = config.flap;
+          for (let i = 0; i < 8; i += 1) {
+            state.particles.push({
+              x: turtle.x - 22 + Math.random() * 18,
+              y: turtle.y + 8 + Math.random() * 14,
+              r: 2 + Math.random() * 4,
+              vx: -1.6 - Math.random() * 2.4,
+              vy: -0.8 + Math.random() * 1.6,
+              life: 34
+            });
+          }
+        }
+
+        function spawnPipe(x) {
+          const minTop = 70;
+          const maxTop = world.height - world.floor - config.pipeGap - 84;
+          const top = minTop + Math.random() * Math.max(80, maxTop - minTop);
+          state.pipes.push({
+            x,
+            top,
+            passed: false,
+            sway: Math.random() * Math.PI * 2,
+            hue: Math.random()
+          });
+        }
+
+        function updateScore() {
+          scoreEl.textContent = state.score;
+          bestEl.textContent = state.best;
+        }
+
+        function spawnAmbientBubble(x = Math.random() * world.width, y = world.height - world.floor + 24) {
+          state.bubbles.push({
+            x,
+            y,
+            r: 2 + Math.random() * 5,
+            vx: -0.35 + Math.random() * 0.7,
+            vy: -0.55 - Math.random() * 1.05,
+            wobble: Math.random() * Math.PI * 2,
+            life: 180 + Math.random() * 160
+          });
+        }
+
+        function spawnPearl() {
+          const safeMin = Math.max(180, world.width * 0.28);
+          state.pearls.push({
+            x: safeMin + Math.random() * Math.max(160, world.width - safeMin - 40),
+            y: -24,
+            r: 11,
+            vy: 1.45 + Math.random() * 0.45,
+            drift: -0.5 + Math.random(),
+            spin: Math.random() * Math.PI * 2,
+            collected: false
+          });
+          state.nextPearlIn = 260 + Math.random() * 240;
+        }
+
+        function showMessage(title, body) {
+          messageTitle.textContent = title;
+          messageBody.textContent = body;
+          overlay.style.display = "grid";
+        }
+
+        function hideMessage() {
+          overlay.style.display = "none";
+        }
+
+        function gameOver() {
+          state.mode = "over";
+          if (state.score > state.best) {
+            state.best = state.score;
+            localStorage.setItem("sharkReefBest", String(state.best));
+          }
+          updateScore();
+          showMessage("礁石擦身", `本局得分 ${state.score}。按空格键再来一局。`);
+        }
+
+        function update() {
+          state.time += 1;
+
+          if (Math.random() < 0.09) {
+            spawnAmbientBubble(Math.random() * world.width, world.height - world.floor + 18 + Math.random() * 24);
+          }
+          if (Math.random() < 0.018) {
+            spawnAmbientBubble(Math.random() * world.width, world.height * (0.4 + Math.random() * 0.42));
+          }
+
+          if (state.mode === "playing") {
+            turtle.vy += config.gravity;
+            turtle.y += turtle.vy;
+            turtle.rotation = Math.max(-0.45, Math.min(0.75, turtle.vy / 10));
+            state.speed = Math.min(5.8, state.speed + 0.0008);
+
+            for (const pipe of state.pipes) {
+              pipe.x -= state.speed;
+              pipe.sway += 0.02;
+
+              if (!pipe.passed && pipe.x + config.pipeWidth < turtle.x - turtle.radius) {
+                pipe.passed = true;
+                state.score += 1;
+                updateScore();
+              }
+            }
+
+            if (state.pipes.length && state.pipes[0].x + config.pipeWidth < -20) {
+              state.pipes.shift();
+              const last = state.pipes[state.pipes.length - 1];
+              spawnPipe(last.x + config.pipeSpacing);
+            }
+
+            state.nextPearlIn -= 1;
+            if (state.nextPearlIn <= 0) {
+              spawnPearl();
+            }
+
+            for (const pearl of state.pearls) {
+              pearl.x -= state.speed * 0.58;
+              pearl.x += pearl.drift;
+              pearl.y += pearl.vy;
+              pearl.spin += 0.06;
+
+              const dx = pearl.x - turtle.x;
+              const dy = pearl.y - turtle.y;
+              if (!pearl.collected && Math.hypot(dx, dy) < turtle.radius + pearl.r + 8) {
+                pearl.collected = true;
+                state.score += 10;
+                updateScore();
+                state.popups.push({ x: pearl.x, y: pearl.y, text: "+10", life: 52 });
+                for (let i = 0; i < 12; i += 1) {
+                  state.particles.push({
+                    x: pearl.x,
+                    y: pearl.y,
+                    r: 2 + Math.random() * 4,
+                    vx: -2 + Math.random() * 4,
+                    vy: -2 + Math.random() * 4,
+                    life: 38
+                  });
+                }
+              }
+            }
+            state.pearls = state.pearls.filter((pearl) => !pearl.collected && pearl.y < world.height + 40 && pearl.x > -40);
+
+            if (turtle.y - turtle.radius < world.ceiling || turtle.y + turtle.radius > world.height - world.floor + 12) {
+              gameOver();
+            }
+
+            for (const pipe of state.pipes) {
+              if (collidesWithPipe(pipe)) {
+                gameOver();
+                break;
+              }
+            }
+          } else if (state.mode === "ready") {
+            turtle.y = world.height * 0.42 + Math.sin(state.time / 18) * 12;
+            turtle.rotation = Math.sin(state.time / 20) * 0.1;
+          }
+
+          for (const p of state.particles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life -= 1;
+          }
+          state.particles = state.particles.filter((p) => p.life > 0);
+
+          for (const bubble of state.bubbles) {
+            bubble.wobble += 0.04;
+            bubble.x += bubble.vx + Math.sin(bubble.wobble) * 0.18;
+            bubble.y += bubble.vy;
+            bubble.life -= 1;
+          }
+          state.bubbles = state.bubbles.filter((bubble) => bubble.life > 0 && bubble.y > -30);
+
+          for (const popup of state.popups) {
+            popup.y -= 0.7;
+            popup.life -= 1;
+          }
+          state.popups = state.popups.filter((popup) => popup.life > 0);
+        }
+
+        function collidesWithPipe(pipe) {
+          const turtleLeft = turtle.x - turtle.radius * 0.78;
+          const turtleRight = turtle.x + turtle.radius * 0.86;
+          const turtleTop = turtle.y - turtle.radius * 0.7;
+          const turtleBottom = turtle.y + turtle.radius * 0.72;
+          const pipeLeft = pipe.x;
+          const pipeRight = pipe.x + config.pipeWidth;
+          if (turtleRight < pipeLeft || turtleLeft > pipeRight) return false;
+
+          const topBottom = pipe.top;
+          const bottomTop = pipe.top + config.pipeGap;
+          return turtleTop < topBottom || turtleBottom > bottomTop;
+        }
+
+        function drawBackground() {
+          const g = ctx.createLinearGradient(0, 0, 0, world.height);
+          g.addColorStop(0, "#0a7da0");
+          g.addColorStop(0.48, "#075a81");
+          g.addColorStop(1, "#03233c");
+          ctx.fillStyle = g;
+          ctx.fillRect(0, 0, world.width, world.height);
+
+          const haze = ctx.createRadialGradient(
+            world.width * 0.56,
+            world.height * 0.24,
+            30,
+            world.width * 0.56,
+            world.height * 0.24,
+            world.width * 0.72
+          );
+          haze.addColorStop(0, "rgba(163, 245, 232, 0.16)");
+          haze.addColorStop(0.42, "rgba(98, 200, 202, 0.08)");
+          haze.addColorStop(1, "rgba(3, 35, 60, 0)");
+          ctx.fillStyle = haze;
+          ctx.fillRect(0, 0, world.width, world.height);
+
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          const surface = ctx.createLinearGradient(0, 0, 0, world.height * 0.28);
+          surface.addColorStop(0, "rgba(235, 255, 250, 0.2)");
+          surface.addColorStop(0.42, "rgba(117, 222, 222, 0.08)");
+          surface.addColorStop(1, "rgba(117, 222, 222, 0)");
+          ctx.fillStyle = surface;
+          ctx.fillRect(0, 0, world.width, world.height * 0.32);
+          ctx.restore();
+
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          ctx.filter = "blur(7px)";
+          for (let i = 0; i < 5; i += 1) {
+            const x = -150 + i * (world.width / 4) + Math.sin(state.time / 190 + i * 0.7) * 34;
+            const ray = ctx.createLinearGradient(x, 0, x + 210, world.height);
+            ray.addColorStop(0, "rgba(234, 255, 250, 0.2)");
+            ray.addColorStop(0.38, "rgba(166, 237, 230, 0.08)");
+            ray.addColorStop(0.76, "rgba(126, 217, 224, 0.025)");
+            ray.addColorStop(1, "rgba(220,255,249,0)");
+            ctx.fillStyle = ray;
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x + 92, 0);
+            ctx.bezierCurveTo(x + 146, world.height * 0.33, x + 238, world.height * 0.62, x + 286, world.height);
+            ctx.lineTo(x + 8, world.height);
+            ctx.bezierCurveTo(x + 72, world.height * 0.6, x + 48, world.height * 0.28, x, 0);
+            ctx.closePath();
+            ctx.fill();
+          }
+          ctx.filter = "none";
+          ctx.restore();
+
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          ctx.lineCap = "round";
+          for (let layer = 0; layer < 3; layer += 1) {
+            const alpha = [0.18, 0.11, 0.07][layer];
+            const spacing = [54, 72, 96][layer];
+            const amplitude = [8, 13, 18][layer];
+            const drift = (state.time / (80 + layer * 26)) * (layer === 1 ? -1 : 1);
+            ctx.lineWidth = [1.1, 1.3, 1.6][layer];
+            for (let i = 0; i < 7; i += 1) {
+              const y = 58 + i * spacing + Math.sin(state.time / 52 + i * 0.8) * 9;
+              const segmentWidth = 96 + layer * 20;
+              for (let x = -80 + ((i * 31 + layer * 47) % 90); x <= world.width + 80; x += segmentWidth) {
+                const wave = Math.sin(x / 84 + drift + i) * amplitude;
+                const line = ctx.createLinearGradient(x, y - 16, x + segmentWidth, y + 16);
+                line.addColorStop(0, "rgba(180, 255, 244, 0)");
+                line.addColorStop(0.34, `rgba(220, 255, 250, ${alpha})`);
+                line.addColorStop(0.68, `rgba(136, 232, 231, ${alpha * 0.72})`);
+                line.addColorStop(1, "rgba(180, 255, 244, 0)");
+                ctx.strokeStyle = line;
+                ctx.beginPath();
+                ctx.moveTo(x, y + wave);
+                ctx.bezierCurveTo(
+                  x + segmentWidth * 0.26,
+                  y - amplitude + Math.sin(drift + x * 0.03) * 5,
+                  x + segmentWidth * 0.68,
+                  y + amplitude + Math.cos(drift + i) * 4,
+                  x + segmentWidth,
+                  y + Math.sin(drift + x * 0.02) * amplitude * 0.65
+                );
+                ctx.stroke();
+              }
+            }
+          }
+          ctx.restore();
+
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          ctx.globalAlpha = 0.12;
+          for (let i = 0; i < 4; i += 1) {
+            const y = 36 + i * 27 + Math.sin(state.time / 50 + i) * 5;
+            const shimmer = ctx.createLinearGradient(0, y - 10, world.width, y + 10);
+            shimmer.addColorStop(0, "rgba(255,255,255,0)");
+            shimmer.addColorStop(0.26, "rgba(236,255,250,0.18)");
+            shimmer.addColorStop(0.55, "rgba(117,230,225,0.12)");
+            shimmer.addColorStop(1, "rgba(255,255,255,0)");
+            ctx.strokeStyle = shimmer;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(-60, y);
+            for (let x = -60; x <= world.width + 60; x += 54) {
+              ctx.quadraticCurveTo(
+                x + 27,
+                y + Math.sin(x / 58 + state.time / 42 + i) * 6,
+                x + 54,
+                y + Math.cos(x / 72 + state.time / 58) * 2
+              );
+            }
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          ctx.globalAlpha = 0.1;
+          for (let i = 0; i < 7; i += 1) {
+            const x = ((i * 173 + state.time * 0.18) % (world.width + 180)) - 90;
+            const y = 52 + i * 74 + Math.sin(state.time / 62 + i) * 14;
+            const glow = ctx.createRadialGradient(x, y, 4, x, y, 92);
+            glow.addColorStop(0, "rgba(223, 255, 250, 0.28)");
+            glow.addColorStop(0.42, "rgba(126, 224, 224, 0.1)");
+            glow.addColorStop(1, "rgba(126, 224, 224, 0)");
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.ellipse(x, y, 86, 22, Math.sin(state.time / 160 + i) * 0.35, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+
+          ctx.save();
+          ctx.globalCompositeOperation = "screen";
+          ctx.globalAlpha = 0.06;
+          for (let i = 0; i < 5; i += 1) {
+            const x = -80 + i * (world.width / 4.2) + Math.sin(state.time / 120 + i) * 28;
+            const y = world.height * (0.3 + i * 0.06);
+            ctx.strokeStyle = "rgba(226,255,249,0.5)";
+            ctx.lineWidth = 18 + i * 2;
+            ctx.beginPath();
+            ctx.moveTo(x, y - 80);
+            ctx.bezierCurveTo(x + 120, y - 20, x + 50, y + 110, x + 210, y + 170);
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          drawAmbientBubbles();
+          drawReefFloor();
+        }
+
+        function drawReefFloor() {
+          const floorY = world.height - world.floor;
+          const sand = ctx.createLinearGradient(0, floorY - 8, 0, world.height);
+          sand.addColorStop(0, "#0b3550");
+          sand.addColorStop(0.5, "#082b45");
+          sand.addColorStop(1, "#041d32");
+          ctx.fillStyle = sand;
+          ctx.beginPath();
+          ctx.moveTo(0, floorY + 26);
+          for (let x = 0; x <= world.width + 40; x += 40) {
+            ctx.quadraticCurveTo(x + 20, floorY + 8 + Math.sin(x * 0.04 + state.time * 0.02) * 8, x + 40, floorY + 26);
+          }
+          ctx.lineTo(world.width, world.height);
+          ctx.lineTo(0, world.height);
+          ctx.closePath();
+          ctx.fill();
+
+          for (let x = 42; x < world.width + 120; x += 190) {
+            drawRibbonKelp(x, floorY + 52, 0.72, x * 0.04);
+            drawSeaAnemone(x + 58, floorY + 50, 0.58, "#e6a7c0", x * 0.05);
+          }
+
+          for (let x = 72; x < world.width + 180; x += 270) {
+            drawPlateCoral(x - 24, floorY + 48, 0.7, "#8cd7c6");
+            drawFanCoral(x + 14, floorY + 50, 0.5 + ((x % 7) * 0.015), "#e7a5ba");
+            drawTubeCoral(x + 76, floorY + 50, 0.62, "#eca46c", x * 0.01);
+            drawBubbleCoral(x + 132, floorY + 52, 0.36);
+            drawShell(x + 170, floorY + 46, 0.56, x * 0.01);
+          }
+
+          for (let x = -18; x < world.width + 120; x += 142) {
+            drawRockCluster(x, floorY + 50, 0.9 + ((x % 5) * 0.03));
+          }
+
+          drawStarfish(world.width * 0.72, floorY + 50, 0.5, state.time / 120);
+        }
+
+        function drawRibbonKelp(x, baseY, scale, phase = 0) {
+          ctx.save();
+          ctx.translate(x, baseY);
+          ctx.scale(scale, scale);
+
+          for (let i = 0; i < 4; i += 1) {
+            const offset = (i - 1.5) * 10;
+            const height = 34 + i * 5;
+            const sway = Math.sin(state.time / 42 + phase + i) * 3;
+            const kelp = ctx.createLinearGradient(offset, 0, offset, -height);
+            kelp.addColorStop(0, "#237b6b");
+            kelp.addColorStop(0.55, "#5dd2a7");
+            kelp.addColorStop(1, "#a9f5cf");
+            ctx.fillStyle = kelp;
+            ctx.beginPath();
+            ctx.moveTo(offset - 4, 0);
+            ctx.bezierCurveTo(offset - 9 + sway, -height * 0.35, offset + 8 + sway, -height * 0.65, offset + 2 + sway, -height);
+            ctx.bezierCurveTo(offset + 12 + sway, -height * 0.65, offset - 4 + sway, -height * 0.32, offset + 5, 0);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = "rgba(255,255,255,0.13)";
+            ctx.beginPath();
+            ctx.ellipse(offset + sway * 0.5, -height * 0.58, 2, height * 0.28, -0.12, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawSeaAnemone(x, baseY, scale, color, phase = 0) {
+          ctx.save();
+          ctx.translate(x, baseY);
+          ctx.scale(scale, scale);
+
+          const base = ctx.createRadialGradient(0, 0, 2, 0, 0, 34);
+          base.addColorStop(0, "rgba(243, 166, 192, 0.58)");
+          base.addColorStop(1, "rgba(10, 47, 66, 0)");
+          ctx.fillStyle = base;
+          ctx.beginPath();
+          ctx.ellipse(0, 3, 34, 11, 0, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = color;
+          ctx.lineCap = "round";
+          for (let i = 0; i < 10; i += 1) {
+            const angle = -Math.PI * 0.9 + i * 0.2;
+            const length = 22 + (i % 4) * 4;
+            const sway = Math.sin(state.time / 38 + phase + i) * 2.2;
+            const endX = Math.cos(angle) * length + sway;
+            const endY = Math.sin(angle) * length * 0.62;
+            const controlX = Math.cos(angle) * length * 0.55 + sway * 0.5;
+            const controlY = Math.sin(angle) * length * 0.34 - 4;
+            ctx.lineWidth = 2.3;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(controlX, controlY, endX, endY);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = "rgba(255, 225, 230, 0.58)";
+          ctx.beginPath();
+          ctx.arc(0, -1, 5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        function drawPlateCoral(x, y, scale, color) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale, scale);
+          for (let i = 0; i < 4; i += 1) {
+            ctx.fillStyle = i % 2 ? "#74c9b7" : color;
+            ctx.beginPath();
+            ctx.ellipse(i * 16 - 8, -i * 4, 25 - i * 2, 8, -0.14 + i * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = "rgba(16, 84, 81, 0.24)";
+            ctx.lineWidth = 1.3;
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        function drawTubeCoral(x, y, scale, color, phase) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale, scale);
+          for (let i = 0; i < 5; i += 1) {
+            const tx = (i - 2) * 11;
+            const h = 22 + (i % 3) * 8;
+            const tube = ctx.createLinearGradient(tx, -h, tx, 0);
+            tube.addColorStop(0, "#ffd2a7");
+            tube.addColorStop(1, color);
+            ctx.fillStyle = tube;
+            ctx.beginPath();
+            ctx.roundRect(tx - 5, -h, 10, h + 6, 5);
+            ctx.fill();
+            ctx.fillStyle = "rgba(99, 52, 62, 0.38)";
+            ctx.beginPath();
+            ctx.ellipse(tx, -h, 6.5, 3.4, Math.sin(phase + i) * 0.08, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawRockCluster(x, y, scale) {
+          ctx.save();
+          ctx.scale(scale, scale);
+          const rx = x / scale;
+          const ry = y / scale;
+          const colors = ["#08283f", "#0f405b", "#0b334f", "#133c53"];
+          ctx.shadowColor = "rgba(0, 0, 0, 0.16)";
+          ctx.shadowBlur = 10;
+          ctx.shadowOffsetY = 3;
+          for (let i = 0; i < 5; i += 1) {
+            const rock = ctx.createLinearGradient(rx, ry - 18, rx, ry + 16);
+            rock.addColorStop(0, colors[(i + 1) % colors.length]);
+            rock.addColorStop(1, colors[i % colors.length]);
+            ctx.fillStyle = rock;
+            ctx.beginPath();
+            ctx.ellipse(rx + i * 20, ry + (i % 2) * 4, 24 - i * 1.5, 13 + i * 1.2, -0.14 + i * 0.12, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.shadowBlur = 0;
+          ctx.fillStyle = "rgba(255,255,255,0.08)";
+          ctx.beginPath();
+          ctx.ellipse(rx + 28, ry - 8, 18, 4, -0.18, 0, Math.PI * 2);
+          ctx.fill();
+          drawBarnacles(rx + 42, ry - 8, 0.9);
+          drawBarnacles(rx + 82, ry - 2, 0.72);
+          drawShell(rx + 66, ry - 4, 0.52, x * 0.02);
+          ctx.restore();
+        }
+
+        function drawBarnacles(x, y, scale) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale, scale);
+          for (let i = 0; i < 5; i += 1) {
+            const bx = (i % 3) * 9 - 8;
+            const by = Math.floor(i / 3) * 7;
+            ctx.fillStyle = "#d8c6a7";
+            ctx.beginPath();
+            ctx.ellipse(bx, by, 5.5, 4.8, 0.12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#6b6f69";
+            ctx.beginPath();
+            ctx.ellipse(bx, by - 0.6, 2.2, 1.6, 0.12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "rgba(255,255,255,0.2)";
+            ctx.beginPath();
+            ctx.ellipse(bx - 1.7, by - 2.2, 1.5, 0.8, -0.4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawShell(x, y, scale, phase) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(-0.18 + Math.sin(phase) * 0.04);
+          ctx.scale(scale, scale);
+          const shell = ctx.createLinearGradient(-16, -10, 16, 14);
+          shell.addColorStop(0, "#ffe6bc");
+          shell.addColorStop(0.55, "#f6b58d");
+          shell.addColorStop(1, "#d97482");
+          ctx.fillStyle = shell;
+          ctx.strokeStyle = "rgba(105, 70, 76, 0.34)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-20, 8);
+          ctx.quadraticCurveTo(-10, -16, 4, -18);
+          ctx.quadraticCurveTo(22, -14, 22, 8);
+          ctx.quadraticCurveTo(2, 16, -20, 8);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.strokeStyle = "rgba(123, 72, 78, 0.28)";
+          ctx.lineWidth = 1.4;
+          for (let i = -2; i <= 2; i += 1) {
+            ctx.beginPath();
+            ctx.moveTo(2, -14);
+            ctx.quadraticCurveTo(i * 7, -4, i * 10, 10);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        function drawFanCoral(x, y, scale, color) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale, scale);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 4;
+          ctx.lineCap = "round";
+          for (let i = -2; i <= 2; i += 1) {
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(i * 12, -30, i * 20, -52 + Math.abs(i) * 4);
+            ctx.stroke();
+          }
+          ctx.strokeStyle = "rgba(255, 236, 232, 0.32)";
+          ctx.lineWidth = 1.3;
+          for (let y2 = -16; y2 > -48; y2 -= 12) {
+            ctx.beginPath();
+            ctx.moveTo(-34 + Math.abs(y2) * 0.16, y2);
+            ctx.quadraticCurveTo(0, y2 - 7, 34 - Math.abs(y2) * 0.16, y2);
+            ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        function drawBranchCoral(x, y, scale, color, phase) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale, scale);
+          ctx.strokeStyle = color;
+          ctx.lineWidth = 10;
+          ctx.lineCap = "round";
+          const branches = [
+            [0, 0, 0, -50],
+            [0, -28, -19, -48],
+            [0, -34, 21, -56],
+            [-6, -17, -28, -30],
+            [7, -22, 29, -37]
+          ];
+          for (const [x1, y1, x2, y2] of branches) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.quadraticCurveTo((x1 + x2) / 2 + Math.sin(state.time / 40 + phase) * 4, (y1 + y2) / 2, x2, y2);
+            ctx.stroke();
+          }
+          ctx.strokeStyle = "rgba(255,255,255,0.18)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(3, -4);
+          ctx.quadraticCurveTo(6, -26, 4, -48);
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        function drawBubbleCoral(x, y, scale) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale, scale);
+          const colors = ["#f7cf78", "#f2a979", "#ef8c8c", "#df7fa4"];
+          for (let i = 0; i < 9; i += 1) {
+            const a = i * 1.7;
+            const r = 17 + (i % 3) * 8;
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.beginPath();
+            ctx.arc(Math.cos(a) * r, -12 - Math.sin(a) * r * 0.62, 10 + (i % 2) * 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "rgba(255,255,255,0.18)";
+            ctx.beginPath();
+            ctx.arc(Math.cos(a) * r - 3, -15 - Math.sin(a) * r * 0.65, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawStarfish(x, y, scale, rotation) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(rotation);
+          ctx.scale(scale, scale);
+          ctx.fillStyle = "#ffb35c";
+          ctx.beginPath();
+          for (let i = 0; i < 10; i += 1) {
+            const r = i % 2 ? 12 : 28;
+            const a = -Math.PI / 2 + i * Math.PI / 5;
+            ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
+          }
+          ctx.closePath();
+          ctx.fill();
+          ctx.fillStyle = "rgba(116, 58, 42, 0.28)";
+          for (let i = 0; i < 5; i += 1) {
+            const a = -Math.PI / 2 + i * Math.PI * 0.4;
+            ctx.beginPath();
+            ctx.arc(Math.cos(a) * 11, Math.sin(a) * 11, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawPipe(pipe) {
+          const w = config.pipeWidth;
+          const gapTop = pipe.top;
+          const gapBottom = pipe.top + config.pipeGap;
+          const bottomHeight = world.height - world.floor - gapBottom + 30;
+          const tone = pipe.hue > 0.5 ? "#7b4b33" : "#8f5f3b";
+          drawCoralColumn(pipe.x, 0, w, gapTop, true, tone, pipe.sway);
+          drawCoralColumn(pipe.x, gapBottom, w, bottomHeight, false, tone, pipe.sway + 2);
+        }
+
+        function drawCoralColumn(x, y, w, h, inverted, color, phase) {
+          const cap = 18;
+          const g = ctx.createLinearGradient(x, y, x + w, y);
+          g.addColorStop(0, "#3b261f");
+          g.addColorStop(0.3, color);
+          g.addColorStop(0.62, "#b06d3f");
+          g.addColorStop(1, "#2a1b18");
+          ctx.fillStyle = g;
+
+          ctx.beginPath();
+          ctx.roundRect(x + 10, y - (inverted ? cap : 0), w - 20, h + cap, 22);
+          ctx.fill();
+          drawColumnSurfaceReef(x, y, w, h, inverted, phase);
+
+          ctx.save();
+          ctx.globalAlpha = 0.18;
+          ctx.fillStyle = "#d59a69";
+          ctx.beginPath();
+          ctx.roundRect(x + 25, y - (inverted ? cap - 4 : -4), 16, h + cap - 8, 10);
+          ctx.fill();
+          ctx.restore();
+
+          ctx.fillStyle = "rgba(219, 159, 101, 0.26)";
+          for (let i = 0; i < Math.max(4, h / 30); i += 1) {
+            const bx = x + 20 + ((i * 19) % (w - 40)) + Math.sin(phase + i) * 2.4;
+            const by = inverted ? y + h - 20 - i * 24 : y + 20 + i * 24;
+            ctx.beginPath();
+            ctx.ellipse(bx, by, 3.2 + (i % 3) * 0.7, 2.2 + (i % 2) * 0.8, Math.sin(phase + i) * 0.4, 0, Math.PI * 2);
+            ctx.fill();
+          }
+
+          const decorationCount = Math.max(4, Math.floor(h / 56));
+          for (let i = 0; i < decorationCount; i += 1) {
+            const anchorY = inverted ? y + h - 24 - i * 50 : y + 28 + i * 50;
+            if (anchorY < y - 4 || anchorY > y + h + 4) continue;
+            const side = i % 2 ? 1 : -1;
+            const anchorX = side > 0 ? x + w - 23 : x + 23;
+            if (i % 3 === 0) {
+              drawColumnSoftKelp(anchorX, anchorY, side, inverted, 0.68, phase + i);
+            } else if (i % 3 === 1) {
+              drawColumnMiniCoral(anchorX, anchorY, side, inverted, 0.56, phase + i);
+            } else {
+              drawColumnAnemone(anchorX, anchorY, side, 0.5, phase + i);
+            }
+          }
+        }
+
+        function drawColumnSurfaceReef(x, y, w, h, inverted, phase) {
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect(x + 12, y + 2, w - 24, h - 4, 20);
+          ctx.clip();
+
+          drawColumnKelpRibbons(x, y, w, h, inverted, phase);
+          const rows = Math.max(3, Math.floor(h / 70));
+          for (let i = 0; i < rows; i += 1) {
+            const rowY = inverted ? y + h - 38 - i * 62 : y + 38 + i * 62;
+            if (rowY < y + 12 || rowY > y + h - 12) continue;
+            drawColumnBarnaclePatch(x + w * (0.34 + (i % 3) * 0.12), rowY, 0.58 + (i % 2) * 0.08, phase + i);
+            if (i % 2 === 0) {
+              drawColumnPolypPatch(x + w * 0.62, rowY + (inverted ? -18 : 18), 0.5, phase + i);
+            }
+          }
+          ctx.restore();
+        }
+
+        function drawColumnKelpRibbons(x, y, w, h, inverted, phase) {
+          ctx.save();
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          const ribbonCount = Math.max(2, Math.floor(h / 110));
+          for (let r = 0; r < ribbonCount; r += 1) {
+            const offset = r * 58 + (inverted ? h * 0.2 : h * 0.05);
+            const startY = inverted ? y + h - offset : y + offset;
+            const grad = ctx.createLinearGradient(x, startY - 30, x + w, startY + 46);
+            grad.addColorStop(0, "rgba(80, 193, 148, 0.18)");
+            grad.addColorStop(0.45, "rgba(105, 224, 171, 0.62)");
+            grad.addColorStop(1, "rgba(30, 139, 119, 0.2)");
+
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 5.5;
+            ctx.beginPath();
+            ctx.moveTo(x + 14, startY);
+            ctx.bezierCurveTo(
+              x + w * 0.34,
+              startY + (inverted ? -24 : 24) + Math.sin(phase + r) * 4,
+              x + w * 0.58,
+              startY + (inverted ? 16 : -16),
+              x + w - 14,
+              startY + (inverted ? -4 : 4)
+            );
+            ctx.stroke();
+
+            for (let i = 0; i < 5; i += 1) {
+              const t = (i + 0.8) / 6;
+              const lx = x + 14 + (w - 28) * t;
+              const ly = startY + Math.sin(t * Math.PI * 2 + phase + r) * 12;
+              const dir = i % 2 ? 1 : -1;
+              ctx.fillStyle = "rgba(180, 250, 207, 0.34)";
+              ctx.beginPath();
+              ctx.ellipse(lx, ly + dir * 6, 3.5, 8, dir * 0.7, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+          ctx.restore();
+        }
+
+        function drawColumnSoftKelp(x, y, side, inverted, scale, phase) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale * side, scale);
+          ctx.lineCap = "round";
+          for (let i = 0; i < 5; i += 1) {
+            const stem = (i - 2) * 4.5;
+            const len = 18 + i * 3.5;
+            const sway = Math.sin(state.time / 42 + phase + i) * 2.2;
+            ctx.strokeStyle = i % 2 ? "rgba(148, 231, 194, 0.82)" : "rgba(77, 190, 165, 0.86)";
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.moveTo(0, stem);
+            ctx.bezierCurveTo(9 + sway, stem - len * 0.14, 18 - sway, stem - len * 0.44, 24 + sway, stem - len);
+            ctx.stroke();
+            ctx.fillStyle = "rgba(203, 255, 229, 0.22)";
+            ctx.beginPath();
+            ctx.ellipse(19 + sway, stem - len * 0.54, 2.6, 6.2, -0.55, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawColumnMiniCoral(x, y, side, inverted, scale, phase) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale * side, scale);
+          ctx.strokeStyle = "rgba(141, 194, 255, 0.9)";
+          ctx.lineWidth = 4.5;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+          const tilt = inverted ? -1 : 1;
+          const branches = [
+            [0, 0, 22, -8 * tilt],
+            [14, -4 * tilt, 31, -20 * tilt],
+            [16, -5 * tilt, 34, 6 * tilt],
+            [8, -2 * tilt, 23, 13 * tilt]
+          ];
+          for (const [x1, y1, x2, y2] of branches) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.quadraticCurveTo((x1 + x2) / 2 + Math.sin(state.time / 48 + phase) * 2, (y1 + y2) / 2, x2, y2);
+            ctx.stroke();
+          }
+          ctx.fillStyle = "rgba(244, 250, 255, 0.7)";
+          for (let i = 0; i < 8; i += 1) {
+            ctx.beginPath();
+            ctx.arc(8 + (i % 4) * 7, -12 + Math.floor(i / 4) * 14 * tilt, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawColumnBarnaclePatch(x, y, scale, phase = 0) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale, scale);
+          for (let i = 0; i < 8; i += 1) {
+            const a = i * 1.75 + phase;
+            const bx = Math.cos(a) * (5 + (i % 3) * 3);
+            const by = Math.sin(a) * (4 + (i % 2) * 4);
+            ctx.fillStyle = "#eadbbd";
+            ctx.beginPath();
+            ctx.ellipse(bx, by, 4.8, 4.1, 0.15, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "#806a68";
+            ctx.beginPath();
+            ctx.ellipse(bx, by - 0.4, 1.7, 1.3, 0.15, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawColumnPolypPatch(x, y, scale, phase) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale, scale);
+          const colors = ["#f3b6c8", "#f7d2ae", "#a8d8ff"];
+          for (let i = 0; i < 9; i += 1) {
+            const a = i * 0.7 + phase;
+            const px = Math.cos(a) * (6 + (i % 3) * 4);
+            const py = Math.sin(a) * 6;
+            ctx.fillStyle = colors[i % colors.length];
+            ctx.beginPath();
+            ctx.arc(px, py, 3.7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = "rgba(255,255,255,0.22)";
+            ctx.beginPath();
+            ctx.arc(px - 1.2, py - 1.4, 1.1, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawColumnShell(x, y, scale, phase) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(0.18 + Math.sin(phase) * 0.08);
+          ctx.scale(scale, scale);
+          const shell = ctx.createLinearGradient(-14, -10, 16, 12);
+          shell.addColorStop(0, "#fff0cf");
+          shell.addColorStop(0.58, "#f4b28a");
+          shell.addColorStop(1, "#d8758a");
+          ctx.fillStyle = shell;
+          ctx.strokeStyle = "rgba(111, 68, 84, 0.38)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(-18, 8);
+          ctx.quadraticCurveTo(-7, -15, 7, -15);
+          ctx.quadraticCurveTo(20, -10, 18, 9);
+          ctx.quadraticCurveTo(0, 16, -18, 8);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+        }
+
+        function drawColumnAnemone(x, y, side, scale, phase) {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.scale(scale * side, scale);
+          ctx.strokeStyle = "#f2a8c0";
+          ctx.lineWidth = 2.5;
+          ctx.lineCap = "round";
+          for (let i = -3; i <= 3; i += 1) {
+            const angle = i * 0.24;
+            const len = 18 + (Math.abs(i) % 2) * 5;
+            const sway = Math.sin(state.time / 40 + phase + i) * 2;
+            ctx.beginPath();
+            ctx.moveTo(0, 0);
+            ctx.quadraticCurveTo(12 + sway, angle * 16, len + 8, angle * 24);
+            ctx.stroke();
+          }
+          ctx.fillStyle = "rgba(255, 225, 230, 0.62)";
+          ctx.beginPath();
+          ctx.arc(0, 0, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        function drawShark() {
+          ctx.save();
+          ctx.translate(turtle.x, turtle.y);
+          ctx.rotate(turtle.rotation);
+          ctx.scale(1.08, 1.08);
+
+          const tailWave = Math.sin(state.time / 6) * 0.32;
+          const finWave = Math.sin(state.time / 10) * 0.12;
+          const bodyGradient = ctx.createLinearGradient(-48, -18, 45, 20);
+
+          bodyGradient.addColorStop(0, "#75d7f2");
+          bodyGradient.addColorStop(0.48, "#3a9fd1");
+          bodyGradient.addColorStop(1, "#257aaf");
+          ctx.shadowColor = "rgba(0, 0, 0, 0.28)";
+          ctx.shadowBlur = 18;
+          ctx.shadowOffsetY = 9;
+
+          // Tail first, so the body sits cleanly on top of the wagging fin.
+          ctx.save();
+          ctx.translate(-46, 1);
+          ctx.rotate(tailWave);
+          ctx.fillStyle = "#2f8ec3";
+          ctx.strokeStyle = "rgba(7, 66, 96, 0.55)";
+          ctx.lineWidth = 2.4;
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(-22, -25, -37, -25, -31, -4);
+          ctx.bezierCurveTo(-22, 0, -14, 4, 0, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(-23, 25, -38, 24, -31, 3);
+          ctx.bezierCurveTo(-21, 0, -13, -4, 0, 0);
+          ctx.closePath();
+          ctx.fillStyle = "#51bde3";
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.shadowBlur = 0;
+
+          ctx.fillStyle = bodyGradient;
+          ctx.strokeStyle = "rgba(6, 69, 101, 0.58)";
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(-50, 0);
+          ctx.bezierCurveTo(-31, -24, 17, -30, 47, -8);
+          ctx.bezierCurveTo(59, 1, 52, 13, 39, 19);
+          ctx.bezierCurveTo(7, 34, -35, 22, -50, 0);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          const belly = ctx.createLinearGradient(-20, 6, 42, 26);
+          belly.addColorStop(0, "rgba(224, 255, 250, 0.76)");
+          belly.addColorStop(1, "rgba(160, 231, 236, 0.35)");
+          ctx.fillStyle = belly;
+          ctx.beginPath();
+          ctx.moveTo(-25, 8);
+          ctx.bezierCurveTo(-1, 21, 27, 22, 44, 9);
+          ctx.bezierCurveTo(32, 26, -1, 33, -34, 14);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.fillStyle = "#2d8bc1";
+          ctx.strokeStyle = "rgba(6, 69, 101, 0.42)";
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.moveTo(-8, -21);
+          ctx.bezierCurveTo(-5, -45, 13, -42, 15, -17);
+          ctx.bezierCurveTo(7, -22, 0, -22, -8, -21);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+
+          ctx.save();
+          ctx.rotate(0.1 + finWave);
+          ctx.fillStyle = "#277db1";
+          ctx.strokeStyle = "rgba(6, 69, 101, 0.42)";
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.moveTo(2, 14);
+          ctx.bezierCurveTo(-5, 36, 15, 41, 28, 18);
+          ctx.bezierCurveTo(18, 21, 10, 20, 2, 14);
+          ctx.closePath();
+          ctx.fill();
+          ctx.stroke();
+          ctx.restore();
+
+          ctx.fillStyle = "rgba(255, 255, 255, 0.28)";
+          ctx.beginPath();
+          ctx.ellipse(7, -15, 18, 5, -0.15, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = "#07334c";
+          ctx.beginPath();
+          ctx.arc(33, -8, 3.8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.arc(34.3, -9.5, 1.25, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = "rgba(5, 49, 72, 0.62)";
+          ctx.lineWidth = 1.8;
+          ctx.lineCap = "round";
+          ctx.beginPath();
+          ctx.arc(39, 2, 8, 0.38, 1.34);
+          ctx.stroke();
+
+          ctx.restore();
+        }
+
+        function drawAmbientBubbles() {
+          ctx.save();
+          for (const bubble of state.bubbles) {
+            const alpha = Math.max(0, Math.min(0.55, bubble.life / 220));
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = "rgba(217, 255, 252, 0.72)";
+            ctx.fillStyle = "rgba(217, 255, 252, 0.08)";
+            ctx.lineWidth = 1.4;
+            ctx.beginPath();
+            ctx.arc(bubble.x, bubble.y, bubble.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+            ctx.fillStyle = "rgba(255, 255, 255, 0.42)";
+            ctx.beginPath();
+            ctx.arc(bubble.x - bubble.r * 0.28, bubble.y - bubble.r * 0.3, Math.max(1, bubble.r * 0.22), 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+          ctx.restore();
+        }
+
+        function drawPearls() {
+          ctx.save();
+          for (const pearl of state.pearls) {
+            const glow = ctx.createRadialGradient(pearl.x, pearl.y, 2, pearl.x, pearl.y, pearl.r * 2.4);
+            glow.addColorStop(0, "rgba(255, 255, 255, 0.56)");
+            glow.addColorStop(0.46, "rgba(205, 245, 255, 0.22)");
+            glow.addColorStop(1, "rgba(205, 245, 255, 0)");
+            ctx.fillStyle = glow;
+            ctx.beginPath();
+            ctx.arc(pearl.x, pearl.y, pearl.r * 2.4, 0, Math.PI * 2);
+            ctx.fill();
+
+            const pearlBody = ctx.createRadialGradient(pearl.x - 4, pearl.y - 5, 2, pearl.x, pearl.y, pearl.r);
+            pearlBody.addColorStop(0, "#ffffff");
+            pearlBody.addColorStop(0.45, "#eaf8ff");
+            pearlBody.addColorStop(1, "#b9d4ec");
+            ctx.fillStyle = pearlBody;
+            ctx.strokeStyle = "rgba(81, 121, 151, 0.42)";
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.arc(pearl.x, pearl.y, pearl.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.fillStyle = "rgba(255, 255, 255, 0.75)";
+            ctx.beginPath();
+            ctx.ellipse(pearl.x - 4, pearl.y - 5, 3.2, 2, -0.4 + Math.sin(pearl.spin) * 0.2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.restore();
+        }
+
+        function drawParticles() {
+          for (const p of state.particles) {
+            ctx.globalAlpha = Math.max(0, p.life / 34);
+            ctx.fillStyle = "rgba(220, 255, 250, 0.86)";
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          ctx.globalAlpha = 1;
+        }
+
+        function drawPopups() {
+          ctx.save();
+          ctx.font = "900 24px Inter, system-ui, sans-serif";
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          for (const popup of state.popups) {
+            ctx.globalAlpha = Math.max(0, Math.min(1, popup.life / 28));
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = "rgba(3, 31, 49, 0.55)";
+            ctx.strokeText(popup.text, popup.x, popup.y);
+            ctx.fillStyle = "#f7d97b";
+            ctx.fillText(popup.text, popup.x, popup.y);
+          }
+          ctx.globalAlpha = 1;
+          ctx.restore();
+        }
+
+        function drawHud() {
+          ctx.save();
+          ctx.fillStyle = "rgba(3, 31, 49, 0.32)";
+          ctx.roundRect(18, 18, 136, 54, 14);
+          ctx.fill();
+          ctx.fillStyle = "#effcff";
+          ctx.font = "800 28px Inter, system-ui, sans-serif";
+          ctx.fillText(String(state.score), 34, 54);
+          ctx.fillStyle = "rgba(239, 252, 255, 0.7)";
+          ctx.font = "700 12px Inter, system-ui, sans-serif";
+          ctx.fillText("SCORE", 76, 53);
+          ctx.restore();
+        }
+
+        function render() {
+          ctx.clearRect(0, 0, world.width, world.height);
+          drawBackground();
+          for (const pipe of state.pipes) drawPipe(pipe);
+          drawPearls();
+          drawParticles();
+          drawShark();
+          drawPopups();
+          drawHud();
+        }
+
+        function loop() {
+          update();
+          render();
+          requestAnimationFrame(loop);
+        }
+
+        document.addEventListener("keydown", (event) => {
+          if (event.code === "Space") {
+            event.preventDefault();
+            if (state.mode === "playing") flap();
+            else start();
+          }
+          if (event.code === "KeyP") pause();
+        });
+
+        frame.addEventListener("pointerdown", () => {
+          if (state.mode === "playing") flap();
+          else start();
+        });
+
+        startButton.addEventListener("click", start);
+        pauseButton.addEventListener("click", pause);
+        window.addEventListener("resize", () => {
+          resizeCanvas();
+          reset();
+        });
+
+        resizeCanvas();
+        reset();
+        loop();
+      })();
+    </script>
+  </body>
+</html>
