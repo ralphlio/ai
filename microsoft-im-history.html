@@ -1,0 +1,945 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>微软企业 IM 产品发展史深度调研</title>
+    <meta
+      name="description"
+      content="从 MSN Messenger 到 Microsoft Teams：一份关于微软企业即时通讯产品发展、并购、迭代与大事件的深度调研，覆盖 LCS、OCS、Lync、Skype、Skype for Business、Yammer、GroupMe 到 Teams + Copilot 的完整脉络（1999-2026）。"
+    />
+    <meta
+      name="keywords"
+      content="Microsoft Teams, Skype, Skype for Business, Lync, MSN Messenger, Windows Live Messenger, Office Communicator, Yammer, Viva Engage, GroupMe, 企业IM, 统一通信, 微软并购"
+    />
+    <meta name="author" content="Ralph Li" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#f5f7fb" />
+    <link rel="canonical" href="https://ralphlio.github.io/ai/microsoft-im-history.html" />
+    <meta property="og:type" content="article" />
+    <meta property="og:site_name" content="AI 知识网页目录" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:title" content="微软企业 IM 产品发展史深度调研" />
+    <meta
+      property="og:description"
+      content="梳理 MSN Messenger、LCS/OCS/Lync、Skype、Skype for Business、Yammer、GroupMe 到 Microsoft Teams 的产品迭代、并购与大事件，并附战略分析。"
+    />
+    <meta property="og:url" content="https://ralphlio.github.io/ai/microsoft-im-history.html" />
+    <meta property="article:section" content="Post" />
+    <meta property="article:tag" content="Microsoft Teams" />
+    <meta property="article:tag" content="Skype" />
+    <meta property="article:tag" content="企业IM" />
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="微软企业 IM 产品发展史深度调研" />
+    <meta
+      name="twitter:description"
+      content="从 MSN Messenger 到 Microsoft Teams：微软企业即时通讯产品的迭代、并购与战略演变（1999-2026）。"
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Article",
+        "headline": "微软企业 IM 产品发展史深度调研",
+        "description": "从 MSN Messenger 到 Microsoft Teams：微软企业即时通讯产品迭代、并购与战略演变（1999-2026）。",
+        "url": "https://ralphlio.github.io/ai/microsoft-im-history.html",
+        "inLanguage": "zh-CN",
+        "articleSection": "Post",
+        "keywords": [
+          "Microsoft Teams",
+          "Skype",
+          "Skype for Business",
+          "Lync",
+          "MSN Messenger",
+          "Yammer",
+          "企业IM"
+        ],
+        "author": { "@type": "Person", "name": "Ralph Li" },
+        "isPartOf": {
+          "@type": "WebSite",
+          "name": "AI 知识网页目录",
+          "url": "https://ralphlio.github.io/ai/"
+        }
+      }
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #1b2430;
+        --muted: #626d7a;
+        --paper: #f5f7fb;
+        --panel: #ffffff;
+        --line: #dde3ec;
+        --ms: #0067b8;
+        --teams: #5b5fc7;
+        --skype: #00aff0;
+        --amber: #b27620;
+        --bad: #b94343;
+        --green: #317b54;
+        --soft-ms: #e3eefb;
+        --soft-teams: #ebebf8;
+        --soft-skype: #e2f6fd;
+        --soft-amber: #fff1d8;
+        --soft-bad: #fae6e6;
+        --soft-green: #e7f2eb;
+        --shadow: 0 18px 58px rgba(23, 32, 38, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        background:
+          radial-gradient(circle at 8% 0%, rgba(0, 103, 184, 0.14), transparent 30rem),
+          radial-gradient(circle at 90% 4%, rgba(91, 95, 199, 0.14), transparent 32rem),
+          linear-gradient(180deg, #ffffff 0, var(--paper) 680px);
+        font-family:
+          ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      a {
+        color: inherit;
+        text-underline-offset: 0.18em;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        line-height: 1.85;
+      }
+
+      strong {
+        color: var(--ink);
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 36px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        border-bottom: 1px solid rgba(221, 227, 236, 0.85);
+        background: rgba(245, 247, 251, 0.88);
+        backdrop-filter: blur(16px);
+      }
+
+      .topbar-inner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        min-height: 62px;
+        min-width: 0;
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+        font-weight: 850;
+        text-decoration: none;
+      }
+
+      .brand span:last-child {
+        overflow-wrap: anywhere;
+      }
+
+      .brand-mark {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        color: white;
+        background: var(--ms);
+        box-shadow: 0 10px 24px rgba(0, 103, 184, 0.24);
+        font-size: 13px;
+      }
+
+      .topnav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        justify-content: flex-end;
+        min-width: 0;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .topnav a {
+        text-decoration: none;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+        gap: 44px;
+        align-items: center;
+        padding: 74px 0 56px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        margin: 0 0 18px;
+        color: var(--ms);
+        font-weight: 850;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 42px;
+        height: 2px;
+        border-radius: 999px;
+        background: currentColor;
+      }
+
+      h1 {
+        max-width: 800px;
+        margin: 0;
+        font-size: clamp(38px, 6vw, 68px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 760px;
+        margin: 22px 0 0;
+        font-size: 18px;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.72);
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 760;
+        box-shadow: 0 10px 24px rgba(23, 32, 38, 0.06);
+      }
+
+      .button.primary {
+        color: white;
+        border-color: var(--ms);
+        background: var(--ms);
+      }
+
+      .hero-visual {
+        position: relative;
+        min-height: 340px;
+      }
+
+      .chain-card {
+        padding: 22px;
+        border: 1px solid rgba(221, 227, 236, 0.94);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.82);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(16px);
+      }
+
+      .chain-card .row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 0;
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .chain-card .row .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--ms);
+        flex: 0 0 auto;
+      }
+
+      .chain-card .row.dim {
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 12.5px;
+        padding-left: 18px;
+      }
+
+      .section {
+        padding: 60px 0;
+        border-top: 1px solid rgba(221, 227, 236, 0.85);
+      }
+
+      .section-head {
+        display: grid;
+        grid-template-columns: minmax(220px, 0.38fr) minmax(0, 0.62fr);
+        gap: 36px;
+        align-items: start;
+        margin-bottom: 28px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(26px, 4vw, 44px);
+        line-height: 1.08;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin: 28px 0 10px;
+        font-size: 20px;
+        color: var(--ink);
+      }
+
+      .kicker {
+        margin: 0 0 10px;
+        color: var(--ms);
+        font-weight: 850;
+      }
+
+      .grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.cols-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid.cols-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .card {
+        min-width: 0;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        box-shadow: 0 12px 32px rgba(23, 32, 38, 0.06);
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding: 5px 9px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 820;
+      }
+
+      .tag.ms { color: var(--ms); background: var(--soft-ms); }
+      .tag.teams { color: var(--teams); background: var(--soft-teams); }
+      .tag.skype { color: #0077a3; background: var(--soft-skype); }
+      .tag.risk { color: var(--bad); background: var(--soft-bad); }
+      .tag.deal { color: var(--amber); background: var(--soft-amber); }
+      .tag.good { color: var(--green); background: var(--soft-green); }
+
+      .table-wrap {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.85);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 640px;
+      }
+
+      th,
+      td {
+        padding: 13px 16px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        font-size: 14.5px;
+      }
+
+      th {
+        color: var(--ink);
+        background: rgba(245, 247, 251, 0.95);
+        font-size: 12.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.02em;
+      }
+
+      td {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .callout {
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-left: 5px solid var(--ms);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.8);
+      }
+
+      .callout.risk {
+        border-color: rgba(185, 67, 67, 0.34);
+        border-left-color: var(--bad);
+        background:
+          linear-gradient(90deg, rgba(250, 230, 230, 0.85), rgba(255, 255, 255, 0.82)),
+          var(--panel);
+      }
+
+      .timeline {
+        position: relative;
+        margin-left: 6px;
+        padding-left: 26px;
+        border-left: 2px solid var(--line);
+      }
+
+      .timeline-item {
+        position: relative;
+        padding-bottom: 22px;
+      }
+
+      .timeline-item:last-child {
+        padding-bottom: 0;
+      }
+
+      .timeline-item::before {
+        content: "";
+        position: absolute;
+        left: -32px;
+        top: 5px;
+        width: 11px;
+        height: 11px;
+        border-radius: 50%;
+        background: var(--ms);
+        box-shadow: 0 0 0 4px rgba(0, 103, 184, 0.14);
+      }
+
+      .timeline-item .time {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--ms);
+        font-weight: 800;
+        font-size: 14px;
+      }
+
+      .timeline-item .desc {
+        color: #414c58;
+        font-size: 15px;
+      }
+
+      .pedigree {
+        display: grid;
+        gap: 0;
+      }
+
+      .pedigree .node {
+        padding: 12px 18px;
+        border: 1px solid var(--line);
+        border-left: 4px solid var(--ms);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.85);
+        font-weight: 700;
+        font-size: 15px;
+        color: var(--ink);
+      }
+
+      .pedigree .node.end {
+        border-left-color: var(--teams);
+      }
+
+      .pedigree .arrow {
+        padding: 8px 0 8px 22px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .pedigree .arrow::before {
+        content: "↓ ";
+        color: var(--ms);
+        font-weight: 800;
+      }
+
+      .analysis-item {
+        padding: 20px 22px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.8);
+        margin-bottom: 14px;
+      }
+
+      .analysis-item .head {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 8px;
+      }
+
+      .analysis-item .index {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background: var(--ms);
+        color: #fff;
+        font-weight: 800;
+        font-size: 12.5px;
+        flex-shrink: 0;
+      }
+
+      .analysis-item .title {
+        font-weight: 800;
+        color: var(--ink);
+        font-size: 16px;
+      }
+
+      .analysis-item p {
+        margin: 0;
+      }
+
+      .sources {
+        display: grid;
+        gap: 9px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        columns: 1;
+      }
+
+      .sources a {
+        color: var(--ms);
+        font-size: 14px;
+      }
+
+      footer {
+        padding: 36px 0 56px;
+        color: var(--muted);
+        border-top: 1px solid var(--line);
+        font-size: 14px;
+      }
+
+      @media (max-width: 940px) {
+        .hero,
+        .section-head,
+        .grid.cols-2,
+        .grid.cols-3 {
+          grid-template-columns: 1fr;
+        }
+
+        .hero-visual {
+          min-height: auto;
+        }
+      }
+
+      @media (max-width: 620px) {
+        .topbar {
+          position: static;
+        }
+
+        .topbar-inner {
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 14px 0;
+        }
+
+        .hero {
+          padding-top: 44px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="topbar">
+      <div class="shell topbar-inner">
+        <a class="brand" href="index.html" aria-label="返回 AI 知识网页目录">
+          <span class="brand-mark">MS</span>
+          <span>微软企业 IM 发展史</span>
+        </a>
+        <div class="topnav" aria-label="页面导航">
+          <a href="#timeline">时间线</a>
+          <a href="#phases">分阶段剖析</a>
+          <a href="#ma">并购汇总</a>
+          <a href="#pedigree">产品谱系</a>
+          <a href="#analysis">战略分析</a>
+          <a href="#sources">参考来源</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <header class="shell hero">
+        <div>
+          <p class="eyebrow">Deep Research · 2026年7月</p>
+          <h1>微软企业即时通讯产品发展史</h1>
+          <p class="lead">
+            从 MSN Messenger 到 Microsoft Teams：梳理微软近三十年在消费与企业即时通讯领域的产品迭代、
+            关键并购与战略大事件，覆盖 LCS、OCS、Lync、Skype、Skype for Business、Yammer、GroupMe，
+            直到 Teams + Copilot 的当下阶段。
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#timeline">查看时间线</a>
+            <a class="button" href="#analysis">查看战略分析</a>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true">
+          <div class="chain-card">
+            <div class="row"><span class="dot"></span>Exchange IM (2000)</div>
+            <div class="row dim">2003年替代</div>
+            <div class="row"><span class="dot"></span>LCS → OCS → Lync</div>
+            <div class="row dim">2015年品牌重塑</div>
+            <div class="row"><span class="dot"></span>Skype for Business</div>
+            <div class="row dim">2021 / 2025 退役</div>
+            <div class="row"><span class="dot" style="background:var(--teams)"></span><strong>Microsoft Teams</strong></div>
+          </div>
+        </div>
+      </header>
+
+      <section class="section" id="overview">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Overview</p>
+              <h2>报告概述</h2>
+            </div>
+            <p>
+              微软的即时通讯（IM）与企业协作产品线跨越近三十年，呈现出一条清晰的主线：
+              <strong>从消费级 IM 试水，到企业级统一通信 (UC) 基础设施的自建，再到通过收购 Skype
+              实现消费与企业双线合并，最终在 Microsoft Teams 上完成"一统"，并进入 AI/Copilot 驱动的新阶段</strong>。
+              这条主线上先后出现过至少七条产品/服务：MSN Messenger（后更名 Windows Live Messenger）、
+              Exchange 即时消息服务、Live Communications Server（LCS）、Office Communications Server（OCS）、
+              Lync、Skype（含 Skype for Business）、GroupMe、Yammer（后更名 Viva Engage），最终收束到 Microsoft Teams。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="timeline">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Timeline</p>
+              <h2>发展历程全景时间线</h2>
+            </div>
+            <p>从 1999 年 MSN Messenger 首发，到 2026 年 Teams 深度集成 Copilot，按时间顺序排列的关键节点。</p>
+          </div>
+          <div class="timeline">
+            <div class="timeline-item"><span class="time">1999年7月22日</span><span class="desc">MSN Messenger Service 1.0发布，进入即时通讯市场，与AOL AIM、Yahoo Messenger、ICQ竞争</span></div>
+            <div class="timeline-item"><span class="time">2003年12月29日</span><span class="desc">Live Communications Server（LCS）发布，取代Exchange 2000内置的Exchange Instant Messenger，成为微软第一款面向企业IT可管理的IM服务器产品</span></div>
+            <div class="timeline-item"><span class="time">2005年</span><span class="desc">MSN Messenger更名为Windows Live Messenger，纳入Windows Live品牌体系</span></div>
+            <div class="timeline-item"><span class="time">2005年9月</span><span class="desc">eBay以约26亿美元收购Skype（背景信息，Skype此时尚与微软无关）</span></div>
+            <div class="timeline-item"><span class="time">2009年2月</span><span class="desc">Office Communications Server 2007 R2发布</span></div>
+            <div class="timeline-item"><span class="time">2009年6月</span><span class="desc">Windows Live Messenger月活跃用户突破3.3亿，达到历史峰值</span></div>
+            <div class="timeline-item"><span class="time">2009年11月</span><span class="desc">Silver Lake牵头的投资集团以约19亿美元从eBay手中收购Skype多数股权</span></div>
+            <div class="timeline-item"><span class="time">2010年11月</span><span class="desc">Lync Server 2010正式发布，首次宣称可替代传统PBX电话系统</span></div>
+            <div class="timeline-item"><span class="time">2011年5月10日</span><span class="desc">微软宣布以85亿美元现金收购Skype，为当时微软历史上最大规模收购</span></div>
+            <div class="timeline-item"><span class="time">2011年8月</span><span class="desc">Skype（此时仍在被微软收购过程中）宣布收购群组消息应用GroupMe，交易金额约8000万至8500万美元</span></div>
+            <div class="timeline-item"><span class="time">2011年10月13日</span><span class="desc">微软正式完成对Skype的收购交割</span></div>
+            <div class="timeline-item"><span class="time">2012年6月25日</span><span class="desc">微软宣布以12亿美元现金收购企业社交网络Yammer</span></div>
+            <div class="timeline-item"><span class="time">2012年10月</span><span class="desc">Lync 2013发布</span></div>
+            <div class="timeline-item"><span class="time">2012年11月6日</span><span class="desc">微软宣布Windows Live Messenger与Skype服务将于2013年一季度合并</span></div>
+            <div class="timeline-item"><span class="time">2013年3月15日</span><span class="desc">Windows Live Messenger（中国大陆除外）停止登录服务，用户被引导迁移至Skype</span></div>
+            <div class="timeline-item"><span class="time">2013年4-30日</span><span class="desc">"Windows Live Messenger升级至Skype"按语言/地区分批完成，巴西为最后完成迁移的地区</span></div>
+            <div class="timeline-item"><span class="time">2014年10月31日</span><span class="desc">Windows Live Messenger在中国大陆停止运营，为该产品线画上句号</span></div>
+            <div class="timeline-item"><span class="time">2015年</span><span class="desc">Lync更名为Skype for Business，同步推出新客户端与服务器版本</span></div>
+            <div class="timeline-item"><span class="time">2016年3月</span><span class="desc">有报道称微软内部曾提议以约80亿美元收购Slack，遭联合创始人比尔·盖茨与CEO萨提亚·纳德拉反对，盖茨主张转而强化Skype的企业竞争力</span></div>
+            <div class="timeline-item"><span class="time">2016年11月2日</span><span class="desc">微软在纽约发布会上正式对外公布Microsoft Teams</span></div>
+            <div class="timeline-item"><span class="time">2017年3月14日</span><span class="desc">Microsoft Teams全球正式上线，定位为Skype for Business在Office 365中的继任者，直接对标Slack；Slack随即在《纽约时报》刊登整版广告回应竞争</span></div>
+            <div class="timeline-item"><span class="time">2019年7月</span><span class="desc">微软提前两年宣布将于2021年退役Skype for Business Online，为客户迁移预留缓冲期</span></div>
+            <div class="timeline-item"><span class="time">2020年3月-10月</span><span class="desc">受新冠疫情远程办公需求驱动，Teams日活跃用户从3月的4400万、4月的7500万，激增至10月的1.15亿</span></div>
+            <div class="timeline-item"><span class="time">2021年4月</span><span class="desc">Teams日活跃用户达到1.45亿，同比增长约93%</span></div>
+            <div class="timeline-item"><span class="time">2021年7月</span><span class="desc">Salesforce以约277亿美元完成对Slack的收购，被视为对Teams的直接战略回应</span></div>
+            <div class="timeline-item"><span class="time">2021年7月31日</span><span class="desc">Skype for Business Online服务正式退役，全面由Teams承接企业统一通信职能</span></div>
+            <div class="timeline-item"><span class="time">2022年</span><span class="desc">Teams月活跃用户突破2.7亿，增速较疫情初期明显放缓</span></div>
+            <div class="timeline-item"><span class="time">2023年2-6月</span><span class="desc">Yammer品牌逐步退场，全面更名为Microsoft Viva Engage</span></div>
+            <div class="timeline-item"><span class="time">2023年7月</span><span class="desc">欧盟委员会基于Slack（时属Salesforce）2020年的投诉及德国alfaview的联合投诉，正式对微软"Teams与Office捆绑销售"展开反垄断调查</span></div>
+            <div class="timeline-item"><span class="time">2024年6月</span><span class="desc">欧盟委员会向微软发出正式指控声明，认定其自2019年4月起涉嫌滥用市场支配地位</span></div>
+            <div class="timeline-item"><span class="time">2025年2月28日</span><span class="desc">微软宣布消费级Skype将于2025年5月5日关闭，用户导流至Microsoft Teams（免费版）</span></div>
+            <div class="timeline-item"><span class="time">2025年5月5日</span><span class="desc">消费级Skype正式停止运营，历时逾21年</span></div>
+            <div class="timeline-item"><span class="time">2025年7月</span><span class="desc">Skype for Business Server Subscription Edition（SE）发布，作为本地部署客户在2025年10月后的延续路径</span></div>
+            <div class="timeline-item"><span class="time">2025年9月</span><span class="desc">欧盟接受微软关于拆分Teams与Office定价、加大折扣力度等约束性承诺，微软以此避免最高约245亿美元的反垄断罚款（七年承诺期）</span></div>
+            <div class="timeline-item"><span class="time">2025年10月14日</span><span class="desc">Skype for Business Server 2015/2019正式停止支持</span></div>
+            <div class="timeline-item"><span class="time">2026年</span><span class="desc">Teams持续深度集成Microsoft 365 Copilot（会议助手Facilitator、Recap、频道AI代理等），并于2026年5月起可在Copilot Chat中选用Anthropic Claude模型；同年因AI功能引发部分用户不满，微软在7月新增会中一键关闭Copilot/Facilitator/Recap的开关</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="phases">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Deep Dive</p>
+              <h2>分阶段深度剖析</h2>
+            </div>
+            <p>把三十年的演变拆成六个阶段，逐一还原每个阶段的产品逻辑与关键事件。</p>
+          </div>
+
+          <article class="card">
+            <span class="tag ms">1999-2007</span>
+            <h3>第一阶段：消费级IM试水与企业IM萌芽</h3>
+            <p><strong>MSN Messenger的诞生与"IM大战"</strong>：1999年7月22日，微软发布MSN Messenger Service 1.0，正式加入即时通讯战场——此时ICQ已运营近三年，AOL的AIM也已问世两年，微软属于后来者。产品发布之初曾尝试与AOL的AIM网络互通，但AOL多次修改协议阻断MSN客户端的接入，双方为此进行了长达21轮的"封堵-破解"拉锯，据称AOL甚至一度威胁向微软的网络注入恶意代码。此后MSN Messenger转向独立发展，2005年更名为Windows Live Messenger，并在2009年6月达到月活跃用户3.3亿的历史峰值，是当时全球使用最广泛的即时通讯客户端之一。</p>
+            <p><strong>企业侧的独立起点</strong>：与消费级IM并行，微软在企业市场走的是另一条路径。此前企业内部的即时通讯需求主要通过Exchange 2000内置的Exchange Instant Messenger Service满足，但由于该服务功能有限、且大量企业员工开始私自使用公网IM工具（如AIM、MSN Messenger）处理工作沟通，带来数据安全与合规隐患，微软于2003年12月29日推出Live Communications Server（LCS），采用SIP协议构建了第一款面向IT部门可管理、可审计的企业级IM服务器产品。这标志着微软的"消费IM"与"企业IM"在组织架构和产品逻辑上正式分道。</p>
+          </article>
+
+          <article class="card" style="margin-top:16px;">
+            <span class="tag ms">2007-2011</span>
+            <h3>第二阶段：统一通信平台的建立</h3>
+            <p>LCS之后，微软将产品重新定位为"统一通信"（Unified Communications, UC）平台，2007年至2009年相继发布Office Communications Server（OCS）2007及2007 R2，新增了基于Exchange通讯组列表的功能与软件驱动的VoIP语音能力，使其从单纯的IM工具扩展为涵盖即时消息、状态呈现、语音、视频会议的综合平台，与Cisco、Avaya等传统电话交换机(PBX)厂商开始产生正面竞争。</p>
+            <p>2010年11月，微软将该产品线更名为Lync，推出Lync Server 2010，并首次公开宣称其具备替代传统PBX电话系统的能力，这是微软企业通信产品从"辅助沟通工具"向"核心通信基础设施"跃升的关键节点。2012年10月，Lync 2013发布。</p>
+          </article>
+
+          <article class="card" style="margin-top:16px;">
+            <span class="tag skype">2011-2015</span>
+            <h3>第三阶段：Skype收购与消费、企业双线整合</h3>
+            <p>Skype本身有独立的发展轨迹：2003年由丹麦人尼克拉斯·曾斯特罗姆（Niklas Zennström）与瑞典人亚努斯·弗里斯（Janus Friis）等人创立；2005年9月被eBay以约26亿美元收购；2009年11月，Silver Lake牵头的投资集团以约19亿美元从eBay手中购得多数股权。</p>
+            <p>2011年5月10日，微软宣布以85亿美元现金收购Skype，这是微软当时历史上金额最大的一笔收购，交易于同年10月13日正式完成交割。值得注意的是，在微软收购尚未完成之时，仍处于Silver Lake旗下的Skype已先行于2011年8月宣布以约8000万至8500万美元收购群组消息应用GroupMe，这是微软/Skype阵营在移动群组沟通领域的早期布局，但GroupMe此后在微软体系内始终未能获得战略级投入，逐渐边缘化。</p>
+            <p>收购Skype后，微软很快启动了消费级IM产品线的合并：2012年11月6日宣布Windows Live Messenger与Skype服务将于2013年一季度合并；2013年1月正式通知用户，除中国大陆外，Messenger将于2013年3月15日停止登录，用户账号与好友关系被引导迁移至Skype，迁移工作按语言/地区分批推进，至4月30日基本完成（巴西为最后完成的地区）；中国大陆的Messenger服务则延续运营至2014年10月31日才彻底关闭，为这条运行长达15年的产品线画上句号。</p>
+            <p>与此同时，微软在企业社交协作领域也完成了一笔重要收购：2012年6月25日，微软宣布以12亿美元现金收购企业社交网络Yammer。彼时Yammer已拥有超过500万企业用户，覆盖85%的财富500强公司，其"企业内部Facebook"式的产品形态被视为对Office生态社交化能力的重要补充。</p>
+          </article>
+
+          <article class="card" style="margin-top:16px;">
+            <span class="tag skype">2015-2017</span>
+            <h3>第四阶段：Skype for Business时代</h3>
+            <p>2015年，微软将企业通信产品线再次更名——Lync更名为Skype for Business，同步推出新的客户端界面、服务器版本以及Office 365中的在线服务版本。这次更名本质上是希望借助Skype在消费市场积累的品牌认知度和易用性口碑，反哺企业市场，同时在视觉和交互层面拉近与消费级Skype的距离，为日后两条产品线的进一步融合埋下伏笔。</p>
+          </article>
+
+          <article class="card" style="margin-top:16px;">
+            <span class="tag teams">2016-2021</span>
+            <h3>第五阶段：Microsoft Teams的诞生与"一统"进程</h3>
+            <p><strong>从"买Slack"到"自建Teams"</strong>：2016年3月，据多家媒体报道，微软内部（据称由时任执行副总裁陆奇力推）一度提议以约80亿美元收购正在快速崛起的团队协作工具Slack，但这一提议遭到联合创始人比尔·盖茨与CEO萨提亚·纳德拉的反对，盖茨方面更倾向于加大投入改进Skype在企业市场的竞争力。收购计划搁置后，微软转向自主研发路线，着手打造代号"Skype Teams"的内部项目。</p>
+            <p><strong>Teams发布与市场反击</strong>：2016年11月2日，微软在纽约举行发布会，正式对外公布Microsoft Teams；2017年3月14日，Teams全球正式上线，被明确定位为Office 365体系内Skype for Business的继任者，同时直接对标Slack。Slack方面反应迅速，在Teams发布当天于《纽约时报》刊登整版广告，以欢迎竞争的姿态阐述自身产品理念，双方在企业协作赛道的正面竞争由此拉开序幕。</p>
+            <p><strong>疫情催化的爆发式增长</strong>：Teams真正的用户规模跃升发生在2020年新冠疫情期间。据微软官方披露，2020年3月Teams日活跃用户约4400万，4月增至7500万，到10月已达到1.15亿，较2019年11月增长约475%；这一增长势头延续至2021年4月，日活跃用户达到1.45亿，同比增幅约93%；进入2022年，随着远程办公需求趋于稳定，Teams月活跃用户突破2.7亿，但增速明显放缓。</p>
+            <p><strong>Skype for Business Online退役</strong>：微软已于2019年7月提前两年宣布，将于2021年退役面向企业客户的云端服务Skype for Business Online；2021年7月31日，该服务如期正式停运，Teams全面接管企业统一通信职能，标志着微软历时近二十年的"独立企业IM基础设施"产品线（LCS→OCS→Lync→Skype for Business）正式并入Teams。</p>
+          </article>
+
+          <article class="card" style="margin-top:16px;">
+            <span class="tag teams">2021-2026</span>
+            <h3>第六阶段：竞合、合规与AI化</h3>
+            <p><strong>竞争格局重塑</strong>：2021年7月，Salesforce以约277亿美元完成对Slack的收购，普遍被解读为对Microsoft Teams持续挤压的直接战略回应，企业协作赛道自此形成"Teams（微软）vs. Slack（Salesforce）"的主要竞争格局，Zoom、Google Workspace等亦在细分场景中构成竞争。</p>
+            <p><strong>品牌整合</strong>：2023年2月至6月，Yammer品牌逐步退场，产品全面更名为Microsoft Viva Engage，功能与投入方向未发生实质变化，但完成了向"Viva"员工体验产品家族的品牌收编。</p>
+            <p><strong>欧盟反垄断调查与和解</strong>：Slack于2020年向欧盟提起投诉，指控微软通过将Teams与Office生产力软件捆绑销售构成不正当竞争限制，德国视频会议厂商alfaview随后加入投诉。欧盟委员会于2023年7月正式立案调查，2024年6月向微软发出正式指控声明，认定其自2019年4月起涉嫌滥用市场支配地位；若坐实，微软最高可能面临相当于其全年营收10%（以2024财年约2450亿美元营收计算，约245亿美元）的罚款。2025年9月，欧盟接受微软提出的约束性承诺方案——包括在欧洲市场提供不含Teams的Office/Microsoft 365折扣版本、允许现有客户转换套餐、向竞争对手开放更充分的互操作接口，并将不含Teams套餐与含Teams套餐的价差进一步扩大50%——微软以此换取长达七年的合规承诺期，避免了正式的反垄断处罚。</p>
+            <p><strong>消费级Skype的终章</strong>：2025年2月28日，微软宣布已运营超过21年的消费级Skype产品将于2025年5月5日正式关闭，用户被引导迁移至Microsoft Teams免费版，使用原Skype账号登录即可自动继承联系人与聊天记录；同时在2024年12月至2025年12月期间同时活跃于Skype与Teams免费版的用户可保留历史聊天与通话记录访问权限，其余用户数据若未通过Skype数据导出工具备份，将在2026年6月15日后被删除；原有Skype话费/订阅信用在到期前继续在Teams中生效。至此，"Skype"作为独立消费级产品退出历史舞台，全部并入Teams生态。</p>
+            <p><strong>本地部署产品线的收尾</strong>：面向仍保留本地化部署需求的企业客户，Skype for Business Server 2015/2019于2025年10月14日停止支持；微软已于2025年7月提前发布Skype for Business Server Subscription Edition（SE）作为唯一受支持的本地部署延续路径，但官方仍持续引导客户全面迁移至Teams。</p>
+            <p><strong>AI/Copilot驱动的新竞争轴心</strong>：2024年至2026年，Teams的产品竞争焦点已从"通信+协作"功能本身，转移到与Microsoft 365 Copilot的深度融合：会议助手Facilitator自动生成会议纪要与行动项、Recap提供文字与短视频形式的会议回顾、面向长期项目的频道AI代理可综合数周对话与关联会议自动生成周报，2026年5月起Copilot Chat进一步打通Microsoft Graph信号、通过Federated Connectors接入CRM数据与Teams历史对话；同期Copilot Chat中新增可选用Anthropic Claude模型处理复杂分析与结构化内容生成的选项。伴随AI功能的深度嵌入，部分用户对会议中默认开启的AI助手表达不满，微软于2026年7月对外宣布将为会议组织者与主持人新增一键关闭会中Copilot/Facilitator/Recap功能的开关，作为对用户反馈的回应。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="ma">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <p class="kicker">M&amp;A</p>
+              <h2>关键并购交易汇总</h2>
+            </div>
+            <p>四笔与企业IM/协作直接相关的交易，一笔达成、一笔提议未达成，均对后续格局产生影响。</p>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr><th>标的</th><th>收购方</th><th>时间</th><th>金额</th><th>战略目的</th><th>后续状态</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Skype</strong></td>
+                  <td>微软</td>
+                  <td>2011年5月宣布 / 10月完成</td>
+                  <td>85亿美元现金</td>
+                  <td>获得全球领先的消费级语音/视频通信平台，弥补Windows Live Messenger老化、移动化不足的短板</td>
+                  <td>消费版2025年5月关闭并入Teams；企业版Skype for Business已于2021年（在线）/2025年（本地）先后退役</td>
+                </tr>
+                <tr>
+                  <td><strong>GroupMe</strong></td>
+                  <td>Skype（微软收购过程中）</td>
+                  <td>2011年8月</td>
+                  <td>约8000万-8500万美元</td>
+                  <td>补齐移动端群组消息能力</td>
+                  <td>长期未获战略级投入，在微软体系内趋于边缘化</td>
+                </tr>
+                <tr>
+                  <td><strong>Yammer</strong></td>
+                  <td>微软</td>
+                  <td>2012年6月</td>
+                  <td>12亿美元现金</td>
+                  <td>补齐企业内部社交网络能力，强化Office生态的协作社交属性</td>
+                  <td>2023年更名为Viva Engage，并入Viva员工体验产品家族</td>
+                </tr>
+                <tr>
+                  <td><strong>Slack</strong>（提议收购，未达成）</td>
+                  <td>微软（提议方）</td>
+                  <td>2016年3月（提议）</td>
+                  <td>约80亿美元（提议价）</td>
+                  <td>直接获取彼时增长最快的团队协作工具</td>
+                  <td>被比尔·盖茨、萨提亚·纳德拉否决，微软转而自研Teams；Slack后于2021年被Salesforce以277亿美元收购</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="pedigree">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Product Lineage</p>
+              <h2>产品谱系脉络图</h2>
+            </div>
+            <p>两条主线——企业IM基础设施与消费级IM——最终都汇入Microsoft Teams。</p>
+          </div>
+          <div class="grid cols-2">
+            <div class="card">
+              <span class="tag ms">企业IM基础设施主线</span>
+              <div class="pedigree">
+                <div class="node">Exchange 2000 内置 Instant Messenger Service</div>
+                <div class="arrow">2003年替代</div>
+                <div class="node">Live Communications Server (LCS) —— 2003年12月</div>
+                <div class="arrow">2007年演进为统一通信平台</div>
+                <div class="node">Office Communications Server (OCS) 2007 / 2007 R2</div>
+                <div class="arrow">2010年更名并强化PBX替代能力</div>
+                <div class="node">Lync Server 2010 / Lync 2013</div>
+                <div class="arrow">2015年借助Skype品牌重塑</div>
+                <div class="node">Skype for Business (Server + Online) —— 2015-2021</div>
+                <div class="arrow">2021年7月Online退役，2025年10月本地版停止支持</div>
+                <div class="node end">Microsoft Teams —— 2017年至今</div>
+              </div>
+            </div>
+            <div class="card">
+              <span class="tag skype">消费级IM主线</span>
+              <div class="pedigree">
+                <div class="node">MSN Messenger (1999)</div>
+                <div class="arrow">2005年更名</div>
+                <div class="node">Windows Live Messenger（2009年3.3亿MAU峰值）</div>
+                <div class="arrow">2011年被同门Skype收购整合，2013年停运，中国区延至2014年</div>
+                <div class="node">Skype 消费版（2003创立 → 2005 eBay → 2009 Silver Lake → 2011微软收购）</div>
+                <div class="arrow">2025年5月消费版关闭</div>
+                <div class="node end">Microsoft Teams（含Teams Free）</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="analysis">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Strategic Analysis</p>
+              <h2>战略分析</h2>
+            </div>
+            <p>五个视角，解读微软企业IM演进背后的决策逻辑。</p>
+          </div>
+
+          <div class="analysis-item">
+            <div class="head"><span class="index">1</span><span class="title">"双线并行、最终归一"是微软企业IM演进的核心规律</span></div>
+            <p>微软早期在消费IM（MSN/Windows Live Messenger）与企业IM（LCS/OCS/Lync）之间刻意保持组织与产品的分离，前者追求规模化的消费者体验，后者追求安全合规、可管理性与电话系统替代能力。这一分工在2011年收购Skype后开始松动，2015年Lync更名Skype for Business是双线合并的中间过渡形态，2017年Teams发布并最终在2021-2025年间陆续收编Skype消费版、Skype for Business Online/Server，标志着微软彻底放弃"多产品并行"策略，转向"单一协作平台+多层订阅"的收敛模式。这种收敛显著降低了微软自身的产品维护与市场教育成本，但也意味着一旦Teams出现体验或信任问题，将不再有备选产品线可以分流风险。</p>
+          </div>
+
+          <div class="analysis-item">
+            <div class="head"><span class="index">2</span><span class="title">"自建优于收购"的路径选择具有决定性影响</span></div>
+            <p>2016年微软内部关于是否收购Slack的争论，是理解Teams诞生逻辑的关键节点：如果当时收购成行，微软很可能延续"收购Skype"式的整合路径，而非自主研发。比尔·盖茨与萨提亚·纳德拉选择自建，一方面基于对Slack估值的审慎判断，另一方面也押注微软在Office 365生态位上的天然捆绑优势足以支撑一款自研产品后来居上。事实证明这一判断是正确的——Teams凭借与Office/Windows的深度捆绑，在疫情催化下实现了远超Slack的用户规模扩张，但这种"捆绑取胜"的模式也直接埋下了后续欧盟反垄断调查的隐患。</p>
+          </div>
+
+          <div class="analysis-item">
+            <div class="head"><span class="index">3</span><span class="title">捆绑销售的商业效率与反垄断风险始终相伴而生</span></div>
+            <p>Teams的用户规模优势很大程度上来自于其被默认包含在Office 365/Microsoft 365各类套餐中，这是典型的"平台捆绑"打法，在Windows与Internet Explorer、Windows Media Player等历史案例中均出现过类似的反垄断争议。2020-2025年围绕Teams的欧盟调查，本质上是这一打法在新一轮企业软件周期中的重演；微软最终以约束性商业承诺（价格拆分、互操作开放）换取合规豁免而非直接罚款，延续了其在欧盟反垄断案件中一贯的"以承诺换和解"处理路径，但七年承诺期本身也构成了对其未来定价与捆绑策略的实质性约束。</p>
+          </div>
+
+          <div class="analysis-item">
+            <div class="head"><span class="index">4</span><span class="title">消费级产品的退出体现了微软对资源聚焦的取舍</span></div>
+            <p>无论是2013年停运Windows Live Messenger，还是2025年关闭消费级Skype，微软的选择逻辑高度一致：当一款消费级通信产品无法在移动优先、社交化的新竞争环境中持续获取用户（WhatsApp、微信、Line等即时通讯应用崛起），且其功能可以被企业级Teams的免费版本承接时，微软倾向于果断关停旧产品、将存量用户导流至新平台，而非维持多品牌并行的运营成本。这也解释了为何GroupMe、Yammer这类被收购但未被纳入核心战略的产品，要么长期边缘化，要么被并入更大的产品家族（如Yammer→Viva Engage）。</p>
+          </div>
+
+          <div class="analysis-item">
+            <div class="head"><span class="index">5</span><span class="title">AI正在成为企业协作平台新一轮竞争的核心变量</span></div>
+            <p>2024年以后，Teams的产品叙事已从"通信+文件协作"转向"Copilot驱动的智能工作空间"，会议纪要生成、频道AI代理、跨应用数据联通等能力，本质上是把微软在大模型能力（含自研与合作，如引入Anthropic Claude作为可选模型）与Microsoft Graph数据资产上的优势，转化为协作平台的差异化壁垒。与此同时，2026年因AI功能"过度介入"引发的用户反弹及微软随后提供的关闭开关，也提示这一轮AI集成竞赛需要在功能创新与用户控制感之间寻找平衡，这将是未来几年Teams及其竞品共同面临的产品课题。</p>
+          </div>
+
+          <div class="callout" style="margin-top:20px;">
+            <h3 style="margin-top:0;">总结</h3>
+            <p>微软企业IM产品线近三十年的发展，是一部"分散试验—并购整合—平台收敛—AI重构"的演化史：从1999年MSN Messenger仓促应战AOL，到2003年LCS开辟独立的企业市场，中间经历OCS、Lync两次产品重塑，直到2011年以85亿美元收购Skype成为转折点，此后消费与企业两条线逐步交汇，最终在2017年发布的Microsoft Teams上完成统一，并在2021-2025年间依次送别Skype for Business Online、消费级Skype以及Skype for Business Server本地版。当前，Teams已成为微软唯一在保的企业通信协作平台，其竞争重心正从功能与生态的比拼，转向以Copilot为代表的AI能力比拼，同时也需要在欧盟反垄断承诺的框架内平衡捆绑销售策略与合规要求。</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="sources">
+        <div class="shell">
+          <div class="section-head">
+            <div>
+              <p class="kicker">Sources</p>
+              <h2>参考来源</h2>
+            </div>
+            <p>本页基于公开报道与微软官方公告整理，共32条来源，供交叉核对。</p>
+          </div>
+          <ul class="sources">
+            <li><a href="https://en.wikipedia.org/wiki/MSN_Messenger" target="_blank" rel="noreferrer">MSN Messenger - Wikipedia</a></li>
+            <li><a href="https://www.trutower.com/2013/01/10/microsoft-windows-live-messenger-retrospective/" target="_blank" rel="noreferrer">Windows Live Messenger Through The Years: A Retrospective – TruTower</a></li>
+            <li><a href="https://techcrunch.com/2012/11/06/end-of-an-era-windows-live-messenger-to-be-retired-users-transitioned-to-skype/" target="_blank" rel="noreferrer">End Of An Era: Windows Live Messenger To Be Retired, Users Transitioned To Skype | TechCrunch</a></li>
+            <li><a href="https://www.trutower.com/2013/01/09/microsoft-windows-live-messenger-retiring-users-moving-to-skype-on-march-15/" target="_blank" rel="noreferrer">Microsoft: Windows Live Messenger Retiring, Users Moving to Skype on March 15 – TruTower</a></li>
+            <li><a href="https://www.computer-talk.com/blogs/lcs-to-teams-a-history-of-ice-contact-center-with-microsoft" target="_blank" rel="noreferrer">From LCS to Microsoft Teams: The Evolution of ice Contact Center's Microsoft Integration</a></li>
+            <li><a href="https://www.groovypost.com/howto/microsoft/microsoft-rebrands-ocs-again-introducing-lync-server-2010/" target="_blank" rel="noreferrer">Microsoft Rebrands OCS AGAIN! Introducing Lync Server 2010</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Skype_for_Business" target="_blank" rel="noreferrer">Skype for Business - Wikipedia</a></li>
+            <li><a href="https://news.microsoft.com/source/2011/05/10/microsoft-to-acquire-skype-3/" target="_blank" rel="noreferrer">Microsoft to Acquire Skype - Source</a></li>
+            <li><a href="https://news.microsoft.com/source/2011/10/13/microsoft-officially-welcomes-skype/" target="_blank" rel="noreferrer">Microsoft Officially Welcomes Skype - Source</a></li>
+            <li><a href="https://fortune.com/2011/07/12/skype-the-inside-story-of-the-boffo-8-5-billion-deal/" target="_blank" rel="noreferrer">Skype: The inside story of the boffo $8.5 billion deal | Fortune</a></li>
+            <li><a href="https://www.geekwire.com/2011/future-microsoft-division-skype-buy-groupme/" target="_blank" rel="noreferrer">Future Microsoft division Skype makes buy of its own, striking a deal for GroupMe – GeekWire</a></li>
+            <li><a href="https://www.siliconrepublic.com/start-ups/skype-aka-microsoft-buys-groupme-for-us85m" target="_blank" rel="noreferrer">Skype [aka Microsoft] buys GroupMe for US$85m - siliconrepublic.com</a></li>
+            <li><a href="https://news.microsoft.com/source/2012/06/26/microsoft-to-acquire-yammer/" target="_blank" rel="noreferrer">Microsoft to Acquire Yammer - Source</a></li>
+            <li><a href="https://money.cnn.com/2012/06/25/technology/microsoft-yammer/index.htm" target="_blank" rel="noreferrer">Microsoft buys social-office network Yammer for $1.2 billion - CNN</a></li>
+            <li><a href="https://www.geekwire.com/2016/microsoft-considered-8b-slack-purchase-bill-gates-talked/" target="_blank" rel="noreferrer">Report: Microsoft considered $8B Slack purchase, but Bill Gates talked them out of it – GeekWire</a></li>
+            <li><a href="https://en.wikipedia.org/wiki/Microsoft_Teams" target="_blank" rel="noreferrer">Microsoft Teams - Wikipedia</a></li>
+            <li><a href="https://learn.microsoft.com/en-us/microsoftteams/skype-for-business-online-retirement" target="_blank" rel="noreferrer">Skype for Business Online retirement - Microsoft Learn</a></li>
+            <li><a href="https://techcommunity.microsoft.com/blog/microsoftteamsblog/the-skype-for-business-online-service-has-retired/2596601" target="_blank" rel="noreferrer">The Skype for Business Online service has retired | Microsoft Community Hub</a></li>
+            <li><a href="https://www.microsoft.com/en-us/microsoft-365/blog/2020/10/28/microsoft-teams-reaches-115-million-dau-plus-a-new-daily-collaboration-minutes-metric-for-microsoft-365/" target="_blank" rel="noreferrer">Microsoft Teams reaches 115 million DAU | Microsoft 365 Blog</a></li>
+            <li><a href="https://focusonbusiness.eu/en/news/microsoft-teams-grew-over-90-in-2020-due-to-pandemic-145m-daily-active-users-in-2021/4223" target="_blank" rel="noreferrer">Microsoft Teams Grew Over 90% in 2020 Due To Pandemic; 145M Daily Active Users in 2021</a></li>
+            <li><a href="https://www.geekwire.com/2022/microsoft-teams-surpasses-270m-monthly-active-users-as-growth-slows-from-early-days-of-pandemic/" target="_blank" rel="noreferrer">Microsoft Teams surpasses 270M monthly active users – GeekWire</a></li>
+            <li><a href="https://www.microsoft.com/en-us/microsoft-365/blog/2023/02/13/yammer-is-evolving-to-microsoft-viva-engage-with-new-experiences-rolling-out-today/" target="_blank" rel="noreferrer">Yammer is evolving to Microsoft Viva Engage | Microsoft 365 Blog</a></li>
+            <li><a href="https://www.cognitivemarketresearch.com/blog/salesforce-s-usd-27-7-billion-acquisition-of-slack-technologies-a-transformational-shift-in-business-collaboration" target="_blank" rel="noreferrer">Salesforce's USD 27.7 Billion Acquisition of Slack Technologies</a></li>
+            <li><a href="https://eutoday.net/microsoft-avoids-eu-fine/" target="_blank" rel="noreferrer">Microsoft avoids EU fine as Brussels accepts Teams unbundling commitments</a></li>
+            <li><a href="https://www.uscloud.com/blog/5-key-facts-about-the-microsoft-teams-antitrust-case/" target="_blank" rel="noreferrer">5 Key Facts About the Microsoft Teams Antitrust Case - US Cloud</a></li>
+            <li><a href="https://support.microsoft.com/en-us/skype/skype-is-retiring-in-may-2025-what-you-need-to-know-2a7d2501-427f-485e-8be0-2068a9f90472" target="_blank" rel="noreferrer">Skype is retiring in May 2025: What you need to know | Microsoft Support</a></li>
+            <li><a href="https://www.microsoft.com/en-us/microsoft-365/blog/2025/02/28/the-next-chapter-moving-from-skype-to-microsoft-teams/" target="_blank" rel="noreferrer">The next chapter: Moving from Skype to Microsoft Teams | Microsoft 365 Blog</a></li>
+            <li><a href="https://techcrunch.com/2025/02/28/microsoft-hangs-up-on-skype-service-to-shut-down-may-5-2025/" target="_blank" rel="noreferrer">Microsoft hangs up on Skype: Service to shut down May 5, 2025 | TechCrunch</a></li>
+            <li><a href="https://techcommunity.microsoft.com/blog/skype_for_business_blog/skype-for-business-server-roadmap-update/4170884" target="_blank" rel="noreferrer">Skype for Business Server Roadmap Update | Microsoft Community Hub</a></li>
+            <li><a href="https://techcommunity.microsoft.com/blog/skype_for_business_blog/skype-for-business-server-subscription-edition-se-is-now-available/4424925" target="_blank" rel="noreferrer">Skype for Business Server Subscription Edition (SE) is now available | Microsoft Community Hub</a></li>
+            <li><a href="https://futurework.blog/2026/05/29/whats-new-and-coming-next-to-microsoft-365-copilot-and-teams/" target="_blank" rel="noreferrer">What's new and coming next to Microsoft 365 Copilot and Teams</a></li>
+            <li><a href="https://www.windowslatest.com/2026/07/05/microsoft-caves-after-teams-ai-backlash-will-let-you-turn-off-copilot-facilitator-and-recap-mid-meeting/" target="_blank" rel="noreferrer">Microsoft caves after Teams AI backlash, will let you turn off Copilot, Facilitator and Recap mid-meeting</a></li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="shell">微软企业IM产品发展史深度调研报告 · 2026年7月整理</div>
+    </footer>
+  </body>
+</html>
