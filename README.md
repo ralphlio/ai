@@ -19,6 +19,7 @@
 - `sankey-tool.html`：桑基图生成器
 - `skill-audit.html`：Skill 审计与评估工具
 - `github-guide.html`：普通人也能看懂的 GitHub 入门
+- `lark-overseas-growth-research.html`：Lark 海外市场增长策略深度调研（2018—2026）
 
 ## English
 
@@ -39,6 +40,7 @@ Current pages:
 - `sankey-tool.html`: Sankey diagram generator
 - `skill-audit.html`: Skill audit and evaluation tool
 - `github-guide.html`: A beginner-friendly GitHub guide
+- `lark-overseas-growth-research.html`: In-depth research on Lark's overseas market growth strategy (2018–2026)
 
 ## Notes
 
