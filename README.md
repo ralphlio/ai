@@ -13,6 +13,7 @@
 当前页面包括：
 
 - `index.html`：AI 知识网页目录
+- `ai-agent-architecture-evolution.html`：机器的内部——AI 编码 Agent（Codex / Claude Code）的架构与演进
 - `codex-architecture.html`：Codex 技术原理与 Agent 产品架构
 - `agent-mcp-skill.html`：Agent、MCP 与 Skill 的概念和关系
 - `pixel-maze.html`：像素迷宫小游戏
@@ -34,6 +35,7 @@ Live site:
 Current pages:
 
 - `index.html`: AI knowledge directory
+- `ai-agent-architecture-evolution.html`: Inside the machine — architecture and evolution of AI coding agents (Codex / Claude Code)
 - `codex-architecture.html`: Codex architecture and agent product design
 - `agent-mcp-skill.html`: Concepts and relationships between Agent, MCP, and Skill
 - `pixel-maze.html`: Pixel maze mini game

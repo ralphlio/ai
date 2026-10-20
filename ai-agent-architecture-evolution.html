@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>机器的内部 — AI 编码 Agent 的架构与演进 · Codex & Claude</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@600;900&family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#070b14; --bg2:#0b1120; --ink:#cdd6e4; --dim:#64748b;
+    --green:#3ddc84; --pink:#ff6ac1; --amber:#ffb86c; --cyan:#5eead4; --line:rgba(94,234,212,.14);
+  }
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:'Noto Sans SC',sans-serif;overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.05;
+    background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+  body::after{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:repeating-linear-gradient(0deg,transparent 0 31px,rgba(94,234,212,.035) 31px 32px),
+               repeating-linear-gradient(90deg,transparent 0 31px,rgba(94,234,212,.035) 31px 32px)}
+  .serif{font-family:'Noto Serif SC',serif}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .glow-g{color:var(--green);text-shadow:0 0 24px rgba(61,220,132,.45)}
+  .glow-p{color:var(--pink);text-shadow:0 0 24px rgba(255,106,193,.4)}
+  .glow-c{color:var(--cyan);text-shadow:0 0 24px rgba(94,234,212,.4)}
+  .glow-a{color:var(--amber)}
+  .card{background:linear-gradient(160deg,rgba(17,26,46,.85),rgba(8,13,26,.9));border:1px solid var(--line);border-radius:14px;position:relative;z-index:1}
+  .card:hover{border-color:rgba(94,234,212,.35)}
+  .tag{font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.18em;padding:.25rem .7rem;border:1px solid;border-radius:999px;display:inline-block}
+  .sec-num{font-family:'JetBrains Mono',monospace;color:var(--dim);letter-spacing:.3em;font-size:.75rem}
+  .hr-term{border:none;border-top:1px dashed rgba(100,116,139,.35)}
+  .blink{animation:blink 1.1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+  #progress{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--green),var(--cyan),var(--pink));width:0%;z-index:60;box-shadow:0 0 12px rgba(61,220,132,.8)}
+  .crt::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(18,16,16,0) 50%,rgba(0,0,0,.18) 50%);background-size:100% 4px;pointer-events:none;border-radius:14px}
+  table.pm{width:100%;border-collapse:collapse;font-size:.85rem}
+  table.pm th{font-family:'JetBrains Mono',monospace;font-weight:400;font-size:.7rem;letter-spacing:.15em;color:var(--cyan);text-align:left;border-bottom:1px solid rgba(94,234,212,.3);padding:.6rem .8rem}
+  table.pm td{border-bottom:1px solid rgba(100,116,139,.15);padding:.65rem .8rem;vertical-align:top;line-height:1.65}
+  table.pm tr:hover td{background:rgba(94,234,212,.03)}
+  .flow{position:relative;z-index:1}
+  .fade-slide{opacity:0;transform:translateY(34px)}
+  @media (max-width:768px){.sec-title{font-size:1.7rem!important}}
+
+  .text-\[--green\]{color:var(--green)} .text-\[--pink\]{color:var(--pink)} .text-\[--cyan\]{color:var(--cyan)}
+  .text-\[--amber\]{color:var(--amber)} .text-\[--dim\]{color:var(--dim)} .border-\[--line\]{border-color:var(--line)}
+  .bg-\[--bg2\]{background:var(--bg2)} .bg-\[#0b1120\]{background:#0b1120}
+</style>
+</head>
+<body class="relative">
+<div id="progress"></div>
+
+<!-- ============ HERO ============ -->
+<header class="min-h-screen flex items-center relative z-10">
+  <div class="max-w-6xl mx-auto px-6 py-24 w-full">
+    <p class="mono text-xs tracking-[.35em] text-[--dim] mb-6 fade-slide">// A PRODUCT-MANAGER-GRADE DEEP DIVE · 2026</p>
+    <h1 class="serif font-black leading-[1.12] text-4xl md:text-6xl lg:text-7xl fade-slide">
+      机器的<span class="glow-g">内部</span><br>
+      <span class="text-3xl md:text-5xl lg:text-6xl text-slate-300">AI 编码 Agent 的架构与演进</span>
+    </h1>
+    <p class="mt-8 max-w-2xl text-slate-400 leading-relaxed fade-slide">
+      以 OpenAI <span class="mono text-slate-200">Codex</span> 与 Anthropic <span class="mono text-slate-200">Claude Code</span> 为样本，
+      拆开这类产品的引擎盖：一个 Agent 由哪几层构成？上下文为什么是"新内存"？
+      以及从 2021 到今天，这条演进路线背后的产品逻辑。
+    </p>
+    <div class="mt-10 flex flex-wrap gap-3 fade-slide">
+      <span class="tag border-[--green] text-[--green]">模型是零件 · Agent 是系统</span>
+      <span class="tag border-[--pink] text-[--pink]">5 层架构拆解</span>
+      <span class="tag border-[--cyan] text-[--cyan]">8 年演进时间线</span>
+      <span class="tag border-[--amber] text-[--amber]">PM 行动清单</span>
+    </div>
+    <p class="mono mt-16 text-[--dim] text-xs fade-slide">$ scroll_to_begin<span class="blink">▊</span></p>
+  </div>
+</header>
+
+<main class="relative z-10 max-w-6xl mx-auto px-6 pb-32 space-y-28">
+
+<!-- ============ SEC 01 总论 ============ -->
+<section id="s01">
+  <p class="sec-num mb-3 reveal">01 / MENTAL MODEL</p>
+  <h2 class="serif font-black text-3xl md:text-4xl sec-title reveal">先建立总认知：<br><span class="glow-c">模型只是发动机，产品是整辆车</span></h2>
+  <div class="mt-8 grid md:grid-cols-5 gap-6 items-start">
+    <div class="md:col-span-3 space-y-4 text-slate-400 leading-relaxed reveal">
+      <p>把 GPT-5-Codex 或 Claude Opus 这类大模型想成一台<b class="text-slate-200">发动机</b>：它只会做一件事——<b class="text-slate-200">给定一段文字（上下文），预测下一段文字</b>。它不能读你的文件、不能跑命令、不记得上一句话。模型自身甚至不知道该"什么时候停"。</p>
+      <p>Codex、Claude Code 这类产品真正的主角，是发动机外面那套<b class="text-slate-200">底盘 + 车身</b>——工程上叫 <span class="mono text-slate-200">harness（承载框架）</span>：负责把请求拼装成提示词、调用模型、执行模型点名的工具、把结果喂回去、管理权限和记忆、决定何时收尾。</p>
+      <p>OpenAI 工程团队的一个共识被广泛引用：<b class="glow-g">"模型是一个组件，Agent 才是一个系统；大部分工程量在系统这一侧。"</b> 类比互联网产品：选模型 ≈ 选底层算法（约占 20% 工作量），围绕算法做的编排、存储、权限、分发、体验层才是产品真正的护城河（80%）。</p>
+    </div>
+    <div class="md:col-span-2 space-y-3">
+      <div class="card p-5 reveal"><p class="mono text-[.68rem] tracking-widest text-[--green] mb-1">LAYER 3 · SURFACE 触点层</p><p class="text-sm text-slate-400 leading-relaxed">CLI 终端 / Web / IDE 插件 / 桌面 App / API。职责是<b class="text-slate-300">同一套 Agent 逻辑出现在所有入口</b>，不重写。</p></div>
+      <div class="card p-5 reveal"><p class="mono text-[.68rem] tracking-widest text-[--cyan] mb-1">LAYER 2 · HARNESS 框架层</p><p class="text-sm text-slate-400 leading-relaxed">Agent Loop、上下文工程、工具执行、沙箱与权限、缓存与压缩。<b class="text-slate-300">产品的核心竞争力在这一层。</b></p></div>
+      <div class="card p-5 reveal"><p class="mono text-[.68rem] tracking-widest text-[--pink] mb-1">LAYER 1 · MODEL 模型层</p><p class="text-sm text-slate-400 leading-relaxed">Codex → GPT-5.x-Codex 系列；Claude → Opus/Sonnet 4.x 系列。负责<b class="text-slate-300">推理与决策</b>：下一步想什么、调用哪个工具。</p></div>
+    </div>
+  </div>
+  <div class="mt-8 grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div class="card p-5 text-center reveal"><p class="serif text-3xl font-black glow-g">1<span class="text-base text-slate-500">个循环</span></p><p class="mono text-[.65rem] text-[--dim] mt-1">AGENT LOOP</p></div>
+    <div class="card p-5 text-center reveal"><p class="serif text-3xl font-black glow-c">7<span class="text-base text-slate-500">类工具</span></p><p class="mono text-[.65rem] text-[--dim] mt-1">READ·EDIT·BASH·WEB</p></div>
+    <div class="card p-5 text-center reveal"><p class="serif text-3xl font-black glow-p">20<span class="text-base text-slate-500">+</span></p><p class="mono text-[.65rem] text-[--dim] mt-1">SINGLE TASK 的循环次数</p></div>
+    <div class="card p-5 text-center reveal"><p class="serif text-3xl font-black glow-a">≈80<span class="text-base text-slate-500">%</span></p><p class="mono text-[.65rem] text-[--dim] mt-1">工程量在模型之外</p></div>
+  </div>
+</section>
+
+<!-- ============ SEC 02 AGENT LOOP ============ -->
+<section id="s02">
+  <p class="sec-num mb-3 reveal">02 / THE ENGINE</p>
+  <h2 class="serif font-black text-3xl md:text-4xl sec-title reveal">核心引擎：Agent Loop<br><span class="text-2xl md:text-3xl text-slate-400">—— 从"一问一答"到"干完一件事"</span></h2>
+  <div class="mt-8 grid lg:grid-cols-2 gap-8 items-start">
+    <div class="space-y-4 text-slate-400 leading-relaxed reveal">
+      <p>Chatbot 的交互是<b class="text-slate-200">对讲机</b>：发一句、回一句，结束。Agent 的交互是<b class="text-slate-200">一个员工干活的全过程</b>：接需求 → 查资料 → 动手 → 看结果 → 调整 → 交付。这个"接→查→做→看→再决策"的循环，就是 <span class="mono text-slate-200">Agent Loop</span>，Codex 和 Claude Code 的机制几乎一模一样。</p>
+      <div class="card p-5">
+        <ol class="space-y-3 text-sm list-none">
+          <li><span class="mono text-[--green]">01</span> <b class="text-slate-200">组装提示词</b> — 把你的请求 + 系统指令 + 工具清单 + 项目规范 + 环境信息拼成一个大 prompt</li>
+          <li><span class="mono text-[--green]">02</span> <b class="text-slate-200">模型决策</b> — 模型输出两种东西之一：<span class="text-slate-200">给用户的话</span>，或<span class="glow-c">工具调用请求</span>（"帮我跑 <span class="mono">npm test</span> 并告诉我结果"）</li>
+          <li><span class="mono text-[--green]">03</span> <b class="text-slate-200">框架执行工具</b> — harness 真正去读文件/改代码/执行命令，把输出<b class="text-slate-200">追加</b>回上下文</li>
+          <li><span class="mono text-[--green]">04</span> <b class="text-slate-200">循环</b> — 回到 02，一圈叫一个 <span class="mono text-slate-200">turn</span>，直到模型不再调工具、产出最终答复</li>
+        </ol>
+      </div>
+      <p>官方例子：一句"修复 auth 模块的 bug"，可能触发 4 个 turn 几十个动作——先跑测试看挂在哪、读两个文件、改代码、重跑测试、修 lint、再跑测试，最后提交。整个过程中<b class="text-slate-200">人只说了一次话</b>。</p>
+      <p class="border-l-2 border-[--green] pl-4 text-slate-300">PM 视角：模型的"智商"决定单步决策质量，但<b>体验上限由 loop 的工程决定</b>——失败重试、并行执行、超预算熔断（Claude SDK 里的 <span class="mono text-xs">max_turns</span> / <span class="mono text-xs">max_budget_usd</span> 就是我们的"防跑飞"配置）。</p>
+    </div>
+    <div class="card p-6 crt reveal">
+      <p class="mono text-[.68rem] tracking-widest text-[--dim] mb-5">agent_loop.tracef — codex & claude code 共有结构</p>
+      <div class="flow space-y-2 mono text-xs">
+        <div class="flex items-center gap-3"><span class="w-16 shrink-0 text-[--dim]">USER</span><div class="flex-1 border border-[rgba(255,106,193,.5)] bg-[rgba(255,106,193,.08)] rounded px-3 py-2 text-slate-200">"fix the bug in the auth module"</div></div>
+        <div class="text-[--dim] pl-16">▼ 拼装 prompt（+system/tools/AGENTS.md/env）</div>
+        <div class="flex items-center gap-3"><span class="w-16 shrink-0 text-[--dim]">MODEL</span><div class="flex-1 border border-[rgba(61,220,132,0.5)] bg-[rgba(61,220,132,.08)] rounded px-3 py-2 text-slate-200">tool_call: Bash(<span class="text-[--green]">npm test</span>)</div></div>
+        <div class="flex items-center gap-3"><span class="w-16 shrink-0 text-[--dim]">HARNESS</span><div class="flex-1 border border-slate-600 rounded px-3 py-2 text-slate-400">exec → 3 failures <span class="text-[--dim]">…结果追加进上下文</span></div></div>
+        <div class="flex items-center gap-3"><span class="w-16 shrink-0 text-[--dim]">MODEL</span><div class="flex-1 border border-[rgba(61,220,132,0.5)] bg-[rgba(61,220,132,.08)] rounded px-3 py-2 text-slate-200">tool_call: Read(auth.ts) + Read(auth.test.ts)</div></div>
+        <div class="flex items-center gap-3"><span class="w-16 shrink-0 text-[--dim]">MODEL</span><div class="flex-1 border border-[rgba(61,220,132,0.5)] bg-[rgba(61,220,132,.08)] rounded px-3 py-2 text-slate-200">tool_call: Edit(auth.ts) + Bash(<span class="text-[--green]">npm test</span>)</div></div>
+        <div class="text-[--dim] pl-16">▼ turn × N（读-only 工具并行，改状态的工具串行，防冲突）</div>
+        <div class="flex items-center gap-3"><span class="w-16 shrink-0 text-[--dim]">MODEL</span><div class="flex-1 border-2 border-[rgba(255,184,108,0.6)] bg-[rgba(255,184,108,.08)] rounded px-3 py-2 text-slate-100">"Fixed the auth bug, all 3 tests pass." <span class="blink text-[--amber]">▊</span></div></div>
+        <div class="text-[--dim] pl-16">✔ no tool_calls → loop 终止，返回结果（含成本、token 用量、session_id）</div>
+      </div>
+      <div class="mt-5 pt-4 border-t border-[--line] text-xs text-slate-500 leading-relaxed">
+        外层还有一个"会话循环"：你每发一条新消息，<b class="text-slate-400">整段历史（含所有工具输出）都会重发一遍</b>——这直接引出下一章：上下文工程。
+      </div>
+    </div>
+  </div>
+</section>
+<!-- ============ SEC 03 上下文工程 ============ -->
+<section id="s03">
+  <p class="sec-num mb-3 reveal">03 / CONTEXT ENGINEERING</p>
+  <h2 class="serif font-black text-3xl md:text-4xl sec-title reveal">上下文工程：Agent 时代的<span class="glow-p">内存管理</span></h2>
+  <div class="mt-8 grid lg:grid-cols-5 gap-8">
+    <div class="lg:col-span-2 space-y-4 reveal">
+      <p class="text-slate-400 leading-relaxed">模型没有工作记忆，一切靠"上下文窗口"这块有限的内存。Codex 每次请求发送的 prompt 是一个<b class="text-slate-200">严格分层的栈</b>（层与层带 role 优先级）：</p>
+      <div class="space-y-1 mono text-[.72rem]">
+        <div class="card px-4 py-2 text-slate-300 border-[rgba(61,220,132,0.4)]">① System 系统指令 <span class="text-[--dim]">— 服务器控制</span></div>
+        <div class="card px-4 py-2 text-slate-300">② 工具定义（每个工具的 schema）</div>
+        <div class="card px-4 py-2 text-slate-300">③ Developer 指令 + <span class="glow-g">AGENTS.md</span> / <span class="glow-p">CLAUDE.md</span> <span class="text-[--dim]">— 项目规范、测试命令，放在仓库里</span></div>
+        <div class="card px-4 py-2 text-slate-300">④ 沙箱权限规则 + 环境信息（cwd、shell）</div>
+        <div class="card px-4 py-2 text-slate-300 border-[rgba(255,106,193,0.4)]">⑤ 用户消息 + 全部历史 turn <span class="text-[--dim]">— 客户端控制，越滚越大</span></div>
+      </div>
+      <p class="text-slate-400 leading-relaxed text-sm">PM 类比：这就像我们给外包同学发的<b class="text-slate-200">《协作说明书》</b>。AGENTS.md / CLAUDE.md 是"写在代码库里的 PRD"——项目约定、怎么跑测试都写清楚，Agent 表现显著更好。它也是用户可感知的"配置项"。</p>
+    </div>
+    <div class="lg:col-span-3 space-y-4">
+      <div class="card p-5 reveal">
+        <p class="mono text-[.68rem] tracking-widest text-[--cyan] mb-1">PROBLEM · 历史重发的代价</p>
+        <p class="text-sm text-slate-400 leading-relaxed">第 N 个 turn 要重发前 N-1 个 turn 的全部数据 → 传输量随对话长度<b class="text-slate-200">近似平方级增长</b>。OpenAI 故意<b class="text-slate-200">不用</b>服务端会话存储来省事：保持每个请求自包含、无状态，才能满足"零数据保留（ZDR）"客户。这是典型的 toB 合规换性能的架构取舍。</p>
+      </div>
+      <div class="card p-5 reveal">
+        <p class="mono text-[.68rem] tracking-widest text-[--green] mb-1">MITIGATION ① · PROMPT CACHING 前缀缓存</p>
+        <p class="text-sm text-slate-400 leading-relaxed">新内容永远<b class="text-slate-200">追加在末尾</b>，旧 prompt 是新 prompt 的精确前缀 → 模型计算可复用，传输平方级、计算近似线性。<b class="text-slate-300">但缓存很脆</b>：中途换模型、换工具、改沙箱配置都会击穿缓存——Codex 接入 MCP 时曾因工具列表顺序不稳定，意外把缓存命中全部打没。</p>
+      </div>
+      <div class="card p-5 reveal">
+        <p class="mono text-[.68rem] tracking-widest text-[--pink] mb-1">MITIGATION ② · COMPACTION 上下文压缩</p>
+        <p class="text-sm text-slate-400 leading-relaxed">快撑爆时，框架把老历史替换成一份"代表性摘要"（Codex 用携带模型潜状态的加密载荷，Claude SDK 自动 compaction 并发 <span class="mono text-xs">compact_boundary</span> 事件）。效果 ≈ 会议纪取代录全文：<b class="text-slate-200">越久远的记忆越模糊</b>。所以官方最佳实践是——<i>换新任务就开新会话；长期规则写进 CLAUDE.md/AGENTS.md（每次都会重新注入），别留在聊天里</i>。</p>
+      </div>
+      <div class="card p-2 reveal"><p class="mono text-[.68rem] tracking-widest text-[--dim] px-4 pt-3">FIG.3-1 单个任务的上下文占用如何随 TURN 累积（示意）</p><div id="chart-ctx" class="w-full h-72"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SEC 04 工具与权限 ============ -->
+<section id="s04">
+  <p class="sec-num mb-3 reveal">04 / HANDS & GUARDRAILS</p>
+  <h2 class="serif font-black text-3xl md:text-4xl sec-title reveal">手脚与安全带：<span class="glow-g">工具、沙箱、权限谱系</span></h2>
+  <div class="mt-8 grid md:grid-cols-3 gap-4">
+    <div class="card p-6 reveal">
+      <p class="mono text-[.68rem] tracking-widest text-[--green] mb-2">HANDS · 工具集</p>
+      <p class="text-sm text-slate-400 leading-relaxed">两家几乎同构的文件系统 + shell：<br><span class="mono text-xs text-slate-300">Read / Edit / Write · Glob / Grep · Bash · WebSearch / WebFetch</span><br>再加编排类：<span class="mono text-xs">Agent（派生子 Agent）、Skill、AskUserQuestion</span>。外部系统通过 <b class="text-slate-200">MCP</b>（数据库、浏览器、内部 API）接入。<br><span class="text-xs text-slate-500 mt-2 block">调度细节：只读工具并行跑；改状态的工具（Edit/Bash）串行跑防写坏——和我们对"并发读写锁"的直觉一致。</span></p>
+    </div>
+    <div class="card p-6 reveal">
+      <p class="mono text-[.68rem] tracking-widest text-[--cyan] mb-2">SANDBOX · 爆炸半径控制</p>
+      <p class="text-sm text-slate-400 leading-relaxed">Agent 会执行任意命令，必须假设它可能"手滑"。Codex 本地跑在 OS 级沙箱（macOS Seatbelt / Linux bubblewrap，2026 年补上了 <b class="text-slate-200">Windows 专用沙箱</b>），云端任务则每个任务一个<b class="text-slate-200">预装仓库的隔离容器</b>；默认断网、写文件限制在工作目录。Claude Code 用权限系统 + Hooks 做同等约束，Web 版跑在 Anthropic 托管的云沙箱。</p>
+    </div>
+    <div class="card p-6 reveal">
+      <p class="mono text-[.68rem] tracking-widest text-[--pink] mb-2">APPROVAL · 人机协作开关</p>
+      <p class="text-sm text-slate-400 leading-relaxed">Codex 的协议是<b class="text-slate-200">双向</b>的：服务端可以反向请求客户端——"我要执行这条命令，允许吗？"，用户不回，turn 就挂起等待。Claude 用 permission mode 谱系 + <span class="mono text-xs">PreToolUse</span> hook（相当于我们后台的<b class="text-slate-200">策略网关/审批流</b>，在工具执行前拦截、校验、直接否决）。</p>
+    </div>
+  </div>
+  <div class="card p-6 mt-4 reveal">
+    <p class="mono text-[.68rem] tracking-widest text-[--amber] mb-4">AUTONOMY SPECTRUM · 自主性是一条谱，不是一个开关（Claude Code 的权限模式最直观）</p>
+    <div class="grid grid-cols-2 md:grid-cols-6 gap-px bg-slate-700/40 rounded-lg overflow-hidden text-center">
+      <div class="bg-[#0b1120] p-3"><p class="text-xs font-bold text-slate-200">plan</p><p class="text-[.65rem] text-slate-500 mt-1">只出方案<br>不动你的代码</p></div>
+      <div class="bg-[#0b1120] p-3"><p class="text-xs font-bold text-slate-200">default</p><p class="text-[.65rem] text-slate-500 mt-1">每次敏感操作<br>都要人批</p></div>
+      <div class="bg-[#0b1120] p-3"><p class="text-xs font-bold text-slate-200">acceptEdits</p><p class="text-[.65rem] text-slate-500 mt-1">编辑自动过<br>危险命令仍批</p></div>
+      <div class="bg-[#0b1120] p-3"><p class="text-xs font-bold text-slate-200">auto</p><p class="text-[.65rem] text-slate-500 mt-1">模型分类器<br>逐条审命令</p></div>
+      <div class="bg-[#0b1120] p-3"><p class="text-xs font-bold text-slate-200">dontAsk</p><p class="text-[.65rem] text-slate-500 mt-1">批不了的就拒<br>headless 专用</p></div>
+      <div class="bg-[#0b1120] p-3"><p class="text-xs font-bold text-[--pink]">bypass</p><p class="text-[.65rem] text-slate-500 mt-1">全放开<br>仅限 CI/容器</p></div>
+    </div>
+    <p class="text-xs text-slate-500 mt-4 leading-relaxed">PM 划重点：<b class="text-slate-300">"自主性"是产品的核心旋钮，且与"信任基建"（沙箱、审计、回滚、验证）成对出现。</b> 每往右一格，用户省的是注意力，赔的是风险敞口——这和我们做"自动续费/自动发布"时的授权设计是同一道题。</p>
+  </div>
+</section>
+<!-- ============ SEC 05 多端架构 ============ -->
+<section id="s05">
+  <p class="sec-num mb-3 reveal">05 / DISTRIBUTION</p>
+  <h2 class="serif font-black text-3xl md:text-4xl sec-title reveal">多端架构：一套内核，<span class="glow-c">处处运行</span></h2>
+  <div class="mt-8 grid lg:grid-cols-2 gap-8">
+    <div class="space-y-4 reveal">
+      <p class="text-slate-400 leading-relaxed">Codex 最早只是个 CLI。然后团队被要求：<b class="text-slate-200">VS Code 要、网页版要、macOS App 要、JetBrains / Xcode 也要</b>——为每个入口重写 Agent 逻辑是不可能的任务。这与互联网公司的经典困境同构：一套核心业务如何分发到 App / H5 / 小程序 / 开放平台。</p>
+      <div class="card p-5">
+        <p class="mono text-[.68rem] tracking-widest text-[--pink] mb-2">第一次尝试：MCP，失败了</p>
+        <p class="text-sm text-slate-400 leading-relaxed">先按行业标准 <b class="text-slate-200">MCP</b>（Model Context Protocol，Anthropic 2024-11 发布、OpenAI 等迅速跟进的"工具接入 USB-C"）把 Codex 暴露成 MCP server。结果发现：<b class="text-slate-200">流式进度、中途暂停求批准、结构化 diff</b> 这些真实 Agent 交互语义，MCP 当时根本承载不了。<i>（注意：MCP 没死——它成了"工具/数据源接入"的标准；只是不适合做"整个 Agent 的远程协议"。）</i></p>
+      </div>
+      <div class="card p-5">
+        <p class="mono text-[.68rem] tracking-widest text-[--green] mb-2">第二次尝试：自研 App Server 协议</p>
+        <p class="text-sm text-slate-400 leading-relaxed">OpenAI 把 Agent 内核（loop、线程管理、工具执行、配置、鉴权）收进 <span class="mono">Codex core</span>，外面包一层 <b class="text-slate-200">JSON-RPC 双向协议（App Server）</b>，任何客户端通过 stdio 就能驱动完整 Agent。协议向后兼容，所以 Xcode 能锁定旧客户端、持续对接新服务端——<b class="text-slate-200">生态伙伴的发布节奏与 OpenAI 解耦</b>。</p>
+      </div>
+      <p class="text-sm text-slate-500 leading-relaxed border-l-2 border-[--green] pl-4">架构教训（原话）：<b class="text-slate-300">正确的抽象往往不存在，直到你试过错误的那个。</b> 而且这条演化路径不是设计出来的，是被需求逼出来的。</p>
+    </div>
+    <div class="space-y-4">
+      <div class="card p-5 crt reveal">
+        <p class="mono text-[.68rem] tracking-widest text-[--dim] mb-4">codex_app_server.topology</p>
+        <div class="mono text-[.7rem] leading-[2] text-slate-400">
+          <div class="flex justify-between"><span class="text-[--cyan]">CLI</span><span class="text-[--dim]">stdio ↓</span></div>
+          <div class="flex justify-between"><span class="text-[--cyan]">VS Code 扩展</span><span class="text-[--dim]">内嵌二进制 ↓</span></div>
+          <div class="flex justify-between"><span class="text-[--cyan]">macOS/桌面 App</span><span class="text-[--dim]">子进程 ↓</span></div>
+          <div class="flex justify-between"><span class="text-[--cyan]">Web 浏览器</span><span class="text-[--dim]"]HTTP 事件流 ↑↓</span></div>
+          <div class="flex justify-between"><span class="text-[--cyan]">Xcode / JetBrains</span><span class="text-[--dim]">协议对接 ↓</span></div>
+          <div class="border-2 border-[rgba(61,220,132,0.6)] bg-[rgba(61,220,132,.05)] rounded-lg p-4 my-3 text-center">
+            <p class="text-slate-100 font-bold">App Server · JSON-RPC（双向）</p>
+            <p class="text-[.62rem] text-slate-500 mt-1">client→server: 起线程 / 提交任务 · server→client: "允许执行这条命令吗？"</p>
+          </div>
+          <div class="border border-slate-600/60 rounded-lg p-3 text-center">
+            <p class="text-slate-200 font-bold">Codex core = Agent Loop + 工具 + 上下文 + 鉴权</p>
+          </div>
+          <div class="text-center text-[--dim] pt-1">▲ inference ▲ &nbsp; codex-1 / gpt-5.x-codex</div>
+        </div>
+      </div>
+      <div class="card p-5 reveal">
+        <p class="mono text-[.68rem] tracking-widest text-[--pink] mb-2">对照：Anthropic 的开放策略</p>
+        <p class="text-sm text-slate-400 leading-relaxed">Claude Code 走了同一终点的另一条路：先做 CLI 爆款（2025-02 预览、05 GA），再把同一套 loop 封装成 <b class="text-slate-200">Claude Agent SDK</b>（TS/Python，内嵌完整运行时），让开发者把"Claude Code 的能力"嵌进自家产品；配 <b class="text-slate-200">MCP + Skills + Subagents</b> 做扩展生态，Web/桌面端补齐触点。<br><span class="text-xs text-slate-500">策略差异：OpenAI 自研协议保体验闭环，Anthropic 立开放标准换生态位——一个像自建物流，一个像开放平台。</span></p>
+      </div>
+      <div class="card p-5 reveal">
+        <p class="mono text-[.68rem] tracking-widest text-[--cyan] mb-2">云端形态 = 无头 CMS</p>
+        <p class="text-sm text-slate-400 leading-relaxed">Codex Web 版：worker 拉起云容器 → 检出仓库 → 启动同一个 App Server 二进制 → 事件流推给浏览器。<b class="text-slate-200">关掉标签页任务照跑</b>，因为状态在服务端。"本地/远程同构"让同一产品既能在你的机器上动手，也能在云上 7×24 干活。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SEC 06 演进路线 ============ -->
+<section id="s06">
+  <p class="sec-num mb-3 reveal">06 / EVOLUTION</p>
+  <h2 class="serif font-black text-3xl md:text-4xl sec-title reveal">演进路线：从"补全一行"到"委托一周"</h2>
+  <p class="mt-4 max-w-3xl text-slate-400 leading-relaxed reveal">回看 2021→2026，这条路线不是功能堆叠，而是<b class="text-slate-200">「能力跨过阈值 → 架构允许委托 → 成本降到可卖」</b>三条线的交汇。每个阶段都解决上一阶段的"不可能"。</p>
+  <div class="card p-2 mt-6 reveal"><p class="mono text-[.68rem] tracking-widest text-[--dim] px-4 pt-3">FIG.6-1 SWE-BENCH VERIFIED：模型独立修真实 GITHUB ISSUE 的成功率（%）——跨过 ~50% 后，"委托"才成立</p><div id="chart-swe" class="w-full h-80"></div></div>
+  <div class="mt-8 relative pl-6 md:pl-10 border-l border-dashed border-slate-600/60 space-y-10">
+    <div class="reveal relative"><span class="absolute -left-[31px] md:-left-[47px] w-4 h-4 rounded-full bg-[--pink] shadow-[0_0_14px_rgba(255,106,193,.8)]"></span>
+      <p class="mono text-xs text-[--pink]">2021.08 → 2023.03 · 阶段 0：单次生成</p>
+      <h3 class="serif font-bold text-xl text-slate-100 mt-1">初代 Codex：会"接话"的代码模型</h3>
+      <p class="text-sm text-slate-400 mt-2 leading-relaxed max-w-3xl">基于 GPT-3 微调的 Codex 驱动了 GitHub Copilot——<b>补全一行、补全一个函数</b>。没有循环、没有工具、没有记忆。API 于 2023 年初关闭，"Codex"暂时只是一个代号。同期：AutoGPT/BabyAGI 证明了"给 LLM 挂循环"的雏形可行，但模型太笨，演示大于实用。</p>
+    </div>
+    <div class="reveal relative"><span class="absolute -left-[31px] md:-left-[47px] w-4 h-4 rounded-full bg-[--amber] shadow-[0_0_14px_rgba(255,184,108,.8)]"></span>
+      <p class="mono text-xs text-[--amber]">2023 → 2024 · 阶段 1：接口标准化</p>
+      <h3 class="serif font-bold text-xl text-slate-100 mt-1">Function Calling、Computer Use、MCP</h3>
+      <p class="text-sm text-slate-400 mt-2 leading-relaxed max-w-3xl">2023-06 OpenAI 把"模型点名副程序"做成正式 API（function calling），工具调用从 prompt 技巧变成产品接口；2024-05/07 Claude 推出 <b>Artifacts 与计算机操作（Computer Use）beta</b>——模型开始能看屏幕、点鼠标；2024-10 Anthropic 首个 Agent SDK；<b class="text-slate-200">2024-11-25 MCP 发布</b>，“给模型接万物”有了统一总线，次年获全行业跟进。地基完工。</p>
+    </div>
+    <div class="reveal relative"><span class="absolute -left-[31px] md:-left-[47px] w-4 h-4 rounded-full bg-[--green] shadow-[0_0_14px_rgba(61,220,132,.8)]"></span>
+      <p class="mono text-xs text-[--green]">2025 H1 · 阶段 2：AGENT 产品化元年</p>
+      <h3 class="serif font-bold text-xl text-slate-100 mt-1">Claude Code 与 CODEX 双双落地</h3>
+      <p class="text-sm text-slate-400 mt-2 leading-relaxed max-w-3xl">2025-02 <b>Claude Code 以终端研究预览版发布</b>（Opus 4 前后正式 GA 5 月）；2025-04 OpenAI 开源 <b>Codex CLI</b>，05-16 发布云端 Agent <b>Codex</b>（codex-1，为工程微调的 o3）：CLI + 云沙箱 + ChatGPT 里派任务。"结对编程"第一次变成"异步派活"。7 月 Operator 并入 ChatGPT Agent，通用操作型 Agent 试水。</p>
+    </div>
+    <div class="reveal relative"><span class="absolute -left-[31px] md:-left-[47px] w-4 h-4 rounded-full bg-[--cyan] shadow-[0_0_14px_rgba(94,234,212,.8)]"></span>
+      <p class="mono text-xs text-[--cyan]">2025 H2 → 2026 · 阶段 3：长任务 · 生态位 · 多智能体</p>
+      <h3 class="serif font-bold text-xl text-slate-100 mt-1">为"委托"重构产品形态</h3>
+      <p class="text-sm text-slate-400 mt-2 leading-relaxed max-w-3xl">2025-09 <b>GPT-5-Codex</b> 把 Agent 收回 ChatGPT 主线；2025-10 Claude 侧发布 <b>Agent Skills（可安装的"做事方法论"）与 Claude Code on the web</b>；2025-11 <b>Opus 4.5</b> 主打"可连续自主工作数小时"、能力曲线首次冲破 80%；随后 Agent Teams（多智能体协作）、Codex App Server 全端统一、Windows 沙箱（2026-06）、GPT-5.2-Codex 接连落地。<b>竞争焦点从"谁更聪明"转向"谁更能被放心地委托"。</b></p>
+    </div>
+  </div>
+  <div class="mt-10 grid md:grid-cols-3 gap-4">
+    <div class="card p-5 reveal"><p class="mono text-[.68rem] tracking-widest text-[--dim] mb-2">演化驱动力 ①</p><p class="font-bold text-slate-200 mb-1">可靠性阈值</p><p class="text-sm text-slate-400 leading-relaxed">单次成功率 30%→70%，意味着"人审核一次"变成"人抽查十次"——委托形态（PR、异步任务）才开始有商业意义。</p></div>
+    <div class="card p-5 reveal"><p class="mono text-[.68rem] tracking-widest text-[--dim] mb-2">演化驱动力 ②</p><p class="font-bold text-slate-200 mb-1">Harness 工业化</p><p class="text-sm text-slate-400 leading-relaxed">缓存、压缩、沙箱、权限、双向协议……每一步都在"更少的监督"下"更长的自主时长"，二者互为因果。</p></div>
+    <div class="card p-5 reveal"><p class="mono text-[.68rem] tracking-widest text-[--dim] mb-2">演化驱动力 ③</p><p class="font-bold text-slate-200 mb-1">经济学</p><p class="text-sm text-slate-400 leading-relaxed">token 降价 + 缓存摊薄重复成本 + "effort 分档"（不同难度用不同推理预算），把一个任务的边际成本打到用户可以按"任务包月"付费。</p></div>
+  </div>
+</section>
+<!-- ============ SEC 07 对比 ============ -->
+<section id="s07">
+  <p class="sec-num mb-3 reveal">07 / HEAD TO HEAD</p>
+  <h2 class="serif font-black text-3xl md:text-4xl sec-title reveal">Codex vs Claude Code：<span class="glow-a">同一道题的两种解法</span></h2>
+  <p class="mt-4 max-w-3xl text-slate-400 text-sm leading-relaxed reveal">读完前两章你会发现两者架构高度趋同（loop/工具/上下文/沙箱几乎一一对应）——这说明 Agent 的"正确答案"正在收敛。差异在于<b class="text-slate-200">组织战略与信任设计</b>：</p>
+  <div class="card mt-6 p-5 md:p-8 overflow-x-auto reveal">
+    <table class="pm min-w-[720px]">
+      <thead><tr><th class="w-32">维度</th><th class="text-[--green]">OPENAI · CODEX</th><th class="text-[--pink]">ANTHROPIC · CLAUDE CODE</th></tr></thead>
+      <tbody>
+        <tr><td class="text-slate-300 font-bold">模型叙事</td><td>codex-1（o3 微调）→ GPT-5/5.1/5.2-Codex，与主线模型双轨迭代</td><td>Claude 4.x 系列（Opus/Sonnet），Opus 4.5 以"长时程自主"为核心卖点</td></tr>
+        <tr><td class="text-slate-300 font-bold">起点与路径</td><td>2021 代码模型 retired → 2025 开源 CLI → 云 Agent → 全端</td><td>2025-02 终端预览 → 05 GA → Agent SDK → Web/桌面/Teams</td></tr>
+        <tr><td class="text-slate-300 font-bold">内核封装</td><td><b>自研 App Server</b>（JSON-RPC 双向），体验闭环、协议向后兼容给 IDE 伙伴</td><td><b>Claude Agent SDK</b>（TS/Python，打包运行时），把能力开放给开发者造自家 Agent</td></tr>
+        <tr><td class="text-slate-300 font-bold">扩展生态</td><td>MCP 客户端 + AGENTS.md；曾试 MCP 承载全 Agent 失败后转自研协议</td><td>MCP 的发起者 + CLAUDE.md + <b>Skills（文件即程序）+ Subagents + Plugins</b></td></tr>
+        <tr><td class="text-slate-300 font-bold">权限与信任</td><td>沙箱优先（Seatbelt/bubblewrap/Windows 沙箱/云容器），执行中双向求批准</td><td>策略优先（6 档 permission mode + Hooks 拦截 + auto 模式模型分类器审查）</td></tr>
+        <tr><td class="text-slate-300 font-bold">运行形态</td><td>Idea→PR 的异步委托：云容器并行多任务，关标签页继续跑</td><td>本地"驻场工程师"+ 云端异步 + <b>Agent Teams 多智能体</b>分工</td></tr>
+        <tr><td class="text-slate-300 font-bold">商业化</td><td>捆绑 ChatGPT 订阅（Plus/Pro/Team），用 Coding 高频带动主站</td><td>API + Claude 订阅 + 企业合同；Agent SDK 养生态，垂直深耕法律/金融等</td></tr>
+        <tr><td class="text-slate-300 font-bold">一句话定位</td><td class="text-slate-300">"工程组织的异步外包同事"——像自建物流，闭环可控</td><td class="text-slate-300">"可编排的 Agent 操作系统"——像开放平台，生态占位</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- ============ SEC 08 下一步 + PM 清单 ============ -->
+<section id="s08">
+  <p class="sec-num mb-3 reveal">08 / WHAT'S NEXT & SO WHAT</p>
+  <h2 class="serif font-black text-3xl md:text-4xl sec-title reveal">下一阶段演进的赌注，<br>和一个 PM 的行动清单</h2>
+  <div class="mt-8 grid lg:grid-cols-2 gap-8">
+    <div class="space-y-3 reveal">
+      <p class="mono text-[.68rem] tracking-widest text-[--cyan] mb-4">赛道上下一步 · 四个公开押注</p>
+      <div class="card p-5"><p class="font-bold text-slate-100 text-sm">① 时长竞赛：从小时到"一周"</p><p class="text-sm text-slate-400 mt-1 leading-relaxed">模型可自主工作时长约每 7 个月翻倍（业界常用度量）。产品含义：交互从"实时监督 session"变成"任务收件箱 + 异常升级"，接近项目管理工具。</p></div>
+      <div class="card p-5"><p class="font-bold text-slate-100 text-sm">② 记忆与个性化：跨会话身份</p><p class="text-sm text-slate-400 mt-1 leading-relaxed">压缩丢信息 → 需要持久记忆层（用户偏好、项目图谱）。谁掌握"可迁移的工作记忆"，谁就有迁移成本护城河。</p></div>
+      <div class="card p-5"><p class="font-bold text-slate-100 text-sm">③ 组织形态：多智能体团队</p><p class="text-sm text-slate-400 mt-1 leading-relaxed">Subagents/Agent Teams = 给"虚拟公司"做组织架构设计：谁规划、谁执行、谁验收、成本预算如何分摊到"部门"。</p></div>
+      <div class="card p-5"><p class="font-bold text-slate-100 text-sm">④ 信任基建：验证、审计、定价</p><p class="text-sm text-slate-400 mt-1 leading-relaxed">自动化测试/评审 = SLA 的底座；日志与 Hook 审计 = 合规；计费从 token（资源）走向按任务/成果（outcome-based pricing）。</p></div>
+    </div>
+    <div class="reveal">
+      <p class="mono text-[.68rem] tracking-widest text-[--green] mb-4">PM 行动清单 · 明天就能用</p>
+      <div class="card p-6">
+        <ol class="space-y-4 text-sm text-slate-300 leading-relaxed list-none">
+          <li><span class="mono text-[--green]">01</span> <b>像写 PRD 一样写 AGENTS.md / CLAUDE.md。</b>项目规范、验收标准、命令清单入仓 → 直接兑换成 Agent 表现，成本几乎为零。</li>
+          <li><span class="mono text-[--green]">02</span> <b>需求按 turn 粒度拆分。</b>"每圈有明确下一步"的任务 loop 效率最高；开放式指令（"优化下代码库"）是烧钱黑洞。</li>
+          <li><span class="mono text-[--green]">03</span> <b>给 Agent 上预算三件套：</b>max turns / 成本上限 / 超时降级。没有熔断的自动化不是提效，是裸奔。</li>
+          <li><span class="mono text-[--green]">04</span> <b>子 Agent = 并行外包小组。</b>把脏活（大范围检索、日志分析）隔离给 subagent，主上下文只收摘要——控制"内存"占用与成本的正规打法。</li>
+          <li><span class="mono text-[--green]">05</span> <b>指标换代：</b>从"回答质量"转向<b>任务完成率、人工干预率、单任务成本、自主时长</b>。这是 Agent 时代的 DAU/GMV 等价物。</li>
+          <li><span class="mono text-[--green]">06</span> <b>评估自动化测试/评审基建。</b>委托规模的上限 = 你能多便宜地验证结果。CI 覆盖率低，Agent 就只能停留在"副驾驶"。</li>
+          <li><span class="mono text-[--green]">07</span> <b>权限设计按谱系做</b>（plan→审批→自动→绕过），把"信任等级"做成可升级的产品机制，而不是一键开关。</li>
+        </ol>
+      </div>
+      <div class="card p-6 mt-4 border-[rgba(61,220,132,0.4)]">
+        <p class="serif text-lg font-black text-slate-100 leading-relaxed">终局判断：模型会持续变快变便宜，<span class="glow-g">而"被信任地委托"这门生意，赢在 harness、生态与信任积累</span>——就像云计算赢在控制台、计费与合规，而不是赢在机柜。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="relative z-10 border-t border-[--line] py-14">
+  <div class="max-w-6xl mx-auto px-6 mono text-xs text-[--dim] leading-relaxed">
+    <p>SOURCES — OpenAI: Introducing Codex / Unrolling the Codex Agent Loop / Unlocking the Codex Harness · Anthropic Claude Code & Agent SDK Docs · ByteByteGo "How OpenAI Codex Works" (2026-03)</p>
+    <p class="mt-2">BUILT FOR A PM WITH 5 YEARS OF INTERNET PRODUCT EXPERIENCE · 2026.10</p>
+  </div>
+</footer>
+
+<script>
+gsap.registerPlugin(ScrollTrigger);
+/* progress bar */
+window.addEventListener('scroll',()=>{
+  const h=document.documentElement;
+  document.getElementById('progress').style.width=(h.scrollTop/(h.scrollHeight-h.clientHeight)*100)+'%';
+});
+/* generic reveals */
+gsap.utils.toArray('.fade-slide').forEach(el=>{
+  gsap.to(el,{opacity:1,y:0,duration:.9,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 88%'}});
+});
+gsap.utils.toArray('.reveal').forEach(el=>{
+  gsap.fromTo(el,{opacity:0,y:30},{opacity:1,y:0,duration:.8,ease:'power3.out',
+    scrollTrigger:{trigger:el,start:'top 88%'}});
+});
+/* ===== ECharts ===== */
+(function(){
+  if(typeof echarts==='undefined')return;
+  const F="'JetBrains Mono',monospace", AX='#64748b', LN='rgba(100,116,139,.2)';
+  const tip={backgroundColor:'#0d1526',borderColor:'rgba(94,234,212,.3)',borderWidth:1,
+    textStyle:{color:'#cdd6e4',fontFamily:F,fontSize:11},
+    extraCssText:'box-shadow:0 8px 30px rgba(0,0,0,.6);border-radius:8px;'};
+  function mount(id,opt){
+    const el=document.getElementById(id); if(!el)return;
+    const c=echarts.init(el,null,{renderer:'svg'});
+    ScrollTrigger.create({trigger:el,start:'top 85%',once:true,onEnter:()=>c.setOption(opt)});
+    new ResizeObserver(()=>c.resize()).observe(el);
+  }
+  /* FIG 3-1 context accumulation */
+  const turns=[2,4,6,8,10,12,15,20,25,30];
+  const perReq=turns.map(t=>Math.round(6+5.5*t));                       // k tokens / request
+  const noCache=turns.map(t=>Math.round(6*t+2.75*t*t));                 // cumulative compute ≈ quadratic
+  const cached=turns.map(t=>Math.round(12+5.8*t));                      // with prefix caching ≈ linear
+  mount('chart-ctx',{
+    tooltip:{...tip,trigger:'axis',formatter:p=>`<b style="color:#5eead4">turn ${p[0].name}</b><br/>`+
+      p.map(s=>`${s.marker}${s.seriesName}: <b>${s.value}k tok</b>`).join('<br/>')},
+    legend:{data:['单次请求 prompt 大小','累计计算量·无缓存','累计计算量·前缀缓存后'],textStyle:{color:AX,fontFamily:F,fontSize:10,top:4,right:8,icon:'rect',itemWidth:10,itemHeight:2},
+      },
+    grid:{left:46,right:52,top:40,bottom:28},
+    xAxis:{type:'category',data:turns,axisLine:{lineStyle:{color:LN}},axisTick:{show:false},
+      axisLabel:{color:AX,fontFamily:F,fontSize:10,formatter:'t{value}'}},
+    yAxis:[
+      {type:'value',name:'k tok/次',max:190,nameTextStyle:{color:AX,fontFamily:F,fontSize:9},splitLine:{lineStyle:{color:LN,type:'dashed'}},axisLabel:{color:AX,fontFamily:F}},
+      {type:'value',name:'k tok 累计',max:2700,nameTextStyle:{color:AX,fontFamily:F,fontSize:9},splitLine:{show:false},axisLabel:{color:AX,fontFamily:F}}
+    ],
+    series:[
+      {name:'单次请求 prompt 大小',type:'line',smooth:true,data:perReq,symbol:'none',
+       lineStyle:{width:2.5,color:'#ff6ac1',shadowColor:'rgba(255,106,193,.5)',shadowBlur:12},
+       areaStyle:{color:{type:'linear',x:0,y:0,x2:0,y2:1,colorStops:[{offset:0,color:'rgba(255,106,193,.30)'},{offset:1,color:'rgba(255,106,193,.02)'}]}},
+       markLine:{silent:true,symbol:'none',lineStyle:{color:'#ffb86c',type:'dashed'},
+        label:{color:'#ffb86c',fontFamily:F,fontSize:10,formatter:'~180k 窗口极限 → compaction'},data:[{yAxis:180}]}},
+      {name:'累计计算量·无缓存',type:'line',yAxisIndex:1,smooth:true,data:noCache,symbol:'none',
+       lineStyle:{width:1.5,type:'dashed',color:'#64748b'},itemStyle:{color:'#64748b'}},
+      {name:'累计计算量·前缀缓存后',type:'line',yAxisIndex:1,smooth:true,data:cached,symbol:'circle',symbolSize:4,
+       lineStyle:{width:2.5,color:'#3ddc84'},itemStyle:{color:'#3ddc84'},
+       areaStyle:{color:'rgba(61,220,132,.05)'}}
+    ]});
+  /* FIG 6-1 SWE-bench Verified */
+  const pts=[
+    ['2024-03 · Claude 3 Opus',12.4,'#ff6ac1'],['2024-07 · Claude 3.5 Sonnet',33.4,'#ff6ac1'],
+    ['2024-10 · Sonnet 3.5 v2',49.0,'#ff6ac1'],['2025-05 · Claude Opus 4 (Claude Code GA)',72.5,'#ff6ac1'],
+    ['2025-05 · o3',69.1,'#3ddc84'],['2025-08 · GPT-5',74.9,'#3ddc84'],
+    ['2025-09 · GPT-5-Codex / 5.1-Codex-Max',76.4,'#3ddc84'],['2025-11 · Claude Opus 4.5',80.9,'#ff6ac1']];
+  const scatters=pts.map(p=>({value:[p[0].split(' · ')[0]+'T12:00:00',p[1]],itemStyle:{color:p[2],
+      shadowBlur:14,shadowColor:p[2]+'66'},symbolSize:10+p[1]/8,
+      label:{show:true,position:'top',formatter:p[0].split(' · ')[1],color:'#cdd6e4',
+      fontFamily:F,fontSize:9.5,distance:8}}));
+  const lineData=pts.map(p=>[p[0].split(' · ')[0]+'T12:00:00',p[1]]).sort((a,b)=>new Date(a[0])-new Date(b[0]));
+  mount('chart-swe',{
+    tooltip:{...tip,formatter:p=>`<b>${p.name||''}</b><br/>SWE-bench Verified: <b style="color:#3ddc84">${p.value[1]}%</b>`},
+    grid:{left:44,right:20,top:30,bottom:56},
+    xAxis:{type:'time',axisLine:{lineStyle:{color:LN}},axisLabel:{color:AX,fontFamily:F,fontSize:10,hideOverlap:true},splitLine:{show:false}},
+    yAxis:{type:'value',min:0,max:100,splitLine:{lineStyle:{color:LN,type:'dashed'}},axisLabel:{color:AX,fontFamily:F,formatter:'{value}%'}},
+    series:[
+      {type:'line',data:lineData,smooth:true,symbol:'none',silent:true,
+       lineStyle:{width:1,color:'rgba(205,214,228,.35)',type:'dashed'},
+       markLine:{silent:true,symbol:'none',lineStyle:{color:'rgba(255,184,108,.6)',type:'dashed'},
+        label:{color:'#ffb86c',fontFamily:F,fontSize:10,formatter:'~50%：从"玩具"到"可委托"的阈值'},
+        data:[{yAxis:50}]}},
+      {type:'scatter',data:scatters}
+    ]});
+})();
+</script>
+<script>
+tailwind.config={theme:{extend:{}}}
+</script>
+</body>
+</html>
