@@ -1,0 +1,2612 @@
+{
+  "schemaVersion": 1,
+  "version": "2026.10.23-r2",
+  "updatedAt": "2026-10-23",
+  "products": [
+    {
+      "id": "chatgpt",
+      "name": "ChatGPT",
+      "vendor": "OpenAI",
+      "edition": "Enterprise · Chat / Work",
+      "color": "#137d69",
+      "icon": "◎",
+      "category": "知识工作与通用任务",
+      "intro": "企业知识工作、文件产出与跨应用任务；桌面与 Web 能力有所不同。",
+      "scope": "ChatGPT Enterprise；Work 与插件能力以租户开通情况为准。API 平台不作为默认内置能力。",
+      "sources": [
+        "o1",
+        "o2",
+        "o3",
+        "o4"
+      ]
+    },
+    {
+      "id": "codex",
+      "name": "Codex",
+      "vendor": "OpenAI",
+      "edition": "Enterprise · App / CLI / IDE",
+      "color": "#273947",
+      "icon": ">_",
+      "category": "软件研发与执行",
+      "intro": "围绕代码库进行理解、修改、执行和审查，沿用企业工作区控制。",
+      "scope": "通过 Enterprise 账号使用 Codex；CLI、IDE、桌面与 Cloud 的能力单独注明。API Key 模式另计。",
+      "sources": [
+        "o1",
+        "o5",
+        "o3",
+        "o4"
+      ]
+    },
+    {
+      "id": "claude",
+      "name": "Claude",
+      "vendor": "Anthropic",
+      "edition": "Enterprise · Chat / Cowork / Code",
+      "color": "#bc704c",
+      "icon": "✳",
+      "category": "知识工作与研发",
+      "intro": "Chat、Cowork 与 Claude Code 形成覆盖办公任务与研发的产品组合。",
+      "scope": "Enterprise 产品族；Cowork 云会话在 Team / Enterprise 为 Beta，须管理员启用相应能力。",
+      "sources": [
+        "a1",
+        "a2",
+        "a3"
+      ]
+    },
+    {
+      "id": "gemini",
+      "name": "Gemini",
+      "vendor": "Google Cloud",
+      "edition": "Gemini Enterprise App",
+      "color": "#3d6fda",
+      "icon": "✦",
+      "category": "企业搜索与业务 Agent",
+      "intro": "以企业数据检索、助手、技能与工作流为核心的 Google Cloud 企业应用。",
+      "scope": "Gemini Enterprise App；不自动计入 Workspace Gemini、Gemini Code Assist 或 Agent Platform 的全部能力。",
+      "sources": [
+        "g1",
+        "g2",
+        "g3"
+      ]
+    },
+    {
+      "id": "copilot",
+      "name": "Copilot",
+      "vendor": "Microsoft",
+      "edition": "Microsoft 365 Copilot",
+      "color": "#7560ca",
+      "icon": "◈",
+      "category": "M365 办公与业务协同",
+      "intro": "围绕 Microsoft 365 应用、组织数据与业务 Agent 构建的企业办公助手。",
+      "scope": "按 M365 Copilot Premium 口径；Studio、Cowork、Code 等需额外配置、授权或按用量计费。非 GitHub Copilot。",
+      "sources": [
+        "m1",
+        "m2",
+        "m3"
+      ]
+    },
+    {
+      "id": "qoder",
+      "name": "Qoder",
+      "vendor": "Qoder",
+      "edition": "Enterprise · IDE / CLI / Cloud",
+      "color": "#647448",
+      "icon": "Q",
+      "category": "软件研发与企业治理",
+      "intro": "围绕研发执行、代码知识与团队管理的 Agent 产品族。",
+      "scope": "Qoder Enterprise + IDE / CLI / Cloud。QoderWork 和 QoderWake 是独立产品形态，未默认合并其办公能力。",
+      "sources": [
+        "q1",
+        "q2",
+        "q3"
+      ]
+    },
+    {
+      "id": "qwenwork",
+      "name": "QwenWork",
+      "vendor": "QwenWork",
+      "edition": "国际版 · Enterprise Standard",
+      "color": "#6959cd",
+      "icon": "W",
+      "category": "通用工作与成果交付",
+      "intro": "以会话、文件、技能、连接器、计划任务和 Pages 组织日常工作。",
+      "scope": "国际版企业标准版；Premium 专属功能不默认计入。桌面操作需安装相应客户端。",
+      "sources": [
+        "w1",
+        "w2",
+        "w3",
+        "w4",
+        "w5"
+      ]
+    }
+  ],
+  "modules": [
+    {
+      "id": "spec",
+      "name": "产品规格",
+      "icon": "▤"
+    },
+    {
+      "id": "knowledge",
+      "name": "认知与知识",
+      "icon": "⌕"
+    },
+    {
+      "id": "create",
+      "name": "内容与产物",
+      "icon": "▧"
+    },
+    {
+      "id": "action",
+      "name": "行动与编排",
+      "icon": "↗"
+    },
+    {
+      "id": "connect",
+      "name": "集成与扩展",
+      "icon": "⌘"
+    },
+    {
+      "id": "security",
+      "name": "安全与治理",
+      "icon": "◇"
+    },
+    {
+      "id": "ops",
+      "name": "运维与商业",
+      "icon": "◷"
+    }
+  ],
+  "features": [
+    {
+      "id": "surfaces",
+      "moduleId": "spec",
+      "name": "使用入口",
+      "description": "Web、桌面、CLI / IDE、移动端的实际产品入口。",
+      "priority": "P1"
+    },
+    {
+      "id": "context",
+      "moduleId": "spec",
+      "name": "上下文与文件上限",
+      "description": "记录模型与产品实际 Token、文件大小、页数及文件数上限。",
+      "priority": "P1"
+    },
+    {
+      "id": "deployment",
+      "moduleId": "spec",
+      "name": "部署与数据位置",
+      "description": "SaaS、本地执行或自托管；内容驻留与推理位置需分开确认。",
+      "priority": "P1"
+    },
+    {
+      "id": "license",
+      "moduleId": "spec",
+      "name": "企业授权与计费",
+      "description": "席位、订阅、积分 / Token、附加组件及预算控制。",
+      "priority": "P1"
+    },
+    {
+      "id": "qa",
+      "moduleId": "knowledge",
+      "name": "企业知识检索",
+      "description": "连接或导入企业材料，按权限查询并返回上下文。",
+      "priority": "P1"
+    },
+    {
+      "id": "research",
+      "moduleId": "knowledge",
+      "name": "联网与深度研究",
+      "description": "从网络或资料中检索并综合研究结果。",
+      "priority": "P1"
+    },
+    {
+      "id": "memory",
+      "moduleId": "knowledge",
+      "name": "项目与持久上下文",
+      "description": "项目空间、知识规则或可复用的任务上下文。",
+      "priority": "P1"
+    },
+    {
+      "id": "multimodal",
+      "moduleId": "knowledge",
+      "name": "多模态理解",
+      "description": "图像、音频、视频等输入的理解；支持范围依客户端。",
+      "priority": "P1"
+    },
+    {
+      "id": "docs",
+      "moduleId": "create",
+      "name": "文档 / 表格 / 演示",
+      "description": "生成或编辑可交付的办公文件，而不只是输出文本。",
+      "priority": "P1"
+    },
+    {
+      "id": "data",
+      "moduleId": "create",
+      "name": "数据分析与图表",
+      "description": "基于数据完成计算、分析或可视化。",
+      "priority": "P1"
+    },
+    {
+      "id": "sites",
+      "moduleId": "create",
+      "name": "网站创建与发布",
+      "description": "创建网站并通过产品提供的机制发布。",
+      "priority": "P1"
+    },
+    {
+      "id": "coding",
+      "moduleId": "create",
+      "name": "代码修改与执行",
+      "description": "修改代码库并运行命令、验证任务结果。",
+      "priority": "P1"
+    },
+    {
+      "id": "plan",
+      "moduleId": "action",
+      "name": "多步骤任务执行",
+      "description": "理解目标、拆解任务、调用工具并交付结果。",
+      "priority": "P1"
+    },
+    {
+      "id": "browser",
+      "moduleId": "action",
+      "name": "浏览器自动化",
+      "description": "实际操作网页、提取数据、填写表单。",
+      "priority": "P1"
+    },
+    {
+      "id": "local",
+      "moduleId": "action",
+      "name": "本地文件读写",
+      "description": "在授权目录直接读取、创建或修改本地文件。",
+      "priority": "P1"
+    },
+    {
+      "id": "webLocal",
+      "moduleId": "action",
+      "name": "纯 Web 直接操作本地目录",
+      "description": "不依赖桌面客户端或本地桥接的文件夹操作。",
+      "priority": "P1"
+    },
+    {
+      "id": "schedule",
+      "moduleId": "action",
+      "name": "定时 / 后台任务",
+      "description": "按时间周期触发任务，注明本地或云运行条件。",
+      "priority": "P1"
+    },
+    {
+      "id": "approve",
+      "moduleId": "action",
+      "name": "执行审批与权限边界",
+      "description": "危险动作确认、工具权限限制或管理员策略。",
+      "priority": "P1"
+    },
+    {
+      "id": "multi",
+      "moduleId": "action",
+      "name": "多 Agent / 业务工作流",
+      "description": "多 Agent 协作或有分支的可配置业务流程。",
+      "priority": "P1"
+    },
+    {
+      "id": "connector",
+      "moduleId": "connect",
+      "name": "企业应用连接器",
+      "description": "连接办公、研发或企业服务；逐连接器核验读写权限。",
+      "priority": "P1"
+    },
+    {
+      "id": "skills",
+      "moduleId": "connect",
+      "name": "可复用技能与 Agent",
+      "description": "技能、插件或自定义 Agent 的创建与复用。",
+      "priority": "P1"
+    },
+    {
+      "id": "mcp",
+      "moduleId": "connect",
+      "name": "自定义工具 / MCP",
+      "description": "通过开放工具协议或 SDK 扩展外部能力。",
+      "priority": "P1"
+    },
+    {
+      "id": "sso",
+      "moduleId": "security",
+      "name": "企业 SSO",
+      "description": "企业身份源和单点登录；具体协议需核验。",
+      "priority": "P0"
+    },
+    {
+      "id": "scim",
+      "moduleId": "security",
+      "name": "SCIM 自动配置",
+      "description": "用户与组的自动创建、变更和撤销。",
+      "priority": "P0"
+    },
+    {
+      "id": "rbac",
+      "moduleId": "security",
+      "name": "权限与组织管理",
+      "description": "成员、角色、组或策略的集中管理。",
+      "priority": "P0"
+    },
+    {
+      "id": "audit",
+      "moduleId": "security",
+      "name": "审计记录",
+      "description": "可供企业检查的操作或活动日志。",
+      "priority": "P0"
+    },
+    {
+      "id": "retention",
+      "moduleId": "security",
+      "name": "保留 / 驻留控制",
+      "description": "客户可配置的数据保留或地域控制。",
+      "priority": "P0"
+    },
+    {
+      "id": "cmk",
+      "moduleId": "security",
+      "name": "客户管理密钥",
+      "description": "由客户管理用于企业内容加密的密钥。",
+      "priority": "P0"
+    },
+    {
+      "id": "budget",
+      "moduleId": "ops",
+      "name": "用量与成本管理",
+      "description": "组织、用户、计费组的用量监测或预算管理。",
+      "priority": "P1"
+    },
+    {
+      "id": "export",
+      "moduleId": "ops",
+      "name": "数据与 Agent 可迁移性",
+      "description": "配置、知识、记录的批量导出、迁移及退出方案。",
+      "priority": "P1"
+    },
+    {
+      "id": "sla",
+      "moduleId": "ops",
+      "name": "SLA / 灾备与支持",
+      "description": "合同 SLA、RTO / RPO 和企业支持响应承诺。",
+      "priority": "P1"
+    },
+    {
+      "id": "poc",
+      "moduleId": "ops",
+      "name": "PoC 量化验证",
+      "description": "端到端成功率、P95 延迟、人工接管率与成功任务成本。",
+      "priority": "P1"
+    }
+  ],
+  "capabilities": {
+    "chatgpt": {
+      "surfaces": {
+        "status": "yes",
+        "summary": "Web / 桌面 / 移动",
+        "detail": "Web / 桌面 / 移动",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "context": {
+        "status": "unknown",
+        "summary": "待核实具体 SKU 上限",
+        "detail": "模型窗口不等于产品可用上限。需按版本核验 Token、文件数量、大小和保留期限。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "deployment": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "license": {
+        "status": "yes",
+        "summary": "企业报价；扩展用量",
+        "detail": "企业报价；扩展用量",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "qa": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "research": {
+        "status": "yes",
+        "summary": "联网检索",
+        "detail": "联网检索",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "memory": {
+        "status": "yes",
+        "summary": "Projects 与长任务",
+        "detail": "Projects 与长任务",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multimodal": {
+        "status": "partial",
+        "summary": "图像 / 语音等按入口区分",
+        "detail": "图像 / 语音等按入口区分",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "docs": {
+        "status": "yes",
+        "summary": "可交付办公文件",
+        "detail": "可生成文档、表格、演示与 PDF 文件；桌面端提供相应预览与批注，Web 以会话产物与下载为主。可用插件需遵循租户策略。",
+        "sourceIds": [
+          "o3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "data": {
+        "status": "yes",
+        "summary": "表格与分析产物",
+        "detail": "表格与分析产物",
+        "sourceIds": [
+          "o3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "sites": {
+        "status": "partial",
+        "summary": "Sites 插件",
+        "detail": "Sites 插件",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "coding": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "plan": {
+        "status": "yes",
+        "summary": "Work 多步骤执行",
+        "detail": "Work 多步骤执行",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "browser": {
+        "status": "partial",
+        "summary": "依客户端与工作区启用",
+        "detail": "依客户端与工作区启用",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "local": {
+        "status": "partial",
+        "summary": "桌面环境与权限限制",
+        "detail": "桌面环境与权限限制",
+        "sourceIds": [
+          "o3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "webLocal": {
+        "status": "no",
+        "summary": "Web 无直接本地目录访问",
+        "detail": "Web 任务只能使用上传的上下文与连接工具，不可直接在计算机文件夹内工作。上传文件不等于目录访问。",
+        "sourceIds": [
+          "o4"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "schedule": {
+        "status": "yes",
+        "summary": "云任务 / 本地任务条件不同",
+        "detail": "桌面计划任务可运行在本地项目或 worktree，涉及本地文件时需保持电脑和应用运行。Web 任务可使用上传上下文与连接工具，不能直接进入本机目录。",
+        "sourceIds": [
+          "o4"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "approve": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "multi": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "connector": {
+        "status": "partial",
+        "summary": "插件 / 连接器需授权",
+        "detail": "插件 / 连接器需授权",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "skills": {
+        "status": "yes",
+        "summary": "技能与插件",
+        "detail": "技能与插件",
+        "sourceIds": [
+          "o2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "mcp": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sso": {
+        "status": "yes",
+        "summary": "SAML SSO",
+        "detail": "SAML SSO",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "scim": {
+        "status": "yes",
+        "summary": "Enterprise SCIM",
+        "detail": "Enterprise SCIM",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "rbac": {
+        "status": "yes",
+        "summary": "工作区 RBAC",
+        "detail": "工作区 RBAC",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "audit": {
+        "status": "yes",
+        "summary": "Compliance API",
+        "detail": "Compliance API",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "retention": {
+        "status": "yes",
+        "summary": "保留与驻留控制",
+        "detail": "保留与驻留控制",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "cmk": {
+        "status": "yes",
+        "summary": "企业密钥管理 EKM",
+        "detail": "企业密钥管理 EKM",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "budget": {
+        "status": "partial",
+        "summary": "用量与审计监测",
+        "detail": "用量与审计监测",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "export": {
+        "status": "unknown",
+        "summary": "待核实批量导出与退出方案",
+        "detail": "不能以能够下载单个文件推断支持完整租户、Agent 配置或知识资产迁移。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sla": {
+        "status": "unknown",
+        "summary": "需合同 / 企业支持确认",
+        "detail": "本轮未取得适用合同，未填写 SLA、RTO / RPO 或支持响应数值。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "poc": {
+        "status": "unknown",
+        "summary": "尚未进行统一 PoC 实测",
+        "detail": "本页状态基于文档，不代表质量评分。后续应统一测试集验证成功率、P95 延迟、人工接管与每成功任务成本。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      }
+    },
+    "codex": {
+      "surfaces": {
+        "status": "yes",
+        "summary": "App / CLI / IDE / Cloud",
+        "detail": "Codex 提供桌面、CLI、IDE 与 Cloud 使用入口。不同入口的文件预览、计划任务和集成能力不完全相同，不能把入口并集等同于每个入口都支持。",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "context": {
+        "status": "unknown",
+        "summary": "待核实具体 SKU 上限",
+        "detail": "模型窗口不等于产品可用上限。需按版本核验 Token、文件数量、大小和保留期限。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "deployment": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "license": {
+        "status": "yes",
+        "summary": "企业账号；API Key 另计",
+        "detail": "企业账号；API Key 另计",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "qa": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "research": {
+        "status": "partial",
+        "summary": "搜索辅助研发",
+        "detail": "搜索辅助研发",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "memory": {
+        "status": "partial",
+        "summary": "AGENTS.md / 上下文",
+        "detail": "AGENTS.md / 上下文",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multimodal": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "docs": {
+        "status": "partial",
+        "summary": "可生成文件；预览依入口",
+        "detail": "CLI / IDE 可创建和编辑工作目录文件，但 CLI 不提供图形化文件预览与批注。产物质量取决于配置的技能、工具与验收流程。",
+        "sourceIds": [
+          "o3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "data": {
+        "status": "partial",
+        "summary": "通过本地代码与工具",
+        "detail": "通过本地代码与工具",
+        "sourceIds": [
+          "o3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "sites": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "coding": {
+        "status": "yes",
+        "summary": "代码读写与命令执行",
+        "detail": "代码读写与命令执行",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "plan": {
+        "status": "yes",
+        "summary": "代码任务执行循环",
+        "detail": "代码任务执行循环",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "browser": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "local": {
+        "status": "yes",
+        "summary": "授权工作目录",
+        "detail": "授权工作目录",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "webLocal": {
+        "status": "no",
+        "summary": "Web 无直接本地目录访问",
+        "detail": "Web 无直接本地目录访问",
+        "sourceIds": [
+          "o4"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "schedule": {
+        "status": "partial",
+        "summary": "通过桌面 / Web 管理",
+        "detail": "CLI 与 IDE 没有 Scheduled 管理界面。可由它们准备任务脚本，再通过桌面或 Web 创建计划任务；本地文件任务需保留本地运行环境。",
+        "sourceIds": [
+          "o4"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "approve": {
+        "status": "yes",
+        "summary": "权限与执行控制",
+        "detail": "权限与执行控制",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multi": {
+        "status": "yes",
+        "summary": "子 Agent 委派",
+        "detail": "子 Agent 委派",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "connector": {
+        "status": "partial",
+        "summary": "插件与 Cloud 集成",
+        "detail": "插件与 Cloud 集成",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "skills": {
+        "status": "yes",
+        "summary": "技能与插件",
+        "detail": "技能与插件",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "mcp": {
+        "status": "yes",
+        "summary": "本地 / 远程 MCP",
+        "detail": "本地 / 远程 MCP",
+        "sourceIds": [
+          "o5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "sso": {
+        "status": "yes",
+        "summary": "企业身份管理",
+        "detail": "企业身份管理",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "scim": {
+        "status": "yes",
+        "summary": "Enterprise SCIM",
+        "detail": "Enterprise SCIM",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "rbac": {
+        "status": "yes",
+        "summary": "企业工作区策略",
+        "detail": "企业工作区策略",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "audit": {
+        "status": "yes",
+        "summary": "企业 Compliance API",
+        "detail": "企业 Compliance API",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "retention": {
+        "status": "partial",
+        "summary": "企业控制；区分本地数据",
+        "detail": "企业控制；区分本地数据",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "cmk": {
+        "status": "partial",
+        "summary": "企业 EKM；核验数据覆盖",
+        "detail": "企业 EKM；核验数据覆盖",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "budget": {
+        "status": "yes",
+        "summary": "企业用量监测",
+        "detail": "企业用量监测",
+        "sourceIds": [
+          "o1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "export": {
+        "status": "unknown",
+        "summary": "待核实批量导出与退出方案",
+        "detail": "不能以能够下载单个文件推断支持完整租户、Agent 配置或知识资产迁移。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sla": {
+        "status": "unknown",
+        "summary": "需合同 / 企业支持确认",
+        "detail": "本轮未取得适用合同，未填写 SLA、RTO / RPO 或支持响应数值。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "poc": {
+        "status": "unknown",
+        "summary": "尚未进行统一 PoC 实测",
+        "detail": "本页状态基于文档，不代表质量评分。后续应统一测试集验证成功率、P95 延迟、人工接管与每成功任务成本。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      }
+    },
+    "claude": {
+      "surfaces": {
+        "status": "yes",
+        "summary": "Web / 桌面 / 移动；Code 另入口",
+        "detail": "Web / 桌面 / 移动；Code 另入口",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "context": {
+        "status": "unknown",
+        "summary": "待核实具体 SKU 上限",
+        "detail": "模型窗口不等于产品可用上限。需按版本核验 Token、文件数量、大小和保留期限。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "deployment": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "license": {
+        "status": "yes",
+        "summary": "席位访问费 + 用量费",
+        "detail": "Enterprise 页面说明：当前新方案的席位费用覆盖访问权限，Claude、Claude Code 与 Cowork 的实际用量另行按标准 API 费率计费。存量合同可能不同，需核验续约方案。",
+        "sourceIds": [
+          "a1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "qa": {
+        "status": "yes",
+        "summary": "企业连接器检索",
+        "detail": "企业连接器检索",
+        "sourceIds": [
+          "a1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "research": {
+        "status": "yes",
+        "summary": "研究与联网",
+        "detail": "研究与联网",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "memory": {
+        "status": "yes",
+        "summary": "Projects 文件与记忆",
+        "detail": "Projects 文件与记忆",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multimodal": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "docs": {
+        "status": "yes",
+        "summary": "Cowork 文件交付",
+        "detail": "Cowork 文件交付",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "data": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sites": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "coding": {
+        "status": "yes",
+        "summary": "Claude Code 纳入企业用量",
+        "detail": "Claude Code 纳入企业用量",
+        "sourceIds": [
+          "a1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "plan": {
+        "status": "yes",
+        "summary": "Cowork 多步骤执行",
+        "detail": "Cowork 可执行多步骤知识工作并交付文件；Enterprise 的 Web、移动或统一体验依管理员开通，部分云端能力处于 Beta。",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "browser": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "local": {
+        "status": "partial",
+        "summary": "桌面客户端授权",
+        "detail": "本地文件操作依赖授权的桌面环境；云端会话中的文件跟随 Claude 账号。不要把云端文件处理与本机完整目录访问混为一谈。",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "webLocal": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "schedule": {
+        "status": "yes",
+        "summary": "定时任务",
+        "detail": "定时任务",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "approve": {
+        "status": "partial",
+        "summary": "网络与执行权限限制",
+        "detail": "网络与执行权限限制",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multi": {
+        "status": "partial",
+        "summary": "插件中的子 Agent",
+        "detail": "插件中的子 Agent",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "connector": {
+        "status": "yes",
+        "summary": "连接器；需授权",
+        "detail": "连接器；需授权",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "skills": {
+        "status": "yes",
+        "summary": "插件含技能与子 Agent",
+        "detail": "插件含技能与子 Agent",
+        "sourceIds": [
+          "a2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "mcp": {
+        "status": "yes",
+        "summary": "自定义远程 MCP",
+        "detail": "Claude、Cowork 与 Desktop 可接入已有或自建远程 MCP。服务器由 Anthropic 云端连接；服务的认证、读写与企业策略需逐项确认。",
+        "sourceIds": [
+          "a5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "sso": {
+        "status": "yes",
+        "summary": "企业 SSO",
+        "detail": "Enterprise 支持企业身份源登录；配置要求 Owner / Primary Owner 权限，需确认域名与 IdP 设置。",
+        "sourceIds": [
+          "a4"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "scim": {
+        "status": "yes",
+        "summary": "SCIM",
+        "detail": "SCIM",
+        "sourceIds": [
+          "a1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "rbac": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "audit": {
+        "status": "yes",
+        "summary": "审计 / Compliance API",
+        "detail": "审计 / Compliance API",
+        "sourceIds": [
+          "a1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "retention": {
+        "status": "yes",
+        "summary": "自定义保留；美国推理选项",
+        "detail": "自定义保留；美国推理选项",
+        "sourceIds": [
+          "a1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "cmk": {
+        "status": "yes",
+        "summary": "客户管理密钥",
+        "detail": "客户管理密钥",
+        "sourceIds": [
+          "a1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "budget": {
+        "status": "yes",
+        "summary": "组织与个人支出限额",
+        "detail": "组织与个人支出限额",
+        "sourceIds": [
+          "a1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "export": {
+        "status": "unknown",
+        "summary": "待核实批量导出与退出方案",
+        "detail": "不能以能够下载单个文件推断支持完整租户、Agent 配置或知识资产迁移。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sla": {
+        "status": "unknown",
+        "summary": "需合同 / 企业支持确认",
+        "detail": "本轮未取得适用合同，未填写 SLA、RTO / RPO 或支持响应数值。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "poc": {
+        "status": "unknown",
+        "summary": "尚未进行统一 PoC 实测",
+        "detail": "本页状态基于文档，不代表质量评分。后续应统一测试集验证成功率、P95 延迟、人工接管与每成功任务成本。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      }
+    },
+    "gemini": {
+      "surfaces": {
+        "status": "yes",
+        "summary": "Web / 移动",
+        "detail": "本列比较 Google Cloud Gemini Enterprise App 的 Web 与移动入口。Workspace 的内嵌 Gemini 和 Code Assist 属不同授权 / 产品范围，不自动合并。",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "context": {
+        "status": "unknown",
+        "summary": "待核实具体 SKU 上限",
+        "detail": "模型窗口不等于产品可用上限。需按版本核验 Token、文件数量、大小和保留期限。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "deployment": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "license": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "qa": {
+        "status": "yes",
+        "summary": "企业数据检索",
+        "detail": "企业数据检索",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "research": {
+        "status": "yes",
+        "summary": "Deep Research Agent",
+        "detail": "Deep Research Agent",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "memory": {
+        "status": "partial",
+        "summary": "个性化与数据索引",
+        "detail": "个性化与数据索引",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multimodal": {
+        "status": "partial",
+        "summary": "移动端语音与相机",
+        "detail": "移动端语音与相机",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "docs": {
+        "status": "partial",
+        "summary": "Canvas 文档",
+        "detail": "Canvas 文档",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "data": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sites": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "coding": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "plan": {
+        "status": "yes",
+        "summary": "助手与多步骤 Agent",
+        "detail": "助手与多步骤 Agent",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "browser": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "local": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "webLocal": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "schedule": {
+        "status": "partial",
+        "summary": "非工作流 Chat Agent 周期执行",
+        "detail": "支持非 workflow Chat Agent 的循环任务；官方说明仅支持个人动作，不支持涉及他人的计划动作。不要外推为所有 Agent 均可定时运行。",
+        "sourceIds": [
+          "g4"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "approve": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "multi": {
+        "status": "yes",
+        "summary": "Workflow Builder",
+        "detail": "Workflow Builder",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "connector": {
+        "status": "yes",
+        "summary": "企业数据连接器与动作",
+        "detail": "可连接企业数据，并通过获准的应用动作操作 Workspace、Jira 或 Microsoft 等服务。具体动作、认证与权限继承必须逐连接器测试。",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "skills": {
+        "status": "yes",
+        "summary": "Skills / Agent Gallery",
+        "detail": "Skills / Agent Gallery",
+        "sourceIds": [
+          "g1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "mcp": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sso": {
+        "status": "partial",
+        "summary": "Workforce Identity Federation",
+        "detail": "Workforce Identity Federation",
+        "sourceIds": [
+          "g2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "scim": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "rbac": {
+        "status": "yes",
+        "summary": "Google Cloud IAM",
+        "detail": "Google Cloud IAM",
+        "sourceIds": [
+          "g2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "audit": {
+        "status": "yes",
+        "summary": "Cloud Logging 使用审计",
+        "detail": "通过 Cloud Logging 配置和访问使用审计。包含用户内容的敏感字段只有启用输入输出日志时才记录；开启和访问日志需相应 IAM 角色。",
+        "sourceIds": [
+          "g3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "retention": {
+        "status": "partial",
+        "summary": "区域与数据控制须核配置",
+        "detail": "区域与数据控制须核配置",
+        "sourceIds": [
+          "g2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "cmk": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "budget": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "export": {
+        "status": "unknown",
+        "summary": "待核实批量导出与退出方案",
+        "detail": "不能以能够下载单个文件推断支持完整租户、Agent 配置或知识资产迁移。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sla": {
+        "status": "unknown",
+        "summary": "需合同 / 企业支持确认",
+        "detail": "本轮未取得适用合同，未填写 SLA、RTO / RPO 或支持响应数值。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "poc": {
+        "status": "unknown",
+        "summary": "尚未进行统一 PoC 实测",
+        "detail": "本页状态基于文档，不代表质量评分。后续应统一测试集验证成功率、P95 延迟、人工接管与每成功任务成本。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      }
+    },
+    "copilot": {
+      "surfaces": {
+        "status": "yes",
+        "summary": "Web / 桌面 / 移动 / M365",
+        "detail": "Web / 桌面 / 移动 / M365",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "context": {
+        "status": "unknown",
+        "summary": "待核实具体 SKU 上限",
+        "detail": "模型窗口不等于产品可用上限。需按版本核验 Token、文件数量、大小和保留期限。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "deployment": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "license": {
+        "status": "yes",
+        "summary": "Premium；附加用量费用",
+        "detail": "本列以 Microsoft 365 Copilot Premium 为主体。Copilot Studio、Cowork、Code 等能力有各自授权、启用或按用量计费要求，不将其全部视为基础席位内置。",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "qa": {
+        "status": "yes",
+        "summary": "Graph / Work IQ 搜索",
+        "detail": "Premium 可通过 Microsoft Graph、Work IQ 和 Copilot Search 使用组织上下文；功能受租户开关、权限和数据配置影响。",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "research": {
+        "status": "partial",
+        "summary": "Web 与工作数据检索",
+        "detail": "Web 与工作数据检索",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "memory": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "multimodal": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "docs": {
+        "status": "yes",
+        "summary": "Word / Excel / PPT",
+        "detail": "Word / Excel / PPT",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "data": {
+        "status": "yes",
+        "summary": "Excel 分析与可视化",
+        "detail": "Excel 分析与可视化",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "sites": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "coding": {
+        "status": "partial",
+        "summary": "Copilot Code Frontier 额外用量",
+        "detail": "官方文档列出的 Copilot Code 为 Frontier 能力，需对应 Premium 授权并通过用量计费访问；本项不代表 GitHub Copilot 已包含在授权中。",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "plan": {
+        "status": "partial",
+        "summary": "Agent / Cowork 依授权",
+        "detail": "Agent / Cowork 依授权",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "browser": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "local": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "webLocal": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "schedule": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "approve": {
+        "status": "partial",
+        "summary": "Studio 策略；需配置",
+        "detail": "Studio 策略；需配置",
+        "sourceIds": [
+          "m2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multi": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "connector": {
+        "status": "yes",
+        "summary": "M365 与外部数据",
+        "detail": "M365 与外部数据",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "skills": {
+        "status": "yes",
+        "summary": "自定义业务 Agent",
+        "detail": "自定义业务 Agent",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "mcp": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sso": {
+        "status": "yes",
+        "summary": "Microsoft Entra 工作账号",
+        "detail": "Microsoft Entra 工作账号",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "scim": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "rbac": {
+        "status": "yes",
+        "summary": "继承组织数据访问权限",
+        "detail": "继承组织数据访问权限",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "audit": {
+        "status": "partial",
+        "summary": "Studio / Purview；有前置条件",
+        "detail": "Studio / Purview；有前置条件",
+        "sourceIds": [
+          "m3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "retention": {
+        "status": "partial",
+        "summary": "Studio 地域与 DLP 控制",
+        "detail": "Studio 地域与 DLP 控制",
+        "sourceIds": [
+          "m2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "cmk": {
+        "status": "partial",
+        "summary": "Studio 环境支持 CMK",
+        "detail": "该结论限于 Copilot Studio 环境的客户管理密钥配置，不能外推为 Microsoft 365 Copilot 所有内容或所有子服务统一使用客户密钥。",
+        "sourceIds": [
+          "m2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "budget": {
+        "status": "partial",
+        "summary": "使用报告；按用量能力另计",
+        "detail": "使用报告；按用量能力另计",
+        "sourceIds": [
+          "m1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "export": {
+        "status": "unknown",
+        "summary": "待核实批量导出与退出方案",
+        "detail": "不能以能够下载单个文件推断支持完整租户、Agent 配置或知识资产迁移。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sla": {
+        "status": "unknown",
+        "summary": "需合同 / 企业支持确认",
+        "detail": "本轮未取得适用合同，未填写 SLA、RTO / RPO 或支持响应数值。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "poc": {
+        "status": "unknown",
+        "summary": "尚未进行统一 PoC 实测",
+        "detail": "本页状态基于文档，不代表质量评分。后续应统一测试集验证成功率、P95 延迟、人工接管与每成功任务成本。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      }
+    },
+    "qoder": {
+      "surfaces": {
+        "status": "yes",
+        "summary": "IDE / CLI / Cloud / 移动与 Web",
+        "detail": "IDE / CLI / Cloud / 移动与 Web",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "context": {
+        "status": "unknown",
+        "summary": "待核实具体 SKU 上限",
+        "detail": "模型窗口不等于产品可用上限。需按版本核验 Token、文件数量、大小和保留期限。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "deployment": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "license": {
+        "status": "yes",
+        "summary": "Teams / Enterprise；独立方案",
+        "detail": "Teams / Enterprise；独立方案",
+        "sourceIds": [
+          "q2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "qa": {
+        "status": "partial",
+        "summary": "企业知识引擎",
+        "detail": "企业知识引擎",
+        "sourceIds": [
+          "q2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "research": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "memory": {
+        "status": "yes",
+        "summary": "Memory / Rules / Repo Wiki",
+        "detail": "Memory / Rules / Repo Wiki",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multimodal": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "docs": {
+        "status": "unknown",
+        "summary": "QoderWork 为独立形态",
+        "detail": "官方产品族介绍将文档、表格、浏览器与桌面任务列入独立的 QoderWork 产品形态。本列的 IDE / CLI / Cloud 企业范围未默认合并这些能力。",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "data": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sites": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "coding": {
+        "status": "yes",
+        "summary": "代码理解、修改与执行",
+        "detail": "代码理解、修改与执行",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "plan": {
+        "status": "yes",
+        "summary": "计划、执行与验证",
+        "detail": "计划、执行与验证",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "browser": {
+        "status": "unknown",
+        "summary": "QoderWork 能力未默认合并",
+        "detail": "QoderWork 能力未默认合并",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "local": {
+        "status": "yes",
+        "summary": "IDE / CLI 项目文件",
+        "detail": "IDE / CLI 项目文件",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "webLocal": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "schedule": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "approve": {
+        "status": "yes",
+        "summary": "权限、Hooks 与人工确认",
+        "detail": "权限、Hooks、人工确认和隔离环境用于约束 Agent 的读取、修改与执行。代码漏洞扫描与执行权限控制是两种独立机制，需要分别评估。",
+        "sourceIds": [
+          "q3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multi": {
+        "status": "yes",
+        "summary": "多 Agent 协作",
+        "detail": "多 Agent 协作",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "connector": {
+        "status": "partial",
+        "summary": "企业扩展市场；需策略授权",
+        "detail": "企业扩展市场；需策略授权",
+        "sourceIds": [
+          "q2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "skills": {
+        "status": "yes",
+        "summary": "技能与插件",
+        "detail": "技能与插件",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "mcp": {
+        "status": "yes",
+        "summary": "IDE / CLI 扩展工具",
+        "detail": "IDE / CLI 扩展工具",
+        "sourceIds": [
+          "q1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "sso": {
+        "status": "yes",
+        "summary": "SAML / OIDC",
+        "detail": "SAML / OIDC",
+        "sourceIds": [
+          "q2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "scim": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "rbac": {
+        "status": "yes",
+        "summary": "分组权限与模型策略",
+        "detail": "分组权限与模型策略",
+        "sourceIds": [
+          "q2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "audit": {
+        "status": "yes",
+        "summary": "Enterprise 审计日志",
+        "detail": "Enterprise 审计日志",
+        "sourceIds": [
+          "q2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "retention": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "cmk": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "budget": {
+        "status": "yes",
+        "summary": "集中计费与开发指标",
+        "detail": "集中计费与开发指标",
+        "sourceIds": [
+          "q2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "export": {
+        "status": "unknown",
+        "summary": "待核实批量导出与退出方案",
+        "detail": "不能以能够下载单个文件推断支持完整租户、Agent 配置或知识资产迁移。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sla": {
+        "status": "unknown",
+        "summary": "需合同 / 企业支持确认",
+        "detail": "本轮未取得适用合同，未填写 SLA、RTO / RPO 或支持响应数值。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "poc": {
+        "status": "unknown",
+        "summary": "尚未进行统一 PoC 实测",
+        "detail": "本页状态基于文档，不代表质量评分。后续应统一测试集验证成功率、P95 延迟、人工接管与每成功任务成本。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      }
+    },
+    "qwenwork": {
+      "surfaces": {
+        "status": "yes",
+        "summary": "Web / 桌面入口",
+        "detail": "Web / 桌面入口",
+        "sourceIds": [
+          "w1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "context": {
+        "status": "unknown",
+        "summary": "待核实具体 SKU 上限",
+        "detail": "模型窗口不等于产品可用上限。需按版本核验 Token、文件数量、大小和保留期限。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "deployment": {
+        "status": "partial",
+        "summary": "国际版内容存储于新加坡",
+        "detail": "国际版隐私文档说明用户内容及相关数据存储在新加坡云环境。此项不表示所有模型推理、第三方连接器或跨境处理都只在同一地区。",
+        "sourceIds": [
+          "w5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "license": {
+        "status": "yes",
+        "summary": "组织席位 + 共享积分池",
+        "detail": "企业席位与增购积分共同进入组织共享积分池。企业 Standard 与 Premium 的专属管理能力需分开核验，不能根据管理端目录推断 Standard 包含全部功能。",
+        "sourceIds": [
+          "w4"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "qa": {
+        "status": "partial",
+        "summary": "文件与信息处理",
+        "detail": "文件与信息处理",
+        "sourceIds": [
+          "w1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "research": {
+        "status": "yes",
+        "summary": "信息检索与深度研究",
+        "detail": "信息检索与深度研究",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "memory": {
+        "status": "partial",
+        "summary": "工作区文件与任务资产",
+        "detail": "工作区文件与任务资产",
+        "sourceIds": [
+          "w1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multimodal": {
+        "status": "yes",
+        "summary": "图像 / 音频 / 视频理解",
+        "detail": "图像 / 音频 / 视频理解",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "docs": {
+        "status": "yes",
+        "summary": "Word / Excel / PPT / PDF",
+        "detail": "Word / Excel / PPT / PDF",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "data": {
+        "status": "yes",
+        "summary": "数据分析与内容生成",
+        "detail": "数据分析与内容生成",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "sites": {
+        "status": "yes",
+        "summary": "Pages 网站创建发布",
+        "detail": "国际版通过 Pages 创建、发布和管理网站。FAQ 指出完整网站创建在 Web 可用，桌面端对应支持仍属后续计划。",
+        "sourceIds": [
+          "w1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "coding": {
+        "status": "partial",
+        "summary": "网站创建；非研发 IDE",
+        "detail": "网站创建；非研发 IDE",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "plan": {
+        "status": "yes",
+        "summary": "会话中执行任务",
+        "detail": "会话中执行任务",
+        "sourceIds": [
+          "w1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "browser": {
+        "status": "partial",
+        "summary": "仅桌面客户端",
+        "detail": "官方 FAQ 说明浏览器自动化仅在桌面客户端提供。连接器文档列出打开页面、点击、提取和填写表单；当前仅支持 Chromium 浏览器，Safari / Firefox 尚不支持。",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "local": {
+        "status": "partial",
+        "summary": "仅桌面客户端",
+        "detail": "仅桌面客户端",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "webLocal": {
+        "status": "no",
+        "summary": "Web 不支持本地文件操作",
+        "detail": "Web 不支持本地文件操作",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "schedule": {
+        "status": "yes",
+        "summary": "云端定时执行",
+        "detail": "计划任务在云端运行，关闭浏览器或退出登录不影响已启用任务。可使用一次性、间隔和周期等时间安排；运行生成独立会话记录。",
+        "sourceIds": [
+          "w2"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "approve": {
+        "status": "partial",
+        "summary": "连接器默认关闭、授权后访问",
+        "detail": "连接器默认关闭、授权后访问",
+        "sourceIds": [
+          "w3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "multi": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "connector": {
+        "status": "yes",
+        "summary": "授权连接器",
+        "detail": "授权连接器",
+        "sourceIds": [
+          "w1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "skills": {
+        "status": "yes",
+        "summary": "可复用 Skills",
+        "detail": "可复用 Skills",
+        "sourceIds": [
+          "w1"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "mcp": {
+        "status": "unknown",
+        "summary": "第三方连接器有；自定义 MCP 待核实",
+        "detail": "第三方连接器有；自定义 MCP 待核实",
+        "sourceIds": [
+          "w3"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "sso": {
+        "status": "yes",
+        "summary": "SAML2 与多种企业身份源",
+        "detail": "国际版 Enterprise Standard 的 SSO 文档列出 Authing、Azure AD、钉钉、飞书、SAML2 和企微；管理员配置、审核并启用组织连接。",
+        "sourceIds": [
+          "w7"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "scim": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "rbac": {
+        "status": "partial",
+        "summary": "成员与组织能力管理",
+        "detail": "Standard 控制台支持成员、订阅、积分、技能、连接器与组织设置。是否支持精细的 ABAC / 多级角色模型尚需另行核实。",
+        "sourceIds": [
+          "w6"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "audit": {
+        "status": "partial",
+        "summary": "记录管理与系统访问日志",
+        "detail": "隐私文档说明管理操作与系统访问日志会被记录；尚未确认 Standard 租户管理员的导出 API、保留期、事件覆盖范围与日志查看权限。",
+        "sourceIds": [
+          "w5"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "retention": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "cmk": {
+        "status": "unknown",
+        "summary": "待核实",
+        "detail": "本轮官方资料未充分确认该能力及当前企业 SKU 覆盖范围，需补充证据或实测。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "budget": {
+        "status": "partial",
+        "summary": "组织共享积分与增购包",
+        "detail": "组织共享积分与增购包",
+        "sourceIds": [
+          "w4"
+        ],
+        "checkedAt": "2026-10-23",
+        "evidence": "官方文档"
+      },
+      "export": {
+        "status": "unknown",
+        "summary": "待核实批量导出与退出方案",
+        "detail": "不能以能够下载单个文件推断支持完整租户、Agent 配置或知识资产迁移。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "sla": {
+        "status": "unknown",
+        "summary": "需合同 / 企业支持确认",
+        "detail": "本轮未取得适用合同，未填写 SLA、RTO / RPO 或支持响应数值。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      },
+      "poc": {
+        "status": "unknown",
+        "summary": "尚未进行统一 PoC 实测",
+        "detail": "本页状态基于文档，不代表质量评分。后续应统一测试集验证成功率、P95 延迟、人工接管与每成功任务成本。",
+        "sourceIds": [],
+        "checkedAt": "2026-10-23",
+        "evidence": "待核实"
+      }
+    }
+  },
+  "sources": {
+    "o1": {
+      "title": "OpenAI · 企业版与授权",
+      "url": "https://learn.chatgpt.com/docs/pricing",
+      "checkedAt": "2026-10-23"
+    },
+    "o2": {
+      "title": "OpenAI · 功能与客户端",
+      "url": "https://learn.chatgpt.com/docs/features",
+      "checkedAt": "2026-10-23"
+    },
+    "o3": {
+      "title": "OpenAI · 文件与产物",
+      "url": "https://learn.chatgpt.com/docs/artifacts-viewer",
+      "checkedAt": "2026-10-23"
+    },
+    "o4": {
+      "title": "OpenAI · 定时任务",
+      "url": "https://learn.chatgpt.com/docs/automations",
+      "checkedAt": "2026-10-23"
+    },
+    "o5": {
+      "title": "OpenAI · Codex CLI",
+      "url": "https://learn.chatgpt.com/docs/codex/cli",
+      "checkedAt": "2026-10-23"
+    },
+    "a1": {
+      "title": "Anthropic · Enterprise",
+      "url": "https://support.claude.com/en/articles/9797531-what-is-the-enterprise-plan",
+      "checkedAt": "2026-10-23"
+    },
+    "a2": {
+      "title": "Anthropic · Cowork",
+      "url": "https://support.claude.com/en/articles/13345190-get-started-with-claude-cowork",
+      "checkedAt": "2026-10-23"
+    },
+    "a3": {
+      "title": "Anthropic · 定时任务",
+      "url": "https://support.claude.com/en/articles/13854387-schedule-recurring-tasks-in-claude-cowork",
+      "checkedAt": "2026-10-23"
+    },
+    "g1": {
+      "title": "Google · Gemini Enterprise 使用指南",
+      "url": "https://docs.cloud.google.com/gemini/enterprise/docs/get-started",
+      "checkedAt": "2026-10-23"
+    },
+    "g2": {
+      "title": "Google · 安全概览",
+      "url": "https://docs.cloud.google.com/gemini/enterprise/docs/security-overview",
+      "checkedAt": "2026-10-23"
+    },
+    "g3": {
+      "title": "Google · 使用审计",
+      "url": "https://docs.cloud.google.com/gemini/enterprise/docs/set-up-usage-audit-logs",
+      "checkedAt": "2026-10-23"
+    },
+    "m1": {
+      "title": "Microsoft · Copilot 授权与功能",
+      "url": "https://learn.microsoft.com/en-us/microsoft-365/copilot/copilot-overview",
+      "checkedAt": "2026-10-23"
+    },
+    "m2": {
+      "title": "Microsoft · Studio 安全与治理",
+      "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/security-and-governance",
+      "checkedAt": "2026-10-23"
+    },
+    "m3": {
+      "title": "Microsoft · Studio 审计",
+      "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/admin-logging-copilot-studio",
+      "checkedAt": "2026-10-23"
+    },
+    "q1": {
+      "title": "Qoder · 产品族",
+      "url": "https://docs.qoder.com/product-series/what-is-qoder",
+      "checkedAt": "2026-10-23"
+    },
+    "q2": {
+      "title": "Qoder · 企业方案",
+      "url": "https://docs.qoder.com/account/teams/get-started",
+      "checkedAt": "2026-10-23"
+    },
+    "q3": {
+      "title": "Qoder · 执行与安全",
+      "url": "https://docs.qoder.com/enterprise/solutions/end-to-end-security",
+      "checkedAt": "2026-10-23"
+    },
+    "w1": {
+      "title": "QwenWork · 国际版产品指南",
+      "url": "https://docs.qwenwork.ai/product-introduction",
+      "checkedAt": "2026-10-23"
+    },
+    "w2": {
+      "title": "QwenWork · FAQ",
+      "url": "https://docs.qwenwork.ai/faq",
+      "checkedAt": "2026-10-23"
+    },
+    "w3": {
+      "title": "QwenWork · 桌面连接器",
+      "url": "https://docs.qwenwork.ai/desktop/connectors",
+      "checkedAt": "2026-10-23"
+    },
+    "w4": {
+      "title": "QwenWork · 企业订阅",
+      "url": "https://docs.qwenwork.ai/benefits/enterprise",
+      "checkedAt": "2026-10-23"
+    },
+    "w5": {
+      "title": "QwenWork · 隐私与安全",
+      "url": "https://docs.qwenwork.ai/getting-started/privacy-security",
+      "checkedAt": "2026-10-23"
+    },
+    "a4": {
+      "title": "Anthropic · SSO",
+      "url": "https://support.claude.com/en/articles/13132885-set-up-single-sign-on-sso",
+      "checkedAt": "2026-10-23"
+    },
+    "a5": {
+      "title": "Anthropic · 自定义 MCP",
+      "url": "https://support.claude.com/en/articles/11175166-get-started-with-custom-connectors-using-remote-mcp",
+      "checkedAt": "2026-10-23"
+    },
+    "w6": {
+      "title": "QwenWork · 企业控制台",
+      "url": "https://docs.qwenwork.ai/enterprise/admin-overview",
+      "checkedAt": "2026-10-23"
+    },
+    "w7": {
+      "title": "QwenWork · SSO",
+      "url": "https://docs.qwenwork.ai/enterprise/sso",
+      "checkedAt": "2026-10-23"
+    },
+    "g4": {
+      "title": "Google · Agent 定时执行",
+      "url": "https://docs.cloud.google.com/gemini/enterprise/docs/workflow-builder/schedule-chat-agent",
+      "checkedAt": "2026-10-23"
+    }
+  },
+  "history": []
+}

@@ -1,0 +1,24 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import {parseReport,planImport,applyImport,validateDataset,matchingFeatures,parseCSV,safeUrl} from './dist/core.mjs';
+const d=JSON.parse(fs.readFileSync(new URL('./dist/data.json',import.meta.url)));assert.equal(validateDataset(d),true);
+assert.equal(d.products.length,7);assert.equal(d.features.length,32);
+let r=parseReport(JSON.stringify({productId:'qwenwork',capabilities:[{module:'认知与知识',feature:'联网与深度研究',status:'有',summary:'Updated',sourceUrl:'https://example.com/report',checkedAt:'2026-10-23'}]}),'report.json');
+let plan=planImport(d,r,'qwenwork');assert.equal(plan[0].matchedId,'research');let next=applyImport(d,plan,'qwenwork','report.json');assert.equal(next.capabilities.qwenwork.research.summary,'Updated');assert.equal(d.capabilities.qwenwork.research.summary,'信息检索与深度研究');assert.equal(next.capabilities.qwenwork.research.evidence,'导入报告 · 未独立核验');
+let add=parseReport('module,feature,status,summary\nNew Module,New Feature,条件支持,"one, two"','report.csv');let added=applyImport(d,planImport(d,add,'qoder'),'qoder','test.csv');assert.equal(added.features.length,33);assert.equal(added.modules.length,8);assert.equal(added.capabilities.chatgpt[added.features.at(-1).id].status,'unknown');
+let md=parseReport('| 模块 | 功能 | 状态 | 简介 |\n| --- | --- | --- | --- |\n| 认知与知识 | 联网与深度研究 | 无 | x |','r.md');assert.equal(md.capabilities[0].status,'no');
+assert.throws(()=>parseReport('module,feature,status\nA,B,maybe','a.csv'));assert.throws(()=>parseReport('{bad','r.json'));assert.throws(()=>parseReport('任意自由文本','r.txt'));assert.throws(()=>parseReport('abc','r.pdf'));assert.throws(()=>parseReport('feature,status\nA,有,extra','a.csv'));
+assert.throws(()=>planImport(d,{capabilities:[r.capabilities[0],r.capabilities[0]]},'qwenwork'));
+assert.equal(parseCSV('a,b\r\n"two\nlines","quoted ""x"""')[1][1],'quoted "x"');
+assert.equal(safeUrl('javascript:alert(1)'),'');assert.equal(safeUrl('https://example.com'),'https://example.com/');
+let full=parseReport(JSON.stringify(d),'backup.json');assert.equal(full.snapshot.features.length,32);
+assert.equal(matchingFeatures(d,[], '', 'all','all').length,32);assert.equal(matchingFeatures(d,['chatgpt'],'','all','all',true).length,0);assert.ok(matchingFeatures(d,['chatgpt','qwenwork'],'定时').some(f=>f.id==='schedule'));assert.ok(matchingFeatures(d,['chatgpt','qwenwork'],'','all','all',true).length>0);
+let bad=structuredClone(d);delete bad.capabilities.chatgpt.qa;assert.throws(()=>validateDataset(bad));
+let no=structuredClone(d);no.sources.o1.url='javascript:alert(1)';assert.throws(()=>validateDataset(no));
+console.log('PASS: baseline integrity, report formats, quoted CSV, matching, new fields, unknown defaults, isolation, backup, filters, invalid inputs and URL validation');
+
+const en=JSON.parse(fs.readFileSync(new URL('./dist/en.json',import.meta.url)));
+const missing=[];const walk=v=>{if(typeof v==='string'&&/[\u3400-\u9fff]/.test(v)&&!Object.hasOwn(en,v))missing.push(v);else if(Array.isArray(v))v.forEach(walk);else if(v&&typeof v==='object')Object.values(v).forEach(walk)};walk(d);assert.deepEqual(missing,[],'Every initial research string has an English translation');
+assert.equal(parseReport('feature,status\nExample,Conditional','report.csv').capabilities[0].status,'partial');
+assert.equal(parseReport('feature,status\nExample,Unverified','report.csv').capabilities[0].status,'unknown');
+console.log('PASS: complete baseline translation coverage and English import statuses');

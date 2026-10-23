@@ -1,0 +1,11 @@
+{
+  "name": "agent-atlas",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bilingual enterprise AI capability comparison dashboard",
+  "scripts": {
+    "test": "node check.mjs",
+    "dev": "python3 -m http.server 8765 --directory dist"
+  },
+  "engines": {"node": ">=18"}
+}
