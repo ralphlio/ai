@@ -12,6 +12,7 @@
 
 当前页面包括：
 
+- `ai-agent-research-2026/`：2026 AI 模型与 Agent 工作演进观察，含可多选横向年表、Harness 架构、行业深案与效率实证
 - `index.html`：AI 知识网页目录
 - `ai-agent-architecture-evolution.html`：机器的内部——AI 编码 Agent（Codex / Claude Code）的架构与演进
 - `codex-architecture.html`：Codex 技术原理与 Agent 产品架构
@@ -34,6 +35,7 @@ Live site:
 
 Current pages:
 
+- `ai-agent-research-2026/`: Evidence-based 2026 AI model and agent research, with selectable timelines, harness architecture, industry cases, and productivity studies
 - `index.html`: AI knowledge directory
 - `ai-agent-architecture-evolution.html`: Inside the machine — architecture and evolution of AI coding agents (Codex / Claude Code)
 - `codex-architecture.html`: Codex architecture and agent product design

@@ -1,0 +1,173 @@
+{
+  "questions": [
+    "2026年哪些发布改变了可交付任务的范围？",
+    "行业规模数字分别衡量资本、收入、使用还是任务成功？",
+    "哪些新闻已经发生，哪些仍是预览或承诺？"
+  ],
+  "thesis": "2026 年的关键变化，已经可以从具体产品和经营披露中辨认：桌面文件执行、企业身份与工具接入、托管长任务逐步成为产品；商业化规模扩大，但使用增长与客户净生产率之间仍有证据缺口。",
+  "metrics": [
+    {
+      "value": "$285.9B",
+      "label": "美国私人 AI 投资",
+      "period": "2025年；2026 AI Index发布的年度基线",
+      "denominator": "美国私人AI投资金额，美元；不是政府+企业全部AI支出",
+      "method": "Stanford HAI 汇编统计",
+      "caveat": "属于2025年观测值，不能写作2026全年投资；跨国口径受政府投入统计缺失影响。",
+      "source": "https://hai.stanford.edu/ai-index/2026-ai-index-report"
+    },
+    {
+      "value": "$12.4B",
+      "label": "中国私人 AI 投资",
+      "period": "2025年；同一报告同一年度口径",
+      "denominator": "中国私人AI投资金额，美元",
+      "method": "Stanford HAI 汇编统计",
+      "caveat": "不包含完整政府引导基金等投入；不能据此称中国全部AI投入仅为美国的1/23。",
+      "source": "https://hai.stanford.edu/ai-index/2026-ai-index-report"
+    },
+    {
+      "value": "15×",
+      "label": "Microsoft 365 活跃 Agent 同比",
+      "period": "2025-03 至 2026-03；2026-05-05披露",
+      "denominator": "Microsoft 365生态中滚动28天至少有一天被用户使用或至少自主运行一次的去重Agent；同比未披露绝对数量",
+      "method": "微软产品遥测",
+      "caveat": "单一生态使用指标，不能外推全球Agent总量或15倍生产率。",
+      "source": "https://www.microsoft.com/en-us/worklab/work-trend-index/agents-human-agency-and-the-opportunity-for-every-organization"
+    },
+    {
+      "value": "$16.3B",
+      "label": "Anthropic 半年收入",
+      "period": "截至2026-06-30的6个月；2026-10-26 S-1披露",
+      "denominator": "公司半年确认收入，美元；非ARR、融资额或估值",
+      "method": "公司S-1监管申报",
+      "caveat": "公司收入不能作为企业客户的投资回报；申报文件仍属上市前资料。",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+    },
+    {
+      "value": "30%",
+      "label": "阿里云对外收入中 AI 相关产品占比",
+      "period": "FY2026第四季度，即截至2026-03-31季度；年报信息截至2026-05-20",
+      "denominator": "该季度云业务对外收入；非集团收入",
+      "method": "阿里巴巴年报公司披露",
+      "caveat": "AI相关产品分类为公司口径，不能解释为Agent应用或模型API收入占比。",
+      "source": "https://www.hkexnews.hk/listedco/listconews/sehk/2026/0618/2026061800844.pdf#page=4"
+    },
+    {
+      "value": "$65B",
+      "label": "Anthropic Series H 融资额",
+      "period": "2026-05-28宣布",
+      "denominator": "该轮融资额，包含此前承诺的部分投资；美元",
+      "method": "融资方公司公告",
+      "caveat": "不是营业收入；公司同时宣布的9650亿美元投后估值属于另一指标。",
+      "source": "https://www.anthropic.com/news/series-h"
+    }
+  ],
+  "events": [
+    {
+      "date": "2026-01-12",
+      "title": "Cowork 从终端执行扩展至桌面工作",
+      "fact": "Anthropic 1月13日公告回溯确认：Cowork于前一天开启研究预览，把Claude的Agent能力带到桌面。",
+      "why": "商业含义：文件与办公任务成为编程Agent能力的相邻市场。实际可用范围仍需按当时预览条款判断。",
+      "type": "产品预览",
+      "source": "https://www.anthropic.com/news/introducing-anthropic-labs"
+    },
+    {
+      "date": "2026-01-27",
+      "title": "Kimi K2.5 把视觉与 Agent Swarm 放进同次发布",
+      "fact": "视觉与 Agent Swarm。事件状态：发布。",
+      "why": "研究含义：模型发布与应用编排同时出现；应区分底模能力、并行系统与具体套餐的可用性。",
+      "type": "模型 / 发布",
+      "source": "https://www.kimi.ai/blog/kimi-k2-5"
+    },
+    {
+      "date": "2026-02-16",
+      "title": "Qwen3.5 同时出现开放模型与托管 Plus（2月16日为公告确认日，首日未核）",
+      "fact": "开放视觉语言模型与托管Plus。事件状态：公告确认已发布；首日未核。",
+      "why": "采购含义：开放模型与托管服务的上下文并不相同；同一个系列名不能代替具体部署规格。",
+      "type": "模型 / 公告确认已发布；首日未核",
+      "source": "https://www.alibabagroup.com/en-US/document-1960233590314762240"
+    },
+    {
+      "date": "2026-03-05",
+      "title": "GPT-5.4 API 发布，涉及电脑操作与长上下文",
+      "fact": "专业工作；原生电脑操作与长上下文。事件状态：API发布。",
+      "why": "技术转化含义：API能力与应用内开放是两张时间表；工具运行仍需要执行环境、权限与验收。",
+      "type": "模型 / API发布",
+      "source": "https://developers.openai.com/api/docs/changelog"
+    },
+    {
+      "date": "2026-03-17",
+      "title": "悟空把企业身份与工具入口纳入 Agent 产品",
+      "fact": "阿里集团公布悟空企业平台，状态为邀约Beta，公告说明企业身份、权限、沙箱与钉钉CLI/API。",
+      "why": "技术转化含义：落地对象从单个聊天界面，扩展到组织身份与系统操作；生态服务接入有明确“将逐步”安排。",
+      "type": "邀约Beta",
+      "source": "https://www.alibabagroup.com/zh-HK/document-1971078136456019968"
+    },
+    {
+      "date": "2026-04-08",
+      "title": "Managed Agents 公开会话、控制循环、沙箱分离设计",
+      "fact": "Anthropic发布托管Agent的工程文章，解释长任务运行组件的解耦与恢复机制。",
+      "why": "技术含义：企业可购买更多运行基础设施，但仍需自己定义业务工具、权限与验收。架构说明不是客户收益证明。",
+      "type": "工程发布",
+      "source": "https://www.anthropic.com/research/managed-agents"
+    },
+    {
+      "date": "2026-04-24",
+      "title": "DeepSeek-V4 以预览状态进入 API 与权重发布",
+      "fact": "V4预览系列进入API/权重发布。事件状态：预览发布。",
+      "why": "采购含义：先确认预览、权重、许可及接口，再比较价格和任务效果；不能把预览当生产稳定性承诺。",
+      "type": "模型 / 预览发布",
+      "source": "https://api-docs.deepseek.com/updates/"
+    },
+    {
+      "date": "2026-05-05",
+      "title": "微软公布 Agent 使用增长与组织调查",
+      "fact": "2026 Work Trend Index同时提供产品遥测和针对20,000名AI使用者的调查；两者是不同证据类型。",
+      "why": "报道价值：采用扩张已可观察；受访人群本身使用AI，不能把调查比例当作所有劳动者的总体比例。",
+      "type": "行业研究",
+      "source": "https://www.microsoft.com/en-us/worklab/work-trend-index/agents-human-agency-and-the-opportunity-for-every-organization"
+    },
+    {
+      "date": "2026-05-19",
+      "title": "Gemini 3.5 Flash 发布，强调 Agent 与编程",
+      "fact": "Agent 与编程。事件状态：GA/发布。",
+      "why": "报道含义：低延迟模型进入执行工作流；发布描述不足以证明每任务总成本，需要结合工具调用与成功率。",
+      "type": "模型 / GA/发布",
+      "source": "https://ai.google.dev/gemini-api/docs/changelog"
+    },
+    {
+      "date": "2026-05-28",
+      "title": "Anthropic 宣布 650 亿美元 Series H",
+      "fact": "公司宣布该轮融资和9650亿美元投后估值，并称当月年化收入运行率超过470亿美元。",
+      "why": "商业含义：资金需求、商业使用和算力供给紧密关联；融资、估值、年化运行率与确认收入必须分开。",
+      "type": "资本事件",
+      "source": "https://www.anthropic.com/news/series-h"
+    },
+    {
+      "date": "2026-10-26",
+      "title": "Anthropic S-1 提供收入与客户结构的监管披露",
+      "fact": "S-1披露2026上半年收入163亿美元，提供比产品公告更完整的经营与风险信息。",
+      "why": "报道价值：可将厂商的商业化叙事与财务口径核对；不把高增长直接解释为客户工作效率同比增长。",
+      "type": "监管申报",
+      "source": "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+    }
+  ],
+  "findings": [
+    {
+      "title": "桌面、企业系统与托管执行形成三个可追踪入口",
+      "text": "Cowork、悟空与Managed Agents分别把执行能力接到文件、组织权限与长任务基础设施。它们面向的约束不同，不能仅以“都是Agent”抹平产品差异。",
+      "sources": [
+        "https://www.anthropic.com/news/introducing-anthropic-labs",
+        "https://www.alibabagroup.com/zh-HK/document-1971078136456019968",
+        "https://www.anthropic.com/research/managed-agents"
+      ]
+    },
+    {
+      "title": "行业数字需要一张口径表，而非一个总增长率",
+      "text": "投资额说明资本供给，收入说明厂商商业化，活跃Agent说明特定产品采用。三者都不能独自回答客户是否节省了净人工工时。",
+      "sources": [
+        "https://hai.stanford.edu/ai-index/2026-ai-index-report",
+        "https://www.sec.gov/Archives/edgar/data/2130357/000162828026067168/anthropicpbc-sx1.htm"
+      ]
+    }
+  ]
+}

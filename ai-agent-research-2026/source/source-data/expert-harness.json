@@ -1,0 +1,575 @@
+{
+  "title": "模型负责推断，Harness 负责把任务运行到底。",
+  "subtitle": "以 Qwen 公开权重、Claude Managed Agents 和 Codex 公开实现为样本，拆开计算、控制、状态、执行与验收。事实截面截至 2026 年 11 月 2 日；图示为参考设计，接口表为可核查公开实现。",
+  "questions": [
+    "一个工具请求从模型输出到外部系统真正执行，经过哪些控制和权限边界？",
+    "浏览器断线、执行器重启、上下文压缩后，什么能恢复，什么仍可能丢失？",
+    "任务“停止”“完成”“通过验收”分别如何判断？",
+    "多 Agent 具体减少哪段等待时间，又增加哪些 token、执行与协调成本？",
+    "本地运行、自建沙箱、托管 Harness 和完整自建分别把数据与工程责任放在哪里？"
+  ],
+  "findings": [
+    {
+      "title": "采购对象已从一次模型推理扩展到有状态运行服务",
+      "text": "Claude 把 Agent 配置、执行环境、任务会话和事件作为独立资源；OpenAI Agents API 也把托管 Harness 与可替换执行环境分开。技术选型应分别核对推理费用、运行费用、状态保存与工具权限，不能只比较模型单价。前句为公开接口事实，后句为本研究的转化判断。",
+      "sources": [
+        "https://platform.claude.com/docs/en/managed-agents/overview",
+        "https://developers.openai.com/api/docs/guides/agents-api/architecture"
+      ]
+    },
+    {
+      "title": "恢复记录与恢复业务效果，是两件工程工作",
+      "text": "事件历史能告诉系统已发生什么，不能独自保证一次退款、发信或写库不会重复。公开函数工具文档要求按会话、轮次与调用 ID 保存结果，并在结果不明时先核对外部副作用；这比增加“请勿重复”提示词更接近可交付系统的要求。",
+      "sources": [
+        "https://developers.openai.com/api/docs/guides/agents-api/tools/functions"
+      ]
+    },
+    {
+      "title": "多 Agent 的主要变量是依赖关系与验收成本",
+      "text": "多 Agent 是否值得采用，取决于任务能否拆成独立分支，以及最终结果如何验收。报告时间缩短、总 token 减少、单位交付成本下降是三种不同结论，应分别取证；本章用厂商实验展示这种区分，不推算企业通用收益。",
+      "sources": [
+        "https://arxiv.org/html/2602.02276v1",
+        "https://www.anthropic.com/research/harness-design-long-running-apps"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "title": "一、先沿着真实边界拆开：模型内部、推理服务与运行系统",
+      "text": "“模型会调用工具”通常指它能生成符合约定的工具名称和参数。是否执行、在哪里执行、是否允许执行、结果如何保存，仍需外围软件处理。下表是研究者整理的分层框架，不是对所有闭源产品内部结构的断言。",
+      "columns": [
+        "层次",
+        "处理什么",
+        "公开实现或可检查对象",
+        "不应据此推断什么"
+      ],
+      "rows": [
+        [
+          "模型内部计算",
+          "将当前文本、视觉等输入转换为表示，计算下一段输出；可输出推理相关内容与结构化工具请求",
+          "Qwen3.5 模型卡公开视觉编码器、混合注意力与 MoE；闭源模型只能列已公开信息",
+          "MCP、数据库、审批器不属于注意力层或 MoE 专家"
+        ],
+        [
+          "推理服务",
+          "加载权重、分配显存、调度请求、解析输出；处理上下文及最大输出限制",
+          "模型权重版本、推理框架、量化、并发、解析器和服务配额",
+          "开放权重并不附带完整生产 Agent 或业务权限"
+        ],
+        [
+          "Harness / 控制循环",
+          "组装上下文，调用模型，把工具请求交给对应实现，处理继续、暂停、失败和预算",
+          "Codex ToolRouter、ToolOrchestrator；托管服务的会话与事件接口",
+          "有一个循环不等于有准确验收、幂等和可恢复部署"
+        ],
+        [
+          "执行与连接",
+          "Shell、浏览器、代码、业务 API 真正产生读取或写入；MCP 是工具连接协议之一",
+          "沙箱文件/网络规则、工具服务器、身份代理、业务系统权限",
+          "提示词写“只读”不等于操作系统或工具具备强制只读限制"
+        ],
+        [
+          "业务验收",
+          "确认代码真的运行、数字有出处、外部状态正确；记录允许交付的证据",
+          "测试结果、数据库状态、引用页、人工复核记录、产物版本",
+          "模型自称完成、工具返回成功或会话 idle，都不自动等于业务成功"
+        ]
+      ],
+      "paragraphs": [
+        "转化时应先确定可执行动作清单。例如“读取客户资料并起草答复”和“修改客户套餐并发出答复”可使用同一模型，但后者需要业务授权、写入确认、外部状态核对与失败补偿。这里的差异主要落在工具和控制层。"
+      ],
+      "sources": [
+        "https://huggingface.co/Qwen/Qwen3.5-397B-A17B",
+        "https://raw.githubusercontent.com/openai/codex/main/codex-rs/core/src/tools/router.rs",
+        "https://learn.chatgpt.com/docs/agent-configuration/subagents"
+      ]
+    },
+    {
+      "title": "二、一个能画到层结构的模型样本：Qwen3.5-397B-A17B",
+      "text": "官方模型卡公开的计算路径可概括为：视觉输入经编码器形成表示，与文本进入语言主干；主干共 60 层，布局为 15 组〔3 个 Gated DeltaNet→MoE，再接 1 个 Gated Attention→MoE〕。这张“模型内部地图”与页面上方的 Agent 运行系统图处在不同尺度。",
+      "columns": [
+        "公开部件",
+        "简单技术解释",
+        "对部署有何影响（研究解释）"
+      ],
+      "rows": [
+        [
+          "Gated DeltaNet + Gated Attention",
+          "把线性注意力机制与完整注意力机制交替放在主干中",
+          "不能用纯 Transformer 的经验直接外推显存、缓存与吞吐；需核查框架对该架构的支持"
+        ],
+        [
+          "稀疏 MoE",
+          "模型总参数 397B，每次激活 17B；专家为 10 个路由专家加 1 个共享专家",
+          "激活参数表示单次计算参与规模，不等于只需装入 17B 权重，也不等于有 17 个软件 Agent"
+        ],
+        [
+          "工具输出与执行",
+          "模型生成工具请求；外部 Agent 框架解析并执行，再把结果返回下一次推理",
+          "应分别核对输出格式、解析器和工具运行结果；模型卡的 Agent 测试也依赖外围上下文策略"
+        ]
+      ],
+      "paragraphs": [
+        "未知边界：模型卡没有给出本研究可以复现的所有训练数据、企业任务成本和任意硬件吞吐。规格解释不构成对闭源 GPT、Claude 或 Gemini 层结构的推测。模型年表已另列上下文与接入条件，此处不把它们当作运行可靠性的保证。"
+      ],
+      "sources": [
+        "https://huggingface.co/Qwen/Qwen3.5-397B-A17B"
+      ]
+    },
+    {
+      "title": "三、Claude 的解耦设计：会话、Harness 与沙箱分别恢复",
+      "text": "Anthropic 4 月 8 日工程文章将系统拆成三个可替换部分：会话保存追加事件日志，Harness 驱动模型和工具路由，沙箱运行代码。文章中的 execute(name,input)、wake(sessionId)、getSession(id) 是阐释架构的概念接口，不应直接当成可调用 REST 路径。",
+      "columns": [
+        "故障边界",
+        "公开设计描述",
+        "对集成方的具体含义"
+      ],
+      "rows": [
+        [
+          "沙箱失败",
+          "失败作为工具错误回到控制循环，可重新按资源配置建立执行环境",
+          "需要判断哪些文件已持久化、哪些依赖需要重装；重新建容器不自动恢复第三方系统副作用"
+        ],
+        [
+          "Harness 失败",
+          "从独立保存的会话日志启动替代 Harness",
+          "客户端连接生命期应与服务器任务生命期分开；断线先查询状态"
+        ],
+        [
+          "凭证与不可信代码",
+          "OAuth 等凭证可存放于沙箱之外，由工具代理处理认证",
+          "不能因为代码在沙箱里运行，就把主账号密钥放进其可读环境；具体权限仍由连接器和目标系统控制"
+        ]
+      ],
+      "paragraphs": [
+        "这是厂商公开的系统设计说明，不是我们对其生产实现的代码审计。沙箱检查点、公共事件接口与实际恢复操作见下节，不能仅凭概念图声称任务永不丢失。"
+      ],
+      "sources": [
+        "https://www.anthropic.com/research/managed-agents"
+      ]
+    },
+    {
+      "title": "四、Claude 真实状态机：idle 不一定表示交付完成",
+      "text": "截至研究截面，Managed Agents 仍标注 Beta，要求 managed-agents-2026-04-01 请求头。Agent 指定模型、system、工具和 skills；Session 引用 Agent 与 Environment。下表对应公开 SDK / 事件字段，不能与 OpenAI 同名状态互换。",
+      "columns": [
+        "状态或字段",
+        "文档语义",
+        "正确的客户端动作"
+      ],
+      "rows": [
+        [
+          "status = idle / running / rescheduling / terminated",
+          "依次表示等待输入、执行中、暂时错误后自动重排、已结束；正常完成工作通常回 idle",
+          "先读状态，再结合停止原因与工作流状态判断；不要把 terminated 当作成功标志"
+        ],
+        [
+          "session.status_idle + stop_reason.type",
+          "end_turn 也可来自中断；requires_action 需要工具结果或确认；budget_reached 是费用暂停",
+          "分别处理继续输入、待答调用、预算；仍开放的 workflow run 可能使会话 idle 而工作未结束"
+        ],
+        [
+          "client.beta.sessions.retrieve(session.id)",
+          "取当前会话；会话模型/system/skills 在创建后不能任意替换，tools 与 mcp_servers 可按规则更新",
+          "更新工具数组是整体替换；若漏保留原项，会改变后续可用能力"
+        ],
+        [
+          "agent.custom_tool_use → user.custom_tool_result",
+          "用 custom_tool_use_id 对应待答事件；同一调用的第二个结果会被接受但不再生效",
+          "应用运行自定义工具并保存结果；“重复提交结果无效”不表示重复执行外部操作安全"
+        ],
+        [
+          "agent.tool_use / agent.mcp_tool_use",
+          "evaluated_permission 可为 allow / ask / deny；ask 用 user.tool_confirmation 回答，tool_use_id 关联事件",
+          "多工作流仍在运行时也可能有待确认调用，直接监听工具事件，不能只等 idle"
+        ],
+        [
+          "events.stream + events.list",
+          "文档重连方案：先打开并缓冲流，再列历史，按事件 id 去重后消费实时事件",
+          "断线后补历史，避免事件缝隙与重复展示；客户端需要持久保存 session.id"
+        ],
+        [
+          "会话再次启动",
+          "对原 session 发 user.message；idle 时沙箱检查点保存文件系统、已安装包及生成文件",
+          "恢复当前产物后继续；删除 session 会删除对应产物与沙箱，应在保留业务记录前完成产物归档"
+        ]
+      ],
+      "paragraphs": [
+        "数据边界：官方明确该状态服务不适用 Zero Data Retention 或 HIPAA BAA。直接模型 API 的数据条款，不能自动套用于持久会话服务。这里报告的是该产品公开适用性，不构成针对某企业的合规判断。"
+      ],
+      "sources": [
+        "https://platform.claude.com/docs/en/managed-agents/overview",
+        "https://platform.claude.com/docs/en/managed-agents/session-operations",
+        "https://platform.claude.com/docs/en/managed-agents/events-and-streaming",
+        "https://platform.claude.com/docs/en/managed-agents/permission-policies"
+      ]
+    },
+    {
+      "title": "五、Codex 公开 Harness：工具路由、审批与会话协议如何衔接",
+      "text": "OpenAI 将 Codex 的可复用部分描述为开源 Harness；app-server 暴露客户端协议。模型访问、开源运行层与托管 Agents API 是不同交付形式。以下按 11 月 2 日可读文档与公开代码说明，main 分支会变化，不能把当前字段倒推为年初已具备。",
+      "columns": [
+        "环节",
+        "可核查接口 / 代码",
+        "工作机制与接入责任"
+      ],
+      "rows": [
+        [
+          "工具路由",
+          "ToolRouter：model_visible_specs、ToolRegistry、build_tool_call、dispatch_any_with_state",
+          "模型输出先转为带 tool_name、call_id、payload 的调用，再交给注册运行实现；注册工具数量不等于当前模型可见工具数量"
+        ],
+        [
+          "工具暴露",
+          "公开 router 区分 direct、deferred、code_mode_only、hidden 等暴露方式",
+          "按需发现可缩小模型每次看到的工具集合；接入方需验证命名、参数和实际可用性"
+        ],
+        [
+          "审批和沙箱编排",
+          "ToolOrchestrator 处理 approval requirement、sandbox selection、SandboxErr::Denied 与可否重试",
+          "沙箱拒绝后不会无条件绕过；升级尝试要按真实权限重新评审。业务授权还要在工具端执行"
+        ],
+        [
+          "客户端握手与任务",
+          "initialize→initialized；thread/start 或 thread/resume；turn/start；item/started 与 item/completed",
+          "thread 保存对话，turn 表示本次请求及工作，item 是消息/命令/改动等记录；客户端接收进度与请求"
+        ],
+        [
+          "审批 UI",
+          "item/commandExecution/requestApproval 携带 itemId、threadId、turnId；客户端返回 accept / decline / cancel 等",
+          "将审批绑定具体动作与会话；命令 item 最终状态可为 completed、failed、declined"
+        ],
+        [
+          "自定义工具（实验接口）",
+          "dynamicTools；item/tool/call；capabilities.experimentalApi",
+          "客户端实际执行并返还结果；实验字段需按所装 app-server 版本验证，不能当长期固定契约"
+        ],
+        [
+          "本地边界",
+          "sandbox_mode、approval_policy、approvals_reviewer 是不同配置",
+          "沙箱控制进程能访问什么；审批控制何时申请越界；网页搜索、插件和远程浏览器另有各自控制"
+        ]
+      ],
+      "paragraphs": [
+        "恢复历史与恢复磁盘也有明确区别：app-server 的 thread/revert 可删除某轮及后续对话历史，但不会回滚本地文件。因此撤销错误补丁需要版本控制或文件级操作；仅回退对话会让模型记忆与实际目录脱节。",
+        "子 Agent 权限也不是角色名字决定的。官方说明子 Agent 继承父会话的沙箱与审批设置；在角色说明里写“只读”不会建立单独的只读沙箱。无法呈现新审批的非交互运行，会把需要审批的动作失败报告给父流程。"
+      ],
+      "sources": [
+        "https://developers.openai.com/blog/codex-as-a-platform",
+        "https://raw.githubusercontent.com/openai/codex/main/codex-rs/core/src/tools/router.rs",
+        "https://raw.githubusercontent.com/openai/codex/main/codex-rs/core/src/tools/orchestrator.rs",
+        "https://learn.chatgpt.com/docs/app-server",
+        "https://learn.chatgpt.com/docs/sandboxing",
+        "https://learn.chatgpt.com/docs/agent-configuration/subagents"
+      ]
+    },
+    {
+      "title": "六、当前上下文、压缩项、事件日志和产物版本，不能合为“记忆”",
+      "text": "下面是依据公开接口整理的状态账本。作用不同，缺一项就可能出现“能继续对话，但无法解释或恢复实际操作”的问题。",
+      "columns": [
+        "状态载体",
+        "保存什么",
+        "能做什么",
+        "不能保证什么"
+      ],
+      "rows": [
+        [
+          "本轮模型上下文",
+          "规则、目标、选取资料、近期工具结果及推理延续所需内容",
+          "给下一次推理提供输入",
+          "不是完整资料库；容量、输出上限、工具结果限制各有边界"
+        ],
+        [
+          "Responses compaction item",
+          "压缩后携带关键状态与推理的加密不透明项",
+          "减少后续窗口输入；context_management.compact_threshold 可触发服务端压缩",
+          "不能供人逐条审计；不要用它替代原始来源或外部业务账本"
+        ],
+        [
+          "持久事件历史",
+          "按调用保存输入、输出、状态、错误与关联 ID",
+          "断线补历史、追踪失败、定位待完成动作",
+          "重放事件不等于可以重做外部写操作"
+        ],
+        [
+          "文件/检查点/版本库",
+          "代码、报告、数据文件、依赖与修改版本",
+          "恢复执行环境或核对交付物",
+          "沙箱文件备份并不回滚 CRM、邮件、订单等外部状态"
+        ],
+        [
+          "业务动作账本（参考设计）",
+          "幂等键、请求摘要、外部回执、是否验收、补偿状态",
+          "区分未执行、已执行、结果不明，支持人工接管",
+          "业务端若无幂等或查询接口，运行系统无法凭空补齐 exactly-once 保证"
+        ]
+      ],
+      "paragraphs": [
+        "OpenAI 独立 /responses/compact 接口返回的是下一窗口的完整规范输入，文档要求原样使用，不能只抽取其中一个压缩项；服务端压缩与 previous_response_id 链式调用又有自己的使用方式。复用示例时应先确定选择哪一种状态模式。",
+        "参考交接文件可记录：任务目标与禁止事项、验收条件、已核准事实和原始出处、已修改文件及版本、已执行的外部动作与回执、未决问题、下一步。交接摘要需要引用可重新读取的持久材料；摘要本身有损，不能声称保留全部历史。"
+      ],
+      "sources": [
+        "https://developers.openai.com/api/docs/guides/compaction",
+        "https://platform.claude.com/docs/en/managed-agents/events-and-streaming",
+        "https://learn.chatgpt.com/docs/app-server"
+      ]
+    },
+    {
+      "title": "七、一次外部写操作超时后，具体怎样恢复",
+      "text": "以下为研究者提出的参考设计：Agent 根据已审批退货单创建一笔退款。它展示接口文档支持的恢复原则，不代表厂商已替用户实现退款业务控制。",
+      "columns": [
+        "步骤",
+        "记录与控制",
+        "失败后的动作"
+      ],
+      "rows": [
+        [
+          "1 接收已授权任务",
+          "保存 order_id、允许退款金额、币种、验收条件；为本次业务动作生成稳定 operation_id",
+          "缺金额或订单状态先补数据；不能由模型猜测财务约束"
+        ],
+        [
+          "2 发起工具调用",
+          "将 session_id、turn_id、call_id、operation_id 与请求摘要写入业务账本，再交给退款 API",
+          "operation_id 作为目标系统幂等键（如果该系统支持）；相同业务动作重试必须保持同一键"
+        ],
+        [
+          "3 外部成功但客户端超时",
+          "目标系统可能已经退款，运行层仍显示超时",
+          "先按幂等键或订单查询退款回执；不要立即重新付款"
+        ],
+        [
+          "4 恢复待答调用",
+          "读取当前 required_actions；有已保存回执时，用同一 turn_id / call_id 返回结果",
+          "历史中出现 function_call 不表示它现在仍待答；以 required_actions 为准"
+        ],
+        [
+          "5 独立核验与完成",
+          "核对外部退款状态、金额和回执；把证据写入验收记录",
+          "结果无法确认时标记 unknown 并转人工；金额错误按业务补偿流程处理，不能用再次运行来“碰碰运气”"
+        ]
+      ],
+      "paragraphs": [
+        "OpenAI 的公开 Functions 文档将 pending action 明确表示为 type=function_call、turn_id、call_id、name、arguments；结果事件为 agent.session.input.tool_result，区分 success/output 和 success=false/error。单次结果需小于 4 MiB 并预留元数据空间。",
+        "暂时性错误与永久条件分开处理：Errors 文档要求先取会话、轮次和已存 items，核对已完成动作；对限流/超时按 Retry-After 及有限重试恢复。输入无效、凭证或额度问题需要先修正原因。失败 turn 不必然等于失败 session；断流本身也不能证明任务失败。"
+      ],
+      "sources": [
+        "https://developers.openai.com/api/docs/guides/agents-api/tools/functions",
+        "https://developers.openai.com/api/docs/guides/agents-api/errors"
+      ]
+    },
+    {
+      "title": "八、验收需要可观察结果：把“看起来完成”变成可复核合同",
+      "text": "Anthropic 3 月 24 日的应用 Harness 实验使用 planner、generator、evaluator：生成者与验收者在每轮前约定可测试结果，验收者用 Playwright 检查真实应用、API 与数据库。它属于厂商实验，不能自动代表所有应用的成功率。",
+      "columns": [
+        "交付对象",
+        "参考验收合同",
+        "失败证据与恢复"
+      ],
+      "rows": [
+        [
+          "网站 / 应用",
+          "用户可完成一个具体流程；页面、接口与持久化状态一致；列明所测版本",
+          "保存可复现操作、截图、接口结果和数据断言；定位改动后仅重测受影响流程"
+        ],
+        [
+          "研究报告",
+          "每项关键数字具备分母、时期、基线与来源；观点和事实分开；冲突资料不被隐藏",
+          "验收者重新打开部分关键出处；找不到原证据的条目标待核，回到相应章节修订"
+        ],
+        [
+          "数据处理",
+          "输入快照、字段定义、行数变化、重复/缺失处理和输出复算一致",
+          "保留中间产物与变换版本；修正失败步骤后从可信检查点重算"
+        ],
+        [
+          "业务工具动作",
+          "目标系统状态与已授权动作一致，回执可查；未决调用全部有处置",
+          "读取系统实际状态；仅继续未完成部分，不把 agent.end 或 idle 当成最终业务回执"
+        ]
+      ],
+      "paragraphs": [
+        "独立验收并不保证绝对正确：验收 Agent 仍可能漏测或偏好过于宽松。参考实现应先写出反例和必须通过的判据，再做确定性检查，最后对无法机械判定的部分做人工抽检。验收者得到产物和合同即可，不必继承生成者所有自我评价；这是一种降低确认偏差的设计选择。"
+      ],
+      "sources": [
+        "https://www.anthropic.com/research/harness-design-long-running-apps"
+      ]
+    },
+    {
+      "title": "九、单 Agent 与多 Agent：分别计算等待时间、总工作量与质量",
+      "text": "Kimi K2.5 技术报告（2 月 2 日 v1）把 critical steps 定义为各阶段“主 Agent 步数 + 最慢并行子 Agent 步数”的总和。训练中更新协调者，子 Agent 策略冻结。这个度量优化关键路径，不等于总 token 或账单下降。",
+      "columns": [
+        "证据 / 任务形态",
+        "可核事实",
+        "应用时应如何解释"
+      ],
+      "rows": [
+        [
+          "Kimi WideSearch（厂商实验）",
+          "报告称达到目标 Item-F1 时较单 Agent 节省 3–4.5 倍执行时间；目标质量区间为 30%–70%。WideSearch 的协调者与每个子 Agent 步数上限均为 100",
+          "适用于宽搜索实验；没有在此给出企业实付成本或任意任务加速保证。不能把步数、token、工具次数、墙钟时间混为一种效率"
+        ],
+        [
+          "Anthropic 游戏制作器（厂商单示例）",
+          "同一简短需求，solo 为 20 分钟 / 9 美元，完整 Harness 为 6 小时 / 200 美元；后者扩展了需求范围和迭代验收",
+          "并非同等交付范围的受控成本比较，也不是随机样本平均值；可证明更完整交付可能显著增加运行与检查成本"
+        ],
+        [
+          "独立资料/文件处理",
+          "参考设计：各分支输入与输出可明确分割，最终可按固定 schema 合并",
+          "并发时间约由最慢分支决定；还须加分发、排队、合并和验收时间。总费用需相加每条分支"
+        ],
+        [
+          "连续调试 / 同一共享文件",
+          "参考判断：每步依赖前一步结果，或多分支争写同一状态",
+          "先单循环或串行交接；并行可能带来冲突、重复修改与重复上下文"
+        ],
+        [
+          "独立核验",
+          "参考设计：生成者交付，验收者按合同重新观察产物",
+          "增加 token 与执行费用，但可揭示自评漏项；依据实际漏错率和修复成本决定是否常驻"
+        ]
+      ],
+      "paragraphs": [
+        "成本账应拆为：所有模型调用的输入/缓存/输出 token 费用之和 + 搜索等工具费用 + 沙箱或运行时间 + 结果存储 + 人工验收与返工。多 Agent 同时运行可降低历时，同时增加总计算；应同时报告达到验收标准的比例、每个合格交付成本、P50/P95 耗时。此公式为研究者成本框架，没有填入未经测量的企业收益。",
+        "权限也按真实系统边界设计：在多 Agent 角色提示词里约定一个只读、一个执行，并不能自动得到隔离。需要独立执行环境或工具端凭证来强制分权；是否支持这种配置应核对具体产品。"
+      ],
+      "sources": [
+        "https://arxiv.org/html/2602.02276v1",
+        "https://www.anthropic.com/research/harness-design-long-running-apps",
+        "https://learn.chatgpt.com/docs/agent-configuration/subagents"
+      ]
+    },
+    {
+      "title": "十、预算控制也有运行语义：以 Claude 的美元上限为例",
+      "text": "Claude 会话预算按公开标价计量；它控制运行层新增工作，不控制企业所有开支。",
+      "columns": [
+        "接口或计费口径",
+        "公开规则",
+        "工程含义"
+      ],
+      "rows": [
+        [
+          "budget.max_list_cost",
+          "type=limit；amount 为整美分字符串，\"125\" 为 1.25 美元；目前 USD",
+          "创建时设置，后续可改上限；不要传小数或误读单位"
+        ],
+        [
+          "计量口径",
+          "模型 token + 搜索（10 美元/千次）+ 会话运行（0.08 美元/小时）",
+          "标价与议价账单可不同；外部工具账单另算"
+        ],
+        [
+          "达到上限",
+          "在新模型请求前检查；在途请求及工具仍完成，可略超支",
+          "多线程各有在途消耗，需留预算余量"
+        ],
+        [
+          "恢复",
+          "budget_reached 后保留状态；新上限须高于已消费值；移除后不能加回",
+          "user.message 无法解除费用暂停；按真实产品语义处理"
+        ],
+        [
+          "多 Agent",
+          "全 session 共用预算，无线程独立上限；可读 usage.list_cost / active_seconds",
+          "会话运行时间不重复计并发；线程舍入金额未必可直接相加"
+        ]
+      ],
+      "paragraphs": [
+        "该例说明“自动运行直到完成”需要同时考虑服务配额、费用预算、可恢复状态及实际业务期限。等待一段时间只有在限制本身按时间恢复时才有帮助；长期余额不足、权限拒绝、输入无效和已终止会话需要不同操作。"
+      ],
+      "sources": [
+        "https://platform.claude.com/docs/en/managed-agents/budgets"
+      ]
+    },
+    {
+      "title": "十一、部署选择：数据面放在哪里，控制面由谁运行",
+      "text": "下表中的工程责任是依据公开部署边界给出的转化分析；“自托管沙箱”不能自动解读为“所有数据不出本地”。控制面包括模型循环、会话与调度；数据面在这里指文件、工具和执行器。",
+      "columns": [
+        "方案",
+        "控制面 / 模型",
+        "执行、文件与数据流",
+        "集成方仍需完成的工程",
+        "适用取舍"
+      ],
+      "rows": [
+        [
+          "本地 Codex Harness + 云模型",
+          "本机 app-server / CLI 驱动；模型推理在提供方",
+          "命令与文件在本地权限范围内；选入模型输入和工具结果仍发送服务端",
+          "桌面/服务进程生命周期、目录隔离、依赖、凭证、客户端审批与产物归档",
+          "本地仓库与交互开发直接；本地进程和机器可用性成为运行依赖"
+        ],
+        [
+          "托管 Harness + 托管沙箱",
+          "提供方运行模型循环与会话服务",
+          "运行环境由提供方管理；会话、产物和工具通信依产品条款保存",
+          "业务工具授权、事件消费、结果验收、预算、数据分类与外部动作账本",
+          "快速启动异步任务；需接受状态服务能力边界与迁移成本"
+        ],
+        [
+          "托管 Harness + 自托管沙箱",
+          "提供方保留模型循环；用户运行 worker / executor",
+          "Claude worker 从环境队列领任务，在自有环境执行并回传工具输入/输出；不等于零数据传输",
+          "worker 隔离、队列容量、网络出口、依赖镜像、持久化、重连和清理",
+          "适合必须在自有网络访问文件或工具的任务；控制面仍在云端"
+        ],
+        [
+          "托管 Harness + 无沙箱",
+          "OpenAI environment.type=none",
+          "可用远程 MCP 与应用函数；没有内置 Bash、apply_patch、工作区和 executor MCP",
+          "应用自身承接函数执行、授权、结果返回和幂等账本",
+          "业务 API 型 Agent 可省去代码执行环境；不能假装已具有文件工作区"
+        ],
+        [
+          "自建 Harness + 模型 API / 开放权重",
+          "自行运行循环、调度与状态；模型可云端或自建",
+          "由部署与模型选择决定数据流",
+          "上下文构建、工具路由、模型适配、持久日志、沙箱、审批、恢复、评估、可观测和升级测试",
+          "需要深度业务控制或供应商切换；开放权重还增加推理运维与容量工程"
+        ]
+      ],
+      "paragraphs": [
+        "Claude 自托管的真实落点：environment config.type=self_hosted 表示工作队列；worker 领取任务，在用户基础设施运行工具，结果返回 Anthropic 控制面。官方建议 worker 只持环境凭证，主 API key 放在控制端；skills 与 memory stores 仍由平台保存并下载副本。MCP tunnel 与代码在哪里运行是两个独立选项。",
+        "OpenAI self_hosted 模式则要求应用配置执行器连接并承担连接、关停和文件保留；关闭前须处理待执行任务。选型不能只问“是否支持自部署”，而应逐项查会话日志、模型请求、文件、密钥、工具结果和外部动作回执分别存放在哪里。"
+      ],
+      "sources": [
+        "https://platform.claude.com/docs/en/managed-agents/self-hosted-sandboxes",
+        "https://developers.openai.com/api/docs/guides/agents-api/architecture",
+        "https://learn.chatgpt.com/docs/app-server"
+      ]
+    },
+    {
+      "title": "十二、已知边界与仍需现场验证的问题",
+      "text": "本研究核对了公开接口和工程资料，没有进入厂商生产系统，也未对所有部署方式进行跨产品实测。以下未知项会直接影响采购与技术评估。",
+      "bullets": [
+        "闭源模型的完整层结构、训练数据配方、托管 Harness 的全部调度与压缩策略未公开，不将通用示意图写成实装架构。",
+        "公开文档的“可恢复”没有替用户证明外部退款、邮件或数据库操作具备 exactly-once；需要目标系统幂等/查询/补偿能力和故障注入验证。",
+        "厂商示例和自报基准无法给出本企业任务的合格率、单位交付成本或 SLA。试点应保留输入快照、失败分类和人工工时。",
+        "动态 API、实验字段与 GitHub main 会变化。生产集成需锁 SDK / 二进制版本，保存对应 schema 与代码提交；本报告不是稳定性承诺。",
+        "自托管执行器不等于本地模型、零数据出域或特定法规适用；需要按实际请求与存储路径逐项核对。"
+      ],
+      "sources": [
+        "https://platform.claude.com/docs/en/managed-agents/overview",
+        "https://platform.claude.com/docs/en/managed-agents/self-hosted-sandboxes",
+        "https://learn.chatgpt.com/docs/app-server"
+      ]
+    }
+  ],
+  "unverified": [
+    {
+      "name": "闭源模型与托管 Harness 完整内部实现",
+      "reason": "没有公开全部生产源码与训练细节；仅报告公开接口和工程说明，图为参考架构。",
+      "source": "https://www.anthropic.com/research/managed-agents"
+    },
+    {
+      "name": "多 Agent 的企业统一收益倍数",
+      "reason": "Kimi 为宽搜索官方实验；Anthropic 为范围变化的应用示例；均不能推出通用 ROI。",
+      "source": "https://arxiv.org/html/2602.02276v1"
+    },
+    {
+      "name": "所有外部写操作恰好执行一次",
+      "reason": "公开运行层文档要求业务方核查副作用；目标系统能力和故障注入结果未提供。",
+      "source": "https://developers.openai.com/api/docs/guides/agents-api/tools/functions"
+    }
+  ],
+  "methodNote": "独立章节按“计算内部—运行控制—持久状态—工具执行—业务验收”五个问题层取证。接口字段来自官方文档，概念接口与真实协议分开；代码引用限于公开文件可支持的行为；故障退款流程、成本公式与部署取舍标为研究者参考设计/分析。2025 型号只在 2026 年工程实验中出现，作为该实验条件，不增记为 2026 发布。模型、Agent 产品和托管运行服务不互相替代。事实截面为 2026-11-02；未复现厂商实验，不对闭源内部或企业 ROI 作补写。"
+}

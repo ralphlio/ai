@@ -1,0 +1,335 @@
+{
+  "title": "从发布到部署：三条可核查路径",
+  "subtitle": "追踪有明确连接证据的模型、产品和业务节点。每条链同时展示已经接上的环节，以及公开资料尚不能证明的连接。",
+  "questions": [
+    "一款开放模型怎样进入另一家公司的商业Agent，而不是仅被调用？",
+    "金融业务从模型调用到可批准交易，需要增加哪些确定性环节？",
+    "企业平台的新功能与客户实际使用之间，哪些关联能够核查、哪些不能？",
+    "发布日期、开放日期、部署日期、案例披露日，分别能说明什么？"
+  ],
+  "findings": [
+    {
+      "title": "开放模型的价值传导可以有明确技术谱系",
+      "text": "Cognition明示SWE-2后训练自Kimi K3，并列出Devin可用入口；这比仅根据同月发布、模型排行榜相近推测供需关系更可靠。商业分析应追踪权重、许可、后训练和执行系统各层，而不只追踪品牌。",
+      "sources": [
+        "https://www.kimi.com/news/kimi-k3-open-source",
+        "https://cognition.com/blog/swe-2"
+      ]
+    },
+    {
+      "title": "金融任务的关键转化发生在校验和批准层",
+      "text": "Qonto既提供内置Agent，也提供外部MCP连接。两种入口的权限、资金操作和数据流边界不同；“连上银行”不能简化为“模型能够独立动用资金”。",
+      "sources": [
+        "https://support-fr.qonto.com/hc/fr/articles/45994623540113-Comment-utiliser-les-agents-IA-de-Qonto",
+        "https://qonto.com/en/ai",
+        "https://claude.com/marketplace/connectors/qonto"
+      ]
+    },
+    {
+      "title": "平台演进和客户案例是两种时间证据",
+      "text": "aily有带日期的产品日志，飞鹤材料明确使用aily与多维表格。两者可以证明平台关联，却没有证据证明飞鹤在2026年使用了日志中的某个新版本，也不能算出采购到部署的平均周期。",
+      "sources": [
+        "https://aily.feishu.cn/hc/8dlnbe0s_i33foeas",
+        "https://aily.feishu.cn/hc/8dlnbe0s_fz6fugdh",
+        "https://www.feishu.cn/customers/feihe"
+      ]
+    }
+  ],
+  "sections": [
+    {
+      "title": "路径一｜Kimi K3 → SWE-2 → Devin：开放权重进入商业编程Agent",
+      "label": "技术谱系已连接 / 企业净收益未闭环",
+      "text": "这条路径可观察的转化单位，是可下载的模型工件经过后训练后进入另一个Agent产品。它不是Kimi与Cognition的商业采购合同证明，也不代表所有Devin任务都使用同一模型。",
+      "steps": [
+        {
+          "date": "2026-07 · 产品发布",
+          "title": "Kimi K3进入自家产品与API",
+          "text": "官方发布正文明确产品/API可用，同时把完整权重列为7月27日后续交付。月内首发与权重到账是两个节点。",
+          "sources": [
+            "https://www.kimi.ai/blog/kimi-k3"
+          ]
+        },
+        {
+          "date": "2026-07-27 · 权重开放",
+          "title": "可获得的工件出现",
+          "text": "开放日公告提供权重、技术报告与Infra项目链接。可下载与许可检查是后续自托管或再训练的前置条件。",
+          "sources": [
+            "https://www.kimi.com/news/kimi-k3-open-source"
+          ]
+        },
+        {
+          "date": "2026-09-10 · 派生模型发布",
+          "title": "Cognition明确披露后训练谱系",
+          "text": "SWE-2发布文直接写明其基座是Kimi K3，并说明以成本惩罚强化学习优化不同推理档位。这里有技术依赖证据。",
+          "sources": [
+            "https://cognition.com/blog/swe-2"
+          ]
+        },
+        {
+          "date": "2026-09-10 · 产品可用",
+          "title": "进入Devin Desktop与CLI",
+          "text": "同一公告确认SWE-2当天可在Desktop/CLI使用，Web与Fusion则为滚动推出。产品渠道状态并不完全相同。",
+          "sources": [
+            "https://cognition.com/blog/swe-2"
+          ]
+        },
+        {
+          "date": "2026-09-11 · Harness扩展",
+          "title": "Fusion把规划与执行分给两个模型",
+          "text": "Fusion进入桌面/CLI。当前文章的模型组合和图表有10月更新，不能拿最新推荐组合倒推9月首发配置。",
+          "sources": [
+            "https://cognition.com/blog/local-fusion"
+          ]
+        }
+      ],
+      "columns": [
+        "连接",
+        "核查状态",
+        "实际能说明什么"
+      ],
+      "rows": [
+        [
+          "Kimi K3 → SWE-2",
+          "已连接：发布文明示基座",
+          "存在模型后训练谱系，而非仅名称或表现相似"
+        ],
+        [
+          "SWE-2 → Devin Desktop/CLI",
+          "已连接：同日可用声明",
+          "能确认商用入口，不保证每个账号/任务的实际默认选择"
+        ],
+        [
+          "7月开放 → 9月训练交付",
+          "训练起点未公开",
+          "不能将两个发布日期间隔称为研发周期"
+        ],
+        [
+          "模型/Agent → 客户生产率",
+          "本链缺少客户对照数据",
+          "厂商基准成本无法直接换算客户工时或利润"
+        ]
+      ],
+      "paragraphs": [
+        "技术转化解读：开放工件带来可改造的供应层；后训练改变模型行为和推理成本分配；Harness决定怎样调用工具、拆任务和验收。这些层都可能形成产品差异。将SWE-2简单标作“自研”或“Kimi套壳”都会丢失可核查的中间工程。",
+        "商业解读：一家应用公司可在模型供应商之外控制后训练、工作流和渠道。对采购方，重要尽调项是基座与派生模型许可、实际推理提供方、模型更换是否触发回归评测，以及每项任务的完整成本。上述判断是本研究解释，不是公司已披露的合同安排。"
+      ],
+      "bullets": [
+        "不把Cognition厂商基准上的成本优势外推为企业节省同等比例。",
+        "不声称Kimi开放日期就是Cognition训练启动日期。",
+        "检查模型、Harness与推理档位，三者一起决定可复现比较。"
+      ],
+      "conclusion": "这一链条已能证明模型工件如何进入下游产品；仍不能证明具体客户的净收益和供应商商业分成。",
+      "sources": [
+        "https://www.kimi.ai/blog/kimi-k3",
+        "https://www.kimi.com/news/kimi-k3-open-source",
+        "https://cognition.com/blog/swe-2",
+        "https://cognition.com/blog/local-fusion"
+      ]
+    },
+    {
+      "title": "路径二｜Qonto：从Claude调用，到银行产品里的可批准动作",
+      "label": "业务集成已连接 / 首次部署月份不精确",
+      "text": "追踪Qonto比把Claude Code、Cowork和银行业务串成一个产品更准确：案例同时提到内部团队工具与面向客户的内置Agent，两者是并行使用关系。银行客户执行路径由Qonto自己的产品和控制层承接。",
+      "steps": [
+        {
+          "date": "2025-11 · 历史基线",
+          "title": "项目启动，而非2026年从零发生",
+          "text": "客户案例回溯项目起于2025年11月；首个Agent约六周后进入数千客户Beta。具体首发日/月未披露，不强行放入1月。",
+          "sources": [
+            "https://claude.com/customers/qonto"
+          ]
+        },
+        {
+          "date": "2026-06 · 连接器上架记录",
+          "title": "出现独立的外部MCP入口",
+          "text": "Claude连接器目录标注Qonto由Qonto制作、2026年6月加入；操作沿用账户权限。它与Qonto App内置Agent是不同入口。",
+          "sources": [
+            "https://claude.com/marketplace/connectors/qonto"
+          ]
+        },
+        {
+          "date": "2026-08-18 · 帮助文档更新",
+          "title": "客户可执行的路径与批准关口",
+          "text": "Qonto帮助页列出Operator/Analyst、网页/移动入口与批量支付、发票等任务，并明确操作前需要用户确认。该日期是文档更新，不是首发。",
+          "sources": [
+            "https://support-fr.qonto.com/hc/fr/articles/45994623540113-Comment-utiliser-les-agents-IA-de-Qonto"
+          ]
+        },
+        {
+          "date": "2026-09 · 案例披露记录",
+          "title": "公开实际模型和控制层",
+          "text": "案例正文确认经Amazon Bedrock使用Claude并按复杂度路由；敏感场景另设确定性校验。9月为先前可读官方目录的披露记录，正文自身不显示首发日期。",
+          "sources": [
+            "https://claude.com/customers/qonto"
+          ]
+        }
+      ],
+      "columns": [
+        "层次",
+        "已确认",
+        "仍须核查"
+      ],
+      "rows": [
+        [
+          "模型入口",
+          "Claude经Amazon Bedrock；按任务复杂度路由",
+          "具体时点每个模型版本、流量份额与回退策略未公开"
+        ],
+        [
+          "内置Operator/Analyst",
+          "执行准备与分析分工；操作前用户确认",
+          "每类操作的批准方式、错误率与样本基线"
+        ],
+        [
+          "外部MCP入口",
+          "账户角色跟随；连接器提供明确工具清单",
+          "不能由工具名称推断外部Agent可独立完成资金划转"
+        ],
+        [
+          "首Agent发布周期",
+          "项目启动后约六周的公司回溯",
+          "具体上线日/月、首次GA及国家批次不详"
+        ]
+      ],
+      "paragraphs": [
+        "技术转化解读：自然语言请求要转换为业务系统接受的结构化操作，模型负责理解和准备，确定性检查负责校验关键约束，用户承担最终批准。对技术团队，真正需要验证的是字段映射、重复执行、幂等性、权限继承和批准后的状态反馈；并不是模型能否在聊天中写出正确答案。",
+        "商业解读：Qonto将财务管理从逐页寻找功能，改成提交一批资料并确认一批准备结果。这可能降低操作摩擦，但本研究没有独立重跑客户任务，不将公司的速度自报等同于收入增长或人员节省。数据经外部MCP进入AI助手后，还需按AI提供方条款评估保留与使用规则。"
+      ],
+      "bullets": [
+        "同公司内部使用Cowork，不证明客户Agent是以Cowork为底座。",
+        "客户案例月份是披露，不代表部署；不计算从Claude发布到Qonto上线的天数。",
+        "评测须分别检查生成准确率、执行成功率、确认完成率和错误资金操作风险。"
+      ],
+      "conclusion": "这条链最有价值的证据是控制层与业务接口，而非一项模型排行榜分数。内置Agent和外部连接器必须分别做权限与数据尽调。",
+      "sources": [
+        "https://claude.com/customers/qonto",
+        "https://support-fr.qonto.com/hc/fr/articles/45994623540113-Comment-utiliser-les-agents-IA-de-Qonto",
+        "https://claude.com/marketplace/connectors/qonto",
+        "https://qonto.com/en/ai"
+      ]
+    },
+    {
+      "title": "路径三｜飞书aily → 巡检工单：从识别异常到责任人处置",
+      "label": "平台关联已连接 / 版本与部署时间未连接",
+      "text": "产品日志说明aily在2026年增加什么，飞鹤案例说明某个客户怎样使用aily。将二者并排，能够展示可部署机制及证据缺口；不能据此宣称新日志功能造成客户的既有收益。",
+      "steps": [
+        {
+          "date": "2026-01-28 · 灰度",
+          "title": "生成与产物开始进入工作入口",
+          "text": "工作助手的文档模板、Seedream4.5图片与产物库进入灰度，说明产品同时服务内容生成与工作流。",
+          "sources": [
+            "https://aily.feishu.cn/hc/8dlnbe0s_c25x5u12"
+          ]
+        },
+        {
+          "date": "2026-04 · 新版上线",
+          "title": "自定义智能体扩展渠道与治理",
+          "text": "官方迁移通知回溯新版4月上线；8月31日是旧版迁移期限。企业必须把版本切换与重新发布作为实际运维事项。",
+          "sources": [
+            "https://aily.feishu.cn/hc/8dlnbe0s_p7gmsbvn"
+          ]
+        },
+        {
+          "date": "2026-05-15 · 功能更新",
+          "title": "接业务系统前，先解决身份与日志",
+          "text": "工作身份托管业务凭证、对话日志记录工具调用，多知识空间可按意图路由。这些能力使执行和诊断更具体。",
+          "sources": [
+            "https://aily.feishu.cn/hc/8dlnbe0s_i33foeas"
+          ]
+        },
+        {
+          "date": "2026-06-30 · 部分灰度",
+          "title": "授权不足后可续跑，服务台与API扩展",
+          "text": "文档明确服务台、身份管理和多轮OpenAPI部分为灰度；授权不足不再阻断后续会话，补授权后继续执行。",
+          "sources": [
+            "https://aily.feishu.cn/hc/8dlnbe0s_zhh3h5of"
+          ]
+        },
+        {
+          "date": "2026-08-04 · 功能更新",
+          "title": "业务参数与成本归属",
+          "text": "Web SDK可注入业务参数并选择JWT验签；成员额度统计有旧版与匿名任务覆盖边界。",
+          "sources": [
+            "https://aily.feishu.cn/hc/8dlnbe0s_fz6fugdh"
+          ]
+        },
+        {
+          "date": "部署月未公开 · 客户案例",
+          "title": "飞鹤把异常连接到工单和人工复核",
+          "text": "客户材料明确“aily＋多维表格工作流＋无人机”；异常后派工，人工二次校验。只能证明平台与流程关联，不能证明使用了上述新版本。",
+          "sources": [
+            "https://www.feishu.cn/customers/feihe"
+          ]
+        }
+      ],
+      "columns": [
+        "连接",
+        "证据状态",
+        "读者可采用的判断"
+      ],
+      "rows": [
+        [
+          "aily → 飞鹤巡检",
+          "已连接：客户材料明示平台",
+          "可研究识别、派单、复核与留痕的完整流程"
+        ],
+        [
+          "2026新版身份/SDK → 飞鹤",
+          "未连接：客户未披露版本",
+          "不能把新版功能写成该客户已部署配置"
+        ],
+        [
+          "模型 → 视觉识别准确率",
+          "底层识别模型/测试口径未明",
+          "不可把结果单独归因于LLM或Agent"
+        ],
+        [
+          "巡检系统 → 财务ROI",
+          "非独立自报；口径未统一",
+          "工时、软件费与采购避免成本分别核算"
+        ]
+      ],
+      "paragraphs": [
+        "技术转化解读：识别系统输出“异常”之后，还要有规则决定工单类型、地点、责任人、升级期限和复核人，并将处理结果回写。飞鹤案例有这段业务闭环；这比笼统地说“AI替代巡检”更能指导复制。",
+        "商业解读：工业场景往往同时包含摄像头、无人机、视觉识别、LLM、表格数据库和流程自动化。应用采购应按现场覆盖、误报漏报、闭环时效和记录完整性分层验收。平台功能可用只解决供给条件，现场流程与系统集成仍决定是否产生收益。"
+      ],
+      "bullets": [
+        "产品发布日期不是客户部署日期，无法从这条链计算落地时差。",
+        "灰度意味着范围限制，签约前须核当前租户权限、渠道和版本。",
+        "客户未公开的模型型号、采购合同与人工节约算法保持未知。"
+      ],
+      "conclusion": "这一链条证明了Agent要接进业务责任链；公开资料尚不能把客户收益归因于2026年某次产品升级。",
+      "sources": [
+        "https://aily.feishu.cn/hc/8dlnbe0s_c25x5u12",
+        "https://aily.feishu.cn/hc/8dlnbe0s_p7gmsbvn",
+        "https://aily.feishu.cn/hc/8dlnbe0s_i33foeas",
+        "https://aily.feishu.cn/hc/8dlnbe0s_zhh3h5of",
+        "https://aily.feishu.cn/hc/8dlnbe0s_fz6fugdh",
+        "https://www.feishu.cn/customers/feihe"
+      ]
+    }
+  ],
+  "unverified": [
+    {
+      "name": "Kimi权重开放到Cognition实际训练的周期",
+      "reason": "两项公开日期不能提供训练启动时间、数据准备和工程周期；不计算研发时差。",
+      "source": "https://cognition.com/blog/swe-2"
+    },
+    {
+      "name": "Qonto首Agent具体上线月",
+      "reason": "正文只给2025年11月立项及约六周后Beta；披露月不替代部署月。",
+      "source": "https://claude.com/customers/qonto"
+    },
+    {
+      "name": "飞鹤是否使用2026新版aily",
+      "reason": "客户材料未给版本或部署时间；只确认平台关联。",
+      "source": "https://www.feishu.cn/customers/feihe"
+    },
+    {
+      "name": "悟空邀测到具体客户量产",
+      "reason": "3月公告可确认邀约Beta及架构方向，缺少本轮可核准的有日期客户上线记录，不硬接为已部署链。",
+      "source": "https://www.alibabagroup.com/zh-HK/document-1971078136456019968"
+    }
+  ],
+  "methodNote": "本章重新采用事件链而非抽象“能力传导”叙述：只在原始材料明示基座、产品渠道或客户平台时连接箭头。每条链分开事实节点、研究解释与断点；产品供给、客户采用和效果不是同一证据。对原网页会后更新的内容保留版本差异，不计算缺少起点/终点的落地速度。为避免重复长摘要，详细客户指标在行业案例章呈现；这里仅提最小连接事实。"
+}
